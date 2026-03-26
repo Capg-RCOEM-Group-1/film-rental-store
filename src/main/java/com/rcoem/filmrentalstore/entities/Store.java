@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Getter
@@ -13,7 +14,6 @@ public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long storeId;
-    private String storeName;
 
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
@@ -23,13 +23,17 @@ public class Store {
     public Store() {
     }
 
-    public Store(Long storeId, String store_name) {
+    public Store(Long storeId) {
         this.storeId = storeId;
-        this.storeName = store_name;
     }
 
-    public Store(String store_name) {
-        this.storeName = store_name;
-    }
+    @OneToMany
+    private List<Staff> staffs;
 
+    @OneToMany
+    private List<Inventory> inventories;
+
+    @OneToOne
+    @JoinColumn(name = "manager_staff_id")
+    private Staff manager;
 }
