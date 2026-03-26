@@ -17,7 +17,7 @@ public class Language {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "language_id")
     private Long id;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String name;
     @Column(name = "last_update", columnDefinition = "TIMESTAMP")
     @UpdateTimestamp

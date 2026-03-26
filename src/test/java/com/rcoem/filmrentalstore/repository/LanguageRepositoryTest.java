@@ -51,4 +51,12 @@ public class LanguageRepositoryTest {
         }).isInstanceOf(Exception.class);
     }
 
+    @Test
+    void shouldThrowException_whenLanguageIsIncomplete() {
+        Language language = new Language();
+        assertThatThrownBy(() -> {
+            languageRepo.saveAndFlush(language);
+        }).isInstanceOf(Exception.class);
+    }
+
 }
