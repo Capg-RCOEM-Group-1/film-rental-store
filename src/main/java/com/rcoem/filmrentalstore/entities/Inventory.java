@@ -20,5 +20,5 @@ public class Inventory {
 
     @ManyToOne
     @JoinColumn(name = "film_id")
-    //private Film film ;
+    private Film film ;
 }
