@@ -12,6 +12,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,16 +26,14 @@ public class CustomerRepositoryTest {
     @Autowired
     private CustomerRepository customerRepository;
 
-    private Date testDate;
     private Timestamp testTimestamp;
     private Customer testCustomer;
 
     @BeforeEach
     public void setup() {
         customerRepository.deleteAll();
-        testDate = Date.valueOf(LocalDate.now());
         testTimestamp = Timestamp.from(Instant.now());
-        Customer customer = new Customer("Tom", "Hanks", "tom@email.com", 'Y', testDate, testTimestamp);
+        Customer customer = new Customer("Tom", "Hanks", "tom@email.com", 'Y', testTimestamp);
         testCustomer = customerRepository.save(customer);
     }
 
@@ -94,7 +93,10 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testFindByCreateDate_Valid() {
-        List<Customer> foundList = customerRepository.findByCreateDate(testDate).orElse(null);
+        Customer dbCustomer = customerRepository.findById(testCustomer.getCustomerId()).orElseThrow();
+        Date exactDbDate = dbCustomer.getCreateDate();
+
+        List<Customer> foundList = customerRepository.findByCreateDate(exactDbDate).orElse(null);
 
         assertThat(foundList).isNotEmpty();
         assertThat(foundList.get(0).getFirstName()).isEqualTo(testCustomer.getFirstName());
@@ -116,7 +118,7 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testSaveCustomer_MissingFirstName_ThrowsConstraintViolation() {
-        Customer customer = new Customer(null, "Hanks", "tom@email.com", 'Y', testDate, testTimestamp);
+        Customer customer = new Customer(null, "Hanks", "tom@email.com", 'Y', testTimestamp);
 
         assertThatThrownBy(() -> {
             customerRepository.save(customer);
@@ -126,7 +128,7 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testSaveCustomer_InvalidEmailFormat_ThrowsConstraintViolation() {
-        Customer customer = new Customer("Tom", "Hanks", "not-an-email", 'Y', testDate, testTimestamp);
+        Customer customer = new Customer("Tom", "Hanks", "not-an-email", 'Y', testTimestamp);
 
         assertThatThrownBy(() -> {
             customerRepository.save(customer);
