@@ -4,7 +4,8 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Film {
