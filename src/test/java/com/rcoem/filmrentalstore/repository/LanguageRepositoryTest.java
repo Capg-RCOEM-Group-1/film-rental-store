@@ -10,6 +10,7 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -21,7 +22,7 @@ public class LanguageRepositoryTest {
         languageRepo.deleteAll();
     }
     @Test
-    public void testLanguageRepository(){
+    public void testAddLanguageRepository(){
         Language language = new Language();
         language.setName("Hindi");
         languageRepo.save(language);
@@ -29,4 +30,24 @@ public class LanguageRepositoryTest {
         assertThat(lang).isPresent();
         assertThat(lang.get().getName()).isEqualTo("Hindi");
     }
+
+    @Test
+    public void testNullAddLanguageRepository(){
+        assertThatThrownBy(()->{
+            languageRepo.save(null);
+        }).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testDuplicateAddLanguage(){
+        Language lang1 = new Language();
+        lang1.setName("Hindi");
+        Language lang2 = new Language();
+        lang2.setName("Hindi");
+        languageRepo.save(lang1);
+        assertThatThrownBy(()->{
+            languageRepo.save(lang2);
+        }).isInstanceOf(Exception.class);
+    }
+
 }
