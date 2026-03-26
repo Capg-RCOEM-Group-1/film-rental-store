@@ -1,8 +1,6 @@
 package com.rcoem.filmrentalstore.entities;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.*;
 
 @Entity
@@ -15,5 +13,6 @@ public class Film {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long filmId;
     private String title;
-   
+
+
 }
