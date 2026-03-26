@@ -14,6 +14,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<List<Customer>> findByLastName(String lastName);
     Optional<Customer> findByEmail(String email);
     Optional<List<Customer>> findByActive(Character status);
-    Optional<List<Customer>> findByCreateDate(LocalDateTime date);
+    Optional<List<Customer>> findByCreateDate(Date date);
 
 }
