@@ -40,7 +40,7 @@ public class Film {
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp timestamp;
 
-    @OneToMany(mappedBy = "inventory")
+    @OneToMany(mappedBy = "inventory_id")
     private List<Inventory>inventories;
 
     public Film() {}

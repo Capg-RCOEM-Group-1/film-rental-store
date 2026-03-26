@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,4 +26,14 @@ public class Store {
     public Store(Long storeId) {
         this.storeId = storeId;
     }
+
+    @OneToMany
+    private List<Staff> staffs;
+
+    @OneToMany
+    private List<Inventory> inventories;
+
+    @OneToOne
+    @JoinColumn(name = "manager_staff_id")
+    private Staff manager;
 }
