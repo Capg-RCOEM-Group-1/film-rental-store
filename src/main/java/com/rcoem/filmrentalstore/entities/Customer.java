@@ -7,9 +7,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.cglib.core.Local;
 
 import java.sql.Date;
+import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -31,25 +34,22 @@ public class Customer {
     @NotNull
     private Character active;
 
-    @NotNull
     @CreationTimestamp
-    @Column(updatable = false)
+    @Column(updatable = false, nullable = false)
     private Date createDate;
 
-    @NotNull
     @UpdateTimestamp
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp timestamp;
 
     public Customer() {
     }
 
-    public Customer(String firstName, String lastName, String email, Character active, Date createDate, Timestamp timestamp) {
+    public Customer(String firstName, String lastName, String email, Character active, Timestamp timestamp) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.active = active;
-        this.createDate = createDate;
         this.timestamp = timestamp;
     }
 

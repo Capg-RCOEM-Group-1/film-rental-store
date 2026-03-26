@@ -37,15 +37,13 @@ public class CustomerApiTest {
     private CustomerRepository customerRepository;
 
     private Customer testCustomer;
-    private Date testDate;
     private Timestamp testTimestamp;
 
     @BeforeEach
     public void setup() {
         customerRepository.deleteAll();
-        testDate = Date.valueOf(LocalDate.now());
         testTimestamp = Timestamp.from(Instant.now());
-        Customer customer = new Customer("Tom", "Hanks", "tom@email.com", 'Y', testDate, testTimestamp);
+        Customer customer = new Customer("Tom", "Hanks", "tom@email.com", 'Y', testTimestamp);
         testCustomer = customerRepository.save(customer);
     }
 
@@ -110,16 +108,15 @@ public class CustomerApiTest {
 
     @Test
     public void testCreateCustomer_Valid() throws Exception {
+        // Removed createDate and timestamp. Let the database generate them!
         String newCustomerJson = """
             {
                 "firstName": "Jerry",
                 "lastName": "Seinfeld",
                 "email": "jerry@email.com",
-                "active": "Y",
-                "createDate": "%s",
-                "timestamp": "%s"
+                "active": "Y"
             }
-            """.formatted(testDate.toString(), testTimestamp.toString().replace(" ", "T"));
+            """;
 
         mockMvc.perform(post("/customers")
                         .contentType(MediaType.APPLICATION_JSON)

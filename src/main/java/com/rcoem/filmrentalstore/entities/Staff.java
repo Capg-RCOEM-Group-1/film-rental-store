@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
@@ -29,9 +30,9 @@ public class Staff {
     // Represent Status of Staff (Soft delete), Default True
     private Boolean active = true;
 
-    @LastModifiedDate
-    @Column(name = "last_update")
-    private LocalDateTime last_update;
+    @Column(name = "last_update", columnDefinition = "TIMESTAMP")
+    @UpdateTimestamp
+    private LocalDateTime lastUpdate;
 
     // To add BLOB Object picture
 }
