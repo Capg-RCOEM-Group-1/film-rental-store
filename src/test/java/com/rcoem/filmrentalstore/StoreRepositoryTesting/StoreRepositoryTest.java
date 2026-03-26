@@ -1,4 +1,5 @@
-package com.rcoem.filmrentalstore.repository;
+
+package com.rcoem.filmrentalstore.StoreRepositoryTesting;
 
 import com.rcoem.filmrentalstore.entities.Store;
 import com.rcoem.filmrentalstore.repository.StoreRepository;

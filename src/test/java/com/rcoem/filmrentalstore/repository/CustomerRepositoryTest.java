@@ -94,7 +94,7 @@ public class CustomerRepositoryTest {
     @Test
     public void testFindByCreateDate_Valid() {
         Customer dbCustomer = customerRepository.findById(testCustomer.getCustomerId()).orElseThrow();
-        LocalDateTime exactDbDate = dbCustomer.getCreateDate();
+        Date exactDbDate = dbCustomer.getCreateDate();
 
         List<Customer> foundList = customerRepository.findByCreateDate(exactDbDate).orElse(null);
 

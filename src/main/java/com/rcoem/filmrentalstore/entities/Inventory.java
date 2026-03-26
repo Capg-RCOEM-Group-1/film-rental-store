@@ -1,28 +1,24 @@
 package com.rcoem.filmrentalstore.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.sql.Timestamp;
 
 @Entity
-@Getter
 @Setter
-public class Store {
+@Getter
+public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long storeId;
+    private Long inventoryId;
 
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
-    private Timestamp lastUpdate;
+    private Timestamp timestamp;
 
-
-    public Store() {
-    }
-
-    public Store(Long storeId) {
-        this.storeId = storeId;
-    }
+    @ManyToOne
+    @JoinColumn(name = "film_id")
+    private Film film ;
 }
