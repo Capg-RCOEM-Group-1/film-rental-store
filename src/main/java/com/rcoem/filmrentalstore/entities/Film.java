@@ -3,6 +3,8 @@ import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
