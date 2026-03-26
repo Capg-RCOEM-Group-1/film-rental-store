@@ -1,38 +1,39 @@
 package com.rcoem.filmrentalstore.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 
+
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.UpdateTimestamp;
+import java.sql.Timestamp;
+
+// import jakarta.persistence.GenerationType;
+// import jakarta.persistence.Id;
+@Data
 @Entity
+@Getter
+@Setter
 public class Store {
-@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-private String store_name;
+    private String storeName;
 
-    public Long getId() {
-        return id;
+    @UpdateTimestamp
+    @Column(columnDefinition = "TIMESTAMP", nullable = false)
+    private Timestamp lastUpdate;
+
+
+    public Store() {
     }
 
-    public void setId(Long id) {
+    public Store(Long id, String store_name) {
         this.id = id;
+        this.storeName = store_name;
     }
 
-    public String getStore_name() {
-        return store_name;
+    public Store(String store_name) {
+        this.storeName = store_name;
     }
 
-    public void setStore_name(String store_name) {
-        this.store_name = store_name;
-    }
-    Store(){}
-    Store(Long id, String store_name){
-        this.id = id;
-        this.store_name = store_name;
-    }
-    public Store(String store_name){
-        this.store_name = store_name;
-    }
 }

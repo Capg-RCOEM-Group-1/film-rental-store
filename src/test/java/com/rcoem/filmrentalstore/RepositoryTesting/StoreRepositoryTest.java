@@ -5,8 +5,9 @@ import com.rcoem.filmrentalstore.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+// import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+
 
 import java.util.Optional;
 
@@ -32,6 +33,6 @@ public class StoreRepositoryTest {
         Optional<Store> store1 = storeRepository.findById(saved.getId());
 
         assertThat(store1).isPresent();
-        assertThat(store1.get().getStore_name()).isEqualTo("AK Films");
+        assertThat(store1.get().getStoreName()).isEqualTo("AK Films");
     }
 }
