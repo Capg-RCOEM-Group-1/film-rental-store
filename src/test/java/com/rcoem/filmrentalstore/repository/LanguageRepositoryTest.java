@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ public class LanguageRepositoryTest {
     public void testNullAddLanguageRepository(){
         assertThatThrownBy(()->{
             languageRepo.save(null);
-        }).isInstanceOf(IllegalArgumentException.class);
+        }).isInstanceOf(InvalidDataAccessApiUsageException.class);
     }
 
     @Test
@@ -46,7 +47,7 @@ public class LanguageRepositoryTest {
         lang2.setName("Hindi");
         languageRepo.save(lang1);
         assertThatThrownBy(()->{
-            languageRepo.save(lang2);
+            languageRepo.saveAndFlush(lang2);
         }).isInstanceOf(Exception.class);
     }
 

@@ -1,5 +1,7 @@
 package com.rcoem.filmrentalstore.api;
 
+import com.rcoem.filmrentalstore.repository.LanguageRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +19,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class LanguageApiTest {
     @Autowired
     MockMvc mockMvc;
+    @Autowired
+    LanguageRepository languageRepo;
+    @BeforeEach
+    public void clean(){
+        languageRepo.deleteAll();
+    }
 
     @Test
     void testGetAllLanguages() throws Exception {
