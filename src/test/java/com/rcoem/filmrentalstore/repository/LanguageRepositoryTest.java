@@ -1,4 +1,4 @@
-package com.rcoem.filmrentalstore;
+package com.rcoem.filmrentalstore.repository;
 
 import com.rcoem.filmrentalstore.entities.Language;
 import com.rcoem.filmrentalstore.repository.LanguageRepository;
