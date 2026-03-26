@@ -39,9 +39,9 @@ public class Film {
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp timestamp;
-//
-//    @OneToMany(mappedBy = "inventory")
-//    private List<Inventory>inventories;
+
+    @OneToMany(mappedBy = "inventory_id")
+    private List<Inventory>inventories;
 
     public Film() {}
     
