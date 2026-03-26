@@ -1,6 +1,7 @@
 package com.rcoem.filmrentalstore.entities;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -9,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -35,6 +37,9 @@ public class Film {
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp timestamp;
+
+    @OneToMany(mappedBy = "inventory")
+    private List<Inventory>inventories;
 
     public Film() {}
     
