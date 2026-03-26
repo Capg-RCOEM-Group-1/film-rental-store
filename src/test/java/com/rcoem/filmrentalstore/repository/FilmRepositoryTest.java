@@ -1,9 +1,9 @@
 package com.rcoem.filmrentalstore.repository;
 
 import com.rcoem.filmrentalstore.entities.Film;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
@@ -20,16 +20,15 @@ class FilmRepositoryTest {
 
     @Test
     void testGetAllFilms() {
-
+     
         Film film = new Film();
         film.setTitle("Inception");
-        filmRepository.save(film);
+        Film savedFilm = filmRepository.save(film);
 
        
-        Optional<Film> fm = filmRepository.findById(film.getFilmId());
+        Optional<Film> fm = filmRepository.findById(savedFilm.getFilmId());
 
-       
-        assertTrue(fm.isPresent());
-        assertEquals("Inception", fm.get().getTitle());
+        assertTrue(fm.isPresent(), "Film should be present in the repository");
+        assertEquals("Inception", fm.get().getTitle(), "Film title should match");
     }
 }
