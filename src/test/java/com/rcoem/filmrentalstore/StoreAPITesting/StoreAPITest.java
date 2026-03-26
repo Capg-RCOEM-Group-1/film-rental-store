@@ -1,4 +1,4 @@
-package com.rcoem.filmrentalstore.RepositoryTesting;
+package com.rcoem.filmrentalstore.StoreAPITesting;
 
 
 import org.junit.jupiter.api.Test;

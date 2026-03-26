@@ -1,4 +1,4 @@
-package com.rcoem.filmrentalstore.RepositoryTesting;
+package com.rcoem.filmrentalstore.StoreRepositoryTesting;
 
 import com.rcoem.filmrentalstore.entities.Store;
 import com.rcoem.filmrentalstore.repository.StoreRepository;
@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
+import java.security.PublicKey;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -24,7 +25,7 @@ public class StoreRepositoryTest {
     }
 
     @Test
-    public void test(){
+    public void testStoreId(){
         Store store = new Store(null , "AK Films");
         storeRepository.save(store);
         Optional<Store> store1 = storeRepository.findById(store.getId());
