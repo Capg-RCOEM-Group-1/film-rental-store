@@ -1,7 +1,6 @@
-package com.rcoem.filmrentalstore;
+package com.rcoem.filmrentalstore.repository;
 
 import com.rcoem.filmrentalstore.entities.Customer;
-import com.rcoem.filmrentalstore.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

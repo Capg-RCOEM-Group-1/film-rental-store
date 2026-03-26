@@ -1,4 +1,4 @@
-package com.rcoem.filmrentalstore;
+package com.rcoem.filmrentalstore.api;
 
 
 import com.rcoem.filmrentalstore.entities.Customer;

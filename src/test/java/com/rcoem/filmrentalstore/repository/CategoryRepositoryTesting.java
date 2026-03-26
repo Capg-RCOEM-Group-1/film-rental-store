@@ -1,11 +1,9 @@
-package com.rcoem.filmrentalstore;
+package com.rcoem.filmrentalstore.repository;
 
 import com.rcoem.filmrentalstore.entities.Category;
-import com.rcoem.filmrentalstore.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.AutoConfigureDataJpa;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
