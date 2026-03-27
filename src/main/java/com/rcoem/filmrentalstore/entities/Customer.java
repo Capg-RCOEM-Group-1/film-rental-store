@@ -39,6 +39,10 @@ public class Customer {
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
+
     public Customer() {
     }
 

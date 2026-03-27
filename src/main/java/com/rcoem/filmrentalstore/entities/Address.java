@@ -17,8 +17,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "address")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
+
 public class Address {
 
     @Id
@@ -44,4 +43,9 @@ public class Address {
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
+
+    @ManyToOne
+    @JoinColumn(name = "city_id")
+    private City city;
+
 }

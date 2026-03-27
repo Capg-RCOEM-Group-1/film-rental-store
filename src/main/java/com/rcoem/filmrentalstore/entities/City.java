@@ -1,33 +1,39 @@
 package com.rcoem.filmrentalstore.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.NoArgsConstructor;
-import java.sql.Timestamp;
-
+import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.sql.Timestamp;
+import java.util.List;
+
 @Entity
-@Table(name = "city")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class City {
-
+public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "city_id")
-    private Long cityId;
-
-    @Column(name = "city")
-    private String city;
+    private Long storeId;
 
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
-    
+
+    public Store() {
+    }
+
+    public Store(Long storeId) {
+        this.storeId = storeId;
+    }
+
+    @OneToMany(mappedBy = "store")
+    private List<Staff> staffs;
+
+    @OneToMany(mappedBy = "store")
+    private List<Inventory> inventories;
+
+    @OneToOne
+    @JoinColumn(name = "manager_staff_id")
+    private Staff manager;
 }
