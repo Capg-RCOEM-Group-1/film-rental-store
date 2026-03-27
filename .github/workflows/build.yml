@@ -47,15 +47,12 @@ jobs:
             sleep 5
           done
 
-      # 2. Run Tests with the 'test' profile active
-      - name: Run Tests
+      # 2 & 3. Run Tests and Build JAR in one go
+      # This ensures the target folder contains both the reports and the JAR at the same time
+      - name: Build and Test
         env:
           SPRING_PROFILES_ACTIVE: test
-        run: mvn clean test
-
-      # 3. Build the JAR file (skipping tests since we just ran them)
-      - name: Build Executable JAR
-        run: mvn clean package -DskipTests
+        run: mvn clean package
 
       - name: Rename JAR with Timestamp
         id: timestamp
