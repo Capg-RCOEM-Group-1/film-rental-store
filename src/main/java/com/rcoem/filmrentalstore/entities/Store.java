@@ -1,6 +1,7 @@
 package com.rcoem.filmrentalstore.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -20,10 +21,12 @@ public class Store {
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
+    @NotNull(message = "Manager is required")
     @OneToOne
     @JoinColumn(name = "manager_staff_id",nullable = false)
     private Staff manager;
 
+    @NotNull(message = "Address is required")
     @OneToOne(optional = false)
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;
