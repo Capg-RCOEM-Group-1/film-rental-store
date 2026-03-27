@@ -17,8 +17,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "address")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Address {
 
     @Id
