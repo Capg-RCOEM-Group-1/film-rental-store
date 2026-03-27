@@ -19,7 +19,7 @@ public class Category {
     private Long categoryId;
 
     @NotBlank(message = "Category name cannot be blank")
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String name;
 
     public Long getCategoryId() {
