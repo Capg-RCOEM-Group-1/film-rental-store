@@ -7,12 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.cglib.core.Local;
 
 import java.sql.Date;
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -40,17 +37,21 @@ public class Customer {
 
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
-    private Timestamp timestamp;
+    private Timestamp lastUpdate;
+
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
 
     public Customer() {
     }
 
-    public Customer(String firstName, String lastName, String email, Character active, Timestamp timestamp) {
+    public Customer(String firstName, String lastName, String email, Character active, Timestamp lastUpdate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.active = active;
-        this.timestamp = timestamp;
+        this.lastUpdate = lastUpdate;
     }
 
 
