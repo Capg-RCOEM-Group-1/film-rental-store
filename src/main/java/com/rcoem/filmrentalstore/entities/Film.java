@@ -14,6 +14,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -37,9 +39,9 @@ public class Film {
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp timestamp;
-//
-//    @OneToMany(mappedBy = "inventory")
-//    private List<Inventory>inventories;
+
+    @OneToMany(mappedBy = "inventory_id")
+    private List<Inventory>inventories;
 
     public Film() {}
     
