@@ -2,6 +2,7 @@ package com.rcoem.filmrentalstore.api;
 
 import com.rcoem.filmrentalstore.entities.Category;
 import com.rcoem.filmrentalstore.entities.Film;
+import com.rcoem.filmrentalstore.entities.Language;
 import com.rcoem.filmrentalstore.repository.CategoryRepository;
 import com.rcoem.filmrentalstore.repository.FilmCategoryRepository;
 import com.rcoem.filmrentalstore.repository.FilmRepository;
@@ -43,10 +44,11 @@ public class FilmCategoryApiTest {
         filmCategoryRepository.deleteAll();   // ✅ FIRST (child table)
         filmRepository.deleteAll();
         categoryRepository.deleteAll();
-
+        Language language = new Language();
         film = new Film();
         film.setTitle("Test Film");
         film.setTimestamp(Timestamp.from(Instant.now()));
+        film.setLanguage(language);
         film = filmRepository.save(film);
 
         category = new Category();

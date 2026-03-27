@@ -2,6 +2,9 @@ package com.rcoem.filmrentalstore.repository;
 
 import com.rcoem.filmrentalstore.entities.Film;
 
+import com.rcoem.filmrentalstore.entities.Language;
+import com.rcoem.filmrentalstore.enums.Rating;
+import com.rcoem.filmrentalstore.enums.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,19 +31,19 @@ class FilmRepositoryTest {
     @BeforeEach
     void setUp() {
          testTimestamp = Timestamp.from(Instant.now());
-      
+        Language language = new Language();
         film = new Film();
         film.setTitle("Inception");
         film.setDescription("A mind-bending thriller");
-        film.setReleaseYear("2010");
+        film.setReleaseYear(2010);
         film.setRentalDuration(7L);
-        film.setRentalRate(150L);
+        film.setRentalRate(150.0);
         film.setLength(148L);
-        film.setReplacementCost(500L);
-        film.setRating("PG-13");
-        film.setSpecialFeatures("Trailers,Behind the Scenes");
+        film.setReplacementCost(500.0);
+        film.setRating(Rating.PG_13);
+        film.setSpecialFeatures(Set.BEHIND_THE_SCENES);
         film.setTimestamp(testTimestamp);
-        
+        film.setLanguage(language);
     }
 
     @Test
@@ -55,13 +58,13 @@ class FilmRepositoryTest {
         assertTrue(retrieved.isPresent(), "Film should be present in the repository");
         assertEquals("Inception", retrieved.get().getTitle(), "Title should match");
         assertEquals("A mind-bending thriller", retrieved.get().getDescription(), "Description should match");
-        assertEquals("2010", retrieved.get().getReleaseYear(), "Release year should match");
+        assertEquals(2010, retrieved.get().getReleaseYear(), "Release year should match");
         assertEquals(7L, retrieved.get().getRentalDuration(), "Rental duration should match");
-        assertEquals(150L, retrieved.get().getRentalRate(), "Rental rate should match");
+        assertEquals(150.0, retrieved.get().getRentalRate(), "Rental rate should match");
         assertEquals(148L, retrieved.get().getLength(), "Length should match");
-        assertEquals(500L, retrieved.get().getReplacementCost(), "Replacement cost should match");
-        assertEquals("PG-13", retrieved.get().getRating(), "Rating should match");
-        assertEquals("Trailers,Behind the Scenes", retrieved.get().getSpecialFeatures(), "Special features should match");
+        assertEquals(500.0, retrieved.get().getReplacementCost(), "Replacement cost should match");
+        assertEquals(Rating.PG_13, retrieved.get().getRating(), "Rating should match");
+        assertEquals(Set.BEHIND_THE_SCENES, retrieved.get().getSpecialFeatures(), "Special features should match");
         assertNotNull(retrieved.get().getTimestamp(), "Timestamp should be automatically generated");
     }
 }

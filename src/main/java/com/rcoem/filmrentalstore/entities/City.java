@@ -34,7 +34,7 @@ public class City {
     @JoinColumn(name = "country_id")
     private Country country;
 
-    @OneToMany(mappedBy = "City")
+    @OneToMany(mappedBy = "city")
     private List<Address> addresses;
 
 }

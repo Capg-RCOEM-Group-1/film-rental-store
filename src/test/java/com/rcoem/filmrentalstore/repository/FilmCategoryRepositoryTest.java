@@ -34,10 +34,11 @@ public class FilmCategoryRepositoryTest {
 
     @Test
     void testCreateFilmCategory() {
-
+        Language language = new Language();
         Film film = new Film();
         film.setTitle("Test Film");
         film.setTimestamp(Timestamp.from(Instant.now()));
+        film.setLanguage(language);
         film = filmRepository.save(film);
 
         Category category = new Category();
