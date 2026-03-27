@@ -27,10 +27,10 @@ public class Store {
         this.storeId = storeId;
     }
 
-    @OneToMany
+    @OneToMany(mappedBy = "store")
     private List<Staff> staffs;
 
-    @OneToMany
+    @OneToMany(mappedBy = "store")
     private List<Inventory> inventories;
 
     @OneToOne
