@@ -8,6 +8,7 @@ public class FilmRentalStoreApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(FilmRentalStoreApplication.class, args);
+        System.out.println("HEloooo");
     }
 
 }
