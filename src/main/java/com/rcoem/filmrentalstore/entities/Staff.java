@@ -48,10 +48,4 @@ public class Staff {
 
     @OneToMany
     private List<Payment> payments;
-
-    @ManyToOne
-    @JoinColumn(name = "store_id")
-    private Store store;
-
-
 }
