@@ -1,4 +1,5 @@
-package com.rcoem.filmrentalstore.repository;
+
+package com.rcoem.filmrentalstore.StoreRepositoryTesting;
 
 import com.rcoem.filmrentalstore.entities.Store;
 import com.rcoem.filmrentalstore.repository.StoreRepository;
@@ -17,12 +18,20 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class StoreRepositoryTest {
     @Autowired
-    //StoreRepository storeRepository;
+    StoreRepository storeRepository;
 
     @BeforeEach
     public void clean(){
-        //storeRepository.deleteAll();
+        storeRepository.deleteAll();
     }
 
+//    @Test
+//    public void testStoreId(){
+//        Store store = new Store(null , "AK Films");
+//        storeRepository.save(store);
+//        Optional<Store> store1 = storeRepository.findById(store.getId());
+//        assertThat(store1).isPresent();
+//        assertThat(store1.get().getStore_name()).isEqualTo("AK Films");
+//    }
 
 }
