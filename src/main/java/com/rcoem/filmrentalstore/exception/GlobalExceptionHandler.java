@@ -11,7 +11,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    //for @NotNull, @Email, etc, from the database layer
+    //for @NotNull, @Email, etc., from the database layer
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<String> handleConstraintViolation(ConstraintViolationException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
@@ -21,5 +21,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({IllegalArgumentException.class, TypeMismatchException.class, MethodArgumentTypeMismatchException.class})
     public ResponseEntity<String> handleDataRestTypeMismatch(Exception ex) {
         return new ResponseEntity<>("Invalid parameter type provided", HttpStatus.BAD_REQUEST);
+    }
+
+    // handles the unique constraint violation for the film-category relationship
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDuplicateEntry(Exception ex) {
+        return new ResponseEntity<>("Duplicate film-category entry not allowed", HttpStatus.CONFLICT);
     }
 }

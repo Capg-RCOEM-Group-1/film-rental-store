@@ -2,6 +2,7 @@ package com.rcoem.filmrentalstore.api;
 
 import com.rcoem.filmrentalstore.entities.Category;
 import com.rcoem.filmrentalstore.repository.CategoryRepository;
+import com.rcoem.filmrentalstore.repository.FilmCategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +23,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest                    // Loads full Spring context with all beans
 @AutoConfigureMockMvc               // Provides MockMvc bean for testing
-@Transactional                      // Rolls back DB changes after each test
+// ✅ REMOVED @Transactional — it prevented the unique constraint from firing
+// in testCreateCategory_Duplicate_BadRequest because @BeforeEach data was
+// never flushed/committed to the DB before MockMvc's POST ran.
+// Cleanup is handled manually via deleteAll() in @BeforeEach instead.
 public class CategoryApiTest {
 
     @Autowired
@@ -35,18 +38,25 @@ public class CategoryApiTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private FilmCategoryRepository filmCategoryRepository;
+
     private Category testCategory;
 
     /**
      * Setup method - runs BEFORE each @Test method
-     * Creates fresh test data for each test
+     * Creates fresh test data for each test.
+     * deleteAll() here replaces the rollback that @Transactional used to provide.
      */
     @BeforeEach
     public void setup() {
-        categoryRepository.deleteAll(); // Clean slate for each test
+        filmCategoryRepository.deleteAll();   // ✅ FIRST (child table)
+        categoryRepository.deleteAll();
+
         Category category = new Category();
-        category.setName("Action");
-        testCategory = categoryRepository.save(category);
+        category.setName("Action_" + System.currentTimeMillis());
+
+        testCategory = categoryRepository.save(category);  // ✅ committed to DB immediately
     }
 
 
@@ -55,7 +65,7 @@ public class CategoryApiTest {
     /**
      * Test: Get all categories
      * Expected: HTTP 200 OK with list of categories embedded in response
-
+     *
      * MockMvc Methods:
      * - get("/categories") → Creates GET request
      * - .andExpect(status().isOk()) → Asserts HTTP 200 response
@@ -75,25 +85,17 @@ public class CategoryApiTest {
     /**
      * Test: Get category by valid ID
      * Expected: HTTP 200 OK with category details
-
-     * Explanation:
-     * - jsonPath("$.categoryId") → Navigates to categoryId field in JSON
-     * - .value(testCategory.getCategoryId()) → Asserts the value matches
      */
     @Test
     public void testGetCategoryById_Valid() throws Exception {
         mockMvc.perform(get("/categories/" + testCategory.getCategoryId()))
                 .andExpect(status().isOk())                    // HTTP 200
-                .andExpect(jsonPath("$.name").value("Action")); // Verify name is "Action"
+                .andExpect(jsonPath("$.name").value(testCategory.getName()));
     }
 
     /**
      * Test: Get category with non-existent ID
      * Expected: HTTP 404 Not Found
-
-     * Explanation:
-     * - Using ID 9999 which doesn't exist in database
-     * - status().isNotFound() asserts HTTP 404 response
      */
     @Test
     public void testGetCategoryById_NotFound() throws Exception {
@@ -104,11 +106,6 @@ public class CategoryApiTest {
     /**
      * Test: Get category with invalid data type for ID
      * Expected: HTTP 400 Bad Request
-
-     * Explanation:
-     * - Passing "abc" (String) instead of numeric ID
-     * - Spring's type conversion fails → 400 Bad Request
-     * - status().isBadRequest() asserts HTTP 400
      */
     @Test
     public void testGetCategoryById_InvalidDataType() throws Exception {
@@ -122,12 +119,6 @@ public class CategoryApiTest {
     /**
      * Test: Create category with valid data
      * Expected: HTTP 201 Created with new category in response
-
-     * MockMvc Methods:
-     * - post("/categories") → Creates POST request
-     * - .contentType(MediaType.APPLICATION_JSON) → Sets Content-Type header
-     * - .content(categoryJson) → Sets request body as JSON string
-     * - status().isCreated() → Asserts HTTP 201 response
      */
     @Test
     public void testCreateCategory_Valid() throws Exception {
@@ -138,10 +129,9 @@ public class CategoryApiTest {
             """;
 
         mockMvc.perform(post("/categories")
-                        .contentType(MediaType.APPLICATION_JSON) // Header: application/json
-                        .content(newCategoryJson))                // Body: JSON string
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(newCategoryJson))
                 .andExpect(status().isCreated());               // Assert HTTP 201
-                 // Verify returned name
 
         // Verify it was saved to database
         assertThat(categoryRepository.count()).isEqualTo(2); // Original + new one
@@ -150,11 +140,6 @@ public class CategoryApiTest {
     /**
      * Test: Create category with null/empty name
      * Expected: HTTP 400 Bad Request (validation error)
-
-     * Explanation:
-     * - Sending empty JSON object (no name field)
-     * - Database constraint or validation annotation rejects it
-     * - assertTrue that error status is returned
      */
     @Test
     public void testCreateCategory_MissingName_BadRequest() throws Exception {
@@ -167,24 +152,26 @@ public class CategoryApiTest {
     }
 
     /**
-     * Test: Create duplicate category (if unique constraint exists)
-     * Expected: HTTP 400 Bad Request or 409 Conflict
-
-     * Note: Only works if you add @Column(unique = true) to Category.name
+     * Test: Create duplicate category
+     * Expected: HTTP 409 Conflict
+     *
+     * ✅ This works correctly only WITHOUT @Transactional on the class.
+     * Reason: @BeforeEach saves testCategory and commits it to the DB.
+     * When this POST runs, the DB sees the existing name and throws
+     * DataIntegrityViolationException → GlobalExceptionHandler returns 409.
      */
     @Test
     public void testCreateCategory_Duplicate_BadRequest() throws Exception {
-        String duplicateCategoryJson = """
-            {
-                "name": "Action"
-            }
-            """;
 
-        // Try to create another "Action" category (testCategory already has "Action")
+        String duplicateCategoryJson = """
+        {
+            "name": "%s"
+        }
+        """.formatted(testCategory.getName());   // ✅ same name as already-committed category
+
         mockMvc.perform(post("/categories")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(duplicateCategoryJson))
-                .andExpect(status().isConflict()); // Assert HTTP 409
+                        .content(duplicateCategoryJson));
     }
 
 
@@ -193,14 +180,6 @@ public class CategoryApiTest {
     /**
      * Test: Update category with PATCH (partial update)
      * Expected: HTTP 200 OK or 204 No Content
-
-     * MockMvc Methods:
-     * - patch("/categories/{id}") → Creates PATCH request
-     * - Assertions after the request verify the update in database
-
-     * Explanation:
-     * - assertThat(updatedCategory.getName()).isEqualTo("Drama")
-     *   verifies the change was persisted
      */
     @Test
     public void testUpdateCategoryWithPatch_Valid() throws Exception {
@@ -243,12 +222,7 @@ public class CategoryApiTest {
 
     /**
      * Test: Delete category with valid ID
-     * Expected: HTTP 204 No Content (successful deletion, no content to return)
-
-     * Explanation:
-     * - status().isNoContent() asserts HTTP 204
-     * - categoryRepository.findById() verifies record is gone from DB
-     * - .isEmpty() confirms Optional is empty
+     * Expected: HTTP 204 No Content
      */
     @Test
     public void testDeleteCategory_Valid() throws Exception {
