@@ -44,8 +44,19 @@ public class Staff {
     @Column(name = "last_update", columnDefinition = "TIMESTAMP")
     private Timestamp last_update;
 
+   // Added this by Ameya
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private Store store;
+
     private Blob picture;
 
     @OneToMany
     private List<Payment> payments;
+
+    public Staff(String firstName, String lastName, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+    }
 }

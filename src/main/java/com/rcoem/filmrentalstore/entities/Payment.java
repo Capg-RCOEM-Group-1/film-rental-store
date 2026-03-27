@@ -1,10 +1,6 @@
 package com.rcoem.filmrentalstore.entities;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -20,14 +16,15 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "amount")
     private Double amount;
 
     @CreationTimestamp
-    private LocalDateTime date;
+    private LocalDateTime paymentDate;
 
     @UpdateTimestamp
     @Column(name = "last_update", columnDefinition = "TIMESTAMP")
-    private Timestamp last_update;
+    private Timestamp lastUpdate;
 
     @ManyToOne
     @JoinColumn(name = "staff_id")

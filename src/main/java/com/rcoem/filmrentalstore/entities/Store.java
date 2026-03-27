@@ -28,18 +28,19 @@ public class Store {
     @JoinColumn(name = "address_id", nullable = false)
     private Address address;
 
+    @OneToMany(mappedBy = "store")
+    private List<Staff> staffs;
+
+    //Delete Store has to be Cascade due to the dependency of Foreign key
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+    private List<Inventory> inventories;
+
+
     public Store() {
     }
 
     public Store(Long storeId) {
         this.storeId = storeId;
     }
-
-    @OneToMany(mappedBy = "store")
-    private List<Staff> staffs;
-
-    @OneToMany(mappedBy = "store")
-    private List<Inventory> inventories;
-
 
 }
