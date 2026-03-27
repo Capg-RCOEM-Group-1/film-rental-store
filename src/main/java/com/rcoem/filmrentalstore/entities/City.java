@@ -30,9 +30,6 @@ public class City {
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
-    @ManyToOne
-    @JoinColumn(name = "country_id")
-    private Country country;
 
     @OneToMany(mappedBy = "city")
     private List<Address> addresses;

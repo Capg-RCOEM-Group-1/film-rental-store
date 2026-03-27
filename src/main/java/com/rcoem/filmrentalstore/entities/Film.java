@@ -16,35 +16,54 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Film {
-     @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long filmId;
-     @Column(nullable = false)
+
+    @Column(nullable = false)
     private String title;
+
     private String description;
-     @Column(columnDefinition = "YEAR")
+
+    @Column(columnDefinition = "YEAR")
     private Integer releaseYear;
-     @Column(nullable = false)
-    private Long rentalDuration;
-     @Column(nullable = false, columnDefinition = "DECIMAL")
+
+    @Column(nullable = false)
+    private Integer rentalDuration;
+
+    @Column(nullable = false, columnDefinition = "DECIMAL")
     private Double rentalRate;
-    private Long length;
+
+    private Integer length;
+
     @Column(nullable = false, columnDefinition = "DECIMAL")
     private Double replacementCost;
+
     @Enumerated(EnumType.STRING)
     private Rating rating;
+
     @Enumerated(EnumType.STRING)
     private Set specialFeatures;
+
     @ManyToOne()
     @JoinColumn(name = "language_id", nullable = false)
     private Language language;
+
     @ManyToOne()
     @JoinColumn(name = "original_language_id", nullable = true)
     private Language originalLanguage;
+
     @NotNull
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp timestamp;
+
     @OneToMany(mappedBy = "film")
-    private List<Inventory>inventories;
+    private List<Inventory> inventories;
+
+    @ManyToMany(mappedBy = "films")
+    List<Actor> actors;
+
+    @ManyToMany(mappedBy = "films")
+    List<Category> categories;
 }
