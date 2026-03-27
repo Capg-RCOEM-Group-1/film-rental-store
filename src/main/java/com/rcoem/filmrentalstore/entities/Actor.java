@@ -31,7 +31,10 @@ public class Actor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long actorId;
 
+    
+    @Column(nullable = false)
     private String firstName;
+    @Column(nullable = false)
     private String lastName;
 
     @UpdateTimestamp
