@@ -52,8 +52,8 @@ public class Address {
     @OneToMany(mappedBy = "address")
     private List<Customer> customers;
 
-    @OneToMany(mappedBy = "address")
-    private List<Store> stores;
+    @OneToOne(mappedBy = "address")
+    private Store store;
 
     @OneToMany(mappedBy = "address")
     private List<Staff> staffs;

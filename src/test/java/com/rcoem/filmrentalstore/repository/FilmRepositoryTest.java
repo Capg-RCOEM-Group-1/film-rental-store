@@ -29,8 +29,12 @@ class FilmRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        filmRepository.deleteAll();
+        languageRepository.deleteAll();
+
         film = new Film();
         Language language = new Language();
+        language.setName("A");
         languageRepository.save(language);
         film.setTitle("Inception");
         film.setDescription("A mind-bending thriller");

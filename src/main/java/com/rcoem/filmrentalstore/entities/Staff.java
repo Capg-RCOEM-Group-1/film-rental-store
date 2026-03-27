@@ -51,6 +51,13 @@ public class Staff {
     @ManyToOne
     @JoinColumn(name = "store_id",nullable = false)
     private Store store;
+
+    public Staff(String firstName, String lastName, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+    }
+
     @ManyToOne()
     @JoinColumn(name = "address_id",nullable = false)
     private Address address;

@@ -6,6 +6,7 @@ import java.util.List;
 import com.rcoem.filmrentalstore.enums.Rating;
 import com.rcoem.filmrentalstore.enums.Set;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.validation.constraints.NotNull;
@@ -53,10 +54,9 @@ public class Film {
     @JoinColumn(name = "original_language_id", nullable = true)
     private Language originalLanguage;
 
-    @NotNull
-    @UpdateTimestamp
-    @Column(columnDefinition = "TIMESTAMP")
-    private Timestamp timestamp;
+    @CreationTimestamp
+    @Column(name = "timestamp", nullable = false)
+    private Timestamp lastUpdate;
 
     @OneToMany(mappedBy = "film")
     private List<Inventory> inventories;

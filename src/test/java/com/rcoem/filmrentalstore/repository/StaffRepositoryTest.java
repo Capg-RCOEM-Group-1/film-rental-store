@@ -32,6 +32,8 @@ public class StaffRepositoryTest {
     @BeforeEach
     public void cleanup(){
         staffRepository.deleteAll();
+        addressRepository.deleteAll();
+        storeRepository.deleteAll();
     }
 
     @Test
@@ -41,6 +43,7 @@ public class StaffRepositoryTest {
         Address address = new Address();
         Store store = new Store();
         addressRepository.save(address);
+        store.setAddress(address);
         storeRepository.save(store);
         staff.setFirstName("First Name");
         staff.setLastName("Last Name");
