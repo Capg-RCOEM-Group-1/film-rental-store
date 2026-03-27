@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -29,5 +30,8 @@ public class City {
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
+
+    @OneToMany(mappedBy = "city")
+    private List<Address> addresses;
 
 }

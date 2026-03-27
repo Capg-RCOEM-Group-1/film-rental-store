@@ -1,6 +1,8 @@
 package com.rcoem.filmrentalstore.repository;
 
+import com.rcoem.filmrentalstore.entities.Address;
 import com.rcoem.filmrentalstore.entities.Staff;
+import com.rcoem.filmrentalstore.entities.Store;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,22 +24,35 @@ public class StaffRepositoryTest {
 
     @Autowired
     private StaffRepository staffRepository;
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private StoreRepository storeRepository;
 
     @BeforeEach
     public void cleanup(){
         staffRepository.deleteAll();
+        addressRepository.deleteAll();
+        storeRepository.deleteAll();
     }
 
     @Test
     @DisplayName("Save Staff Test List")
     public void givenStudentObjects_whenSaveStaff_thenReturnStaffList() {
         Staff staff = new Staff();
+        Address address = new Address();
+        Store store = new Store();
+        addressRepository.save(address);
+        store.setAddress(address);
+        storeRepository.save(store);
         staff.setFirstName("First Name");
         staff.setLastName("Last Name");
         staff.setEmail("Email");
         staff.setUsername("Username");
         staff.setPassword("Password");
         staff.setActive(true);
+        staff.setAddress(address);
+        staff.setStore(store);
         staff = staffRepository.save(staff);
         Staff staff1 = new Staff();
         staff1.setFirstName("First Name");
@@ -46,7 +61,8 @@ public class StaffRepositoryTest {
         staff1.setUsername("Username1");
         staff1.setPassword("Password");
         staff1.setActive(true);
-
+        staff1.setStore(store);
+        staff1.setAddress(address);
         staff1 = staffRepository.save(staff1);
         List<Staff> staffList = staffRepository.findAll();
         //check list has 2 objects

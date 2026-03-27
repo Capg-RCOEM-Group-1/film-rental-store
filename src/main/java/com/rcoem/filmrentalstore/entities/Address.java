@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -17,6 +18,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "address")
 @Getter
 @Setter
+
 public class Address {
 
     @Id
@@ -43,7 +45,16 @@ public class Address {
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
-    //Mapping Added By Ameya : 27th March : 11:52am
+    @ManyToOne
+    @JoinColumn(name = "city_id")
+    private City city;
+
+    @OneToMany(mappedBy = "address")
+    private List<Customer> customers;
+
     @OneToOne(mappedBy = "address")
     private Store store;
+
+    @OneToMany(mappedBy = "address")
+    private List<Staff> staffs;
 }
