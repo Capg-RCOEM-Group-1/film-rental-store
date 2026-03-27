@@ -3,61 +3,48 @@ package com.rcoem.filmrentalstore.entities;
 import java.sql.Timestamp;
 import java.util.List;
 
+import com.rcoem.filmrentalstore.enums.Rating;
+import com.rcoem.filmrentalstore.enums.Set;
+import jakarta.persistence.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Film {
-
      @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long filmId;
+     @Column(nullable = false)
     private String title;
     private String description;
-    private String releaseYear;
+     @Column(columnDefinition = "YEAR")
+    private Integer releaseYear;
+     @Column(nullable = false)
     private Long rentalDuration;
-    private Long rentalRate;
+     @Column(nullable = false, columnDefinition = "DECIMAL")
+    private Double rentalRate;
     private Long length;
-    private Long replacementCost;
-    private String rating;
-    private String specialFeatures;
-
-    
+    @Column(nullable = false, columnDefinition = "DECIMAL")
+    private Double replacementCost;
+    @Enumerated(EnumType.STRING)
+    private Rating rating;
+    @Enumerated(EnumType.STRING)
+    private Set specialFeatures;
+    @ManyToOne()
+    @JoinColumn(name = "language_id", nullable = false)
+    private Language language;
+    @ManyToOne()
+    @JoinColumn(name = "original_language_id", nullable = true)
+    private Language originalLanguage;
     @NotNull
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp timestamp;
-
-    @OneToMany(mappedBy = "inventory_id")
+    @OneToMany(mappedBy = "film")
     private List<Inventory>inventories;
-
-    public Film() {}
-    
-    public Film(String title, String description, String releaseYear, Long rentalDuration, Long rentalRate, Long length, Long replacementCost, String rating, String specialFeatures, Timestamp timestamp) {
-        this.title = title;
-        this.description = description;
-        this.releaseYear = releaseYear;
-        this.rentalDuration = rentalDuration;
-        this.rentalRate = rentalRate;
-        this.length = length;
-        this.replacementCost = replacementCost;
-        this.rating = rating;
-        this.specialFeatures = specialFeatures;
-        this.timestamp = timestamp;
-    }
-
-
-   
 }

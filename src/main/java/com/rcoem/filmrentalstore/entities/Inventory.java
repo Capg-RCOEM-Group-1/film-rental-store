@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Setter
@@ -25,4 +26,7 @@ public class Inventory {
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
+
+    @OneToMany(mappedBy = "inventory")
+    List<Rental> rentals;
 }
