@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long inventoryId;
 
     @UpdateTimestamp
@@ -19,10 +20,10 @@ public class Inventory {
     private Timestamp timestamp;
 
     @ManyToOne
-    @JoinColumn(name = "film_id")
+    @JoinColumn(name = "film_id",nullable = false)
     private Film film;
 
     @ManyToOne
-    @JoinColumn(name = "store_id")
+    @JoinColumn(name = "store_id",nullable = false)
     private Store store;
 }

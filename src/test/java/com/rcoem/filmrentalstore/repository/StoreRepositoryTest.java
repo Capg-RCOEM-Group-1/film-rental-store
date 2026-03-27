@@ -24,13 +24,12 @@ public class StoreRepositoryTest {
         storeRepository.deleteAll();
     }
 
-//    @Test
-//    public void testStoreId(){
-//        Store store = new Store(null , "AK Films");
-//        storeRepository.save(store);
-//        Optional<Store> store1 = storeRepository.findById(store.getId());
-//        assertThat(store1).isPresent();
-//        assertThat(store1.get().getStore_name()).isEqualTo("AK Films");
-//    }
+    @Test
+    public void testSaveStore(){
+        Store store = new Store();
+        Store savedStore = storeRepository.save(store);
+        Optional<Store> found = storeRepository.findById(savedStore.getStoreId());
+        assertThat(found).isPresent();
+    }
 
 }
