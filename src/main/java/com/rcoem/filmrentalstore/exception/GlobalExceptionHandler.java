@@ -22,4 +22,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleDataRestTypeMismatch(Exception ex) {
         return new ResponseEntity<>("Invalid parameter type provided", HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException ex){
+        return new ResponseEntity<>("Resource not found with given identifier",HttpStatus.NOT_FOUND);
+    }
 }

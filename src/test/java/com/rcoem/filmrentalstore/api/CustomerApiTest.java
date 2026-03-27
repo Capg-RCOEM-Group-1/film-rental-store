@@ -108,7 +108,7 @@ public class CustomerApiTest {
 
     @Test
     public void testCreateCustomer_Valid() throws Exception {
-        // Removed createDate and timestamp. Let the database generate them!
+        // Removed createDate and lastUpdate. Let the database generate them!
         String newCustomerJson = """
             {
                 "firstName": "Jerry",
