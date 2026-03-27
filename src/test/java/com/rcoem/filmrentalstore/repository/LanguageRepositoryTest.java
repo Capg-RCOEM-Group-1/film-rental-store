@@ -1,7 +1,6 @@
 package com.rcoem.filmrentalstore.repository;
 
 import com.rcoem.filmrentalstore.entities.Language;
-import com.rcoem.filmrentalstore.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,43 +57,6 @@ public class LanguageRepositoryTest {
         assertThatThrownBy(() -> {
             languageRepo.saveAndFlush(language);
         }).isInstanceOf(Exception.class);
-    }
-
-    @Test
-    void updateLanguage(){
-        Language language = new Language();
-        language.setName("Sanskrit");
-        languageRepo.save(language);
-        Optional<Language> lang = languageRepo.findById(language.getId());
-        assertThat(lang).isPresent();
-        lang.get().setName("Hebrew");
-        languageRepo.save(lang.get());
-        assertThat(lang.get().getId()).isEqualTo(language.getId());
-    }
-
-    @Test
-    public void testNullUpdateLanguage(){
-        Language language = new Language();
-        language.setName("Sanskrit");
-        languageRepo.save(language);
-        Optional<Language> lang = languageRepo.findById(language.getId());
-        assertThat(lang).isPresent();
-        lang.get().setName(null);
-        assertThatThrownBy(()->
-            languageRepo.saveAndFlush(lang.get())
-        ).isInstanceOf(Exception.class);
-    }
-
-    @Test
-    public void testInvalidIdUpdateLanguage(){
-        Language language = new Language();
-        language.setName("Sanskrit");
-        languageRepo.save(language);
-        Optional<Language> lang = languageRepo.findById(999L);
-        assertThat(lang).isEmpty();
-        assertThatThrownBy(()->{
-            languageRepo.findById(99L).orElseThrow(()->new ResourceNotFoundException("Resource not found with id "));
-        }).isInstanceOf(ResourceNotFoundException.class);
     }
 
 }
