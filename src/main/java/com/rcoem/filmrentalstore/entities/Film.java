@@ -37,9 +37,10 @@ public class Film {
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp timestamp;
-//
-//    @OneToMany(mappedBy = "inventory")
-//    private List<Inventory>inventories;
+
+    //Mapping Added By Ameya : 27th March : 11:52am
+    @OneToMany(mappedBy = "film")
+    private List<Inventory> inventories;
 
     public Film() {}
     

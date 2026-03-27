@@ -42,4 +42,8 @@ public class Address {
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
+
+    //Mapping Added By Ameya : 27th March : 11:52am
+    @OneToOne(mappedBy = "address")
+    private Store store;
 }

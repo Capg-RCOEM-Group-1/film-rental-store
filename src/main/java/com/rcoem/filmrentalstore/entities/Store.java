@@ -13,12 +13,20 @@ import java.util.List;
 public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long storeId;
 
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
+    @OneToOne
+    @JoinColumn(name = "manager_staff_id",nullable = false)
+    private Staff manager;
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "address_id", nullable = false)
+    private Address address;
 
     public Store() {
     }
@@ -33,7 +41,5 @@ public class Store {
     @OneToMany(mappedBy = "store")
     private List<Inventory> inventories;
 
-    @OneToOne
-    @JoinColumn(name = "manager_staff_id")
-    private Staff manager;
+
 }
