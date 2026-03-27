@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 
@@ -22,26 +23,16 @@ public class Rental {
     @Column(columnDefinition = "TIMESTAMP")
     private Timestamp returnDate;
 
-    @ManyToOne
-    @JoinColumn(name = "inventory_id")
-    private Inventory inventory;
-
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
-
-    @ManyToOne
-    @JoinColumn(name = "staff_id")
-    private Staff staff;
+    @UpdateTimestamp
+    @Column(columnDefinition = "TIMESTAMP", nullable = false)
+    private Timestamp lastUpdate;
 
     public Rental() {
     }
 
-    public Rental(Timestamp returnDate, Inventory inventory, Customer customer, Staff staff) {
+    public Rental(Timestamp returnDate, Timestamp lastUpdate) {
         this.returnDate = returnDate;
-        this.inventory = inventory;
-        this.customer = customer;
-        this.staff = staff;
+        this.lastUpdate = lastUpdate;
     }
 
 }
