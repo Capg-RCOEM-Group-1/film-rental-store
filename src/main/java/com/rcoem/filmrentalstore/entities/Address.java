@@ -17,7 +17,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "address")
 @Getter
 @Setter
-
 public class Address {
 
     @Id
@@ -44,8 +43,7 @@ public class Address {
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
-    @ManyToOne
-    @JoinColumn(name = "city_id")
-    private City city;
-
+    //Mapping Added By Ameya : 27th March : 11:52am
+    @OneToOne(mappedBy = "address")
+    private Store store;
 }
