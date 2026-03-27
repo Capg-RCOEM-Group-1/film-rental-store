@@ -1,4 +1,4 @@
-package com.rcoem.filmrentalstore.api;
+package com.rcoem.filmrentalstore;
 
 import org.springframework.boot.test.context.SpringBootTest;
 

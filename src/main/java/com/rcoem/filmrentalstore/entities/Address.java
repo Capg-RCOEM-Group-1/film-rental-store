@@ -10,6 +10,7 @@ import lombok.Setter;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -48,4 +49,12 @@ public class Address {
     @JoinColumn(name = "city_id")
     private City city;
 
+    @OneToMany(mappedBy = "address")
+    private List<Customer> customers;
+
+    @OneToMany(mappedBy = "address")
+    private List<Store> stores;
+
+    @OneToMany(mappedBy = "address")
+    private List<Staff> staffs;
 }

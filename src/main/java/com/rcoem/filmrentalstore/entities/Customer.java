@@ -43,6 +43,10 @@ public class Customer {
     @JoinColumn(name = "store_id")
     private Store store;
 
+    @ManyToOne
+    @JoinColumn(name= "address_id")
+    private Address address;
+
     public Customer() {
     }
 

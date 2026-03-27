@@ -36,4 +36,7 @@ public class Store {
     @OneToOne
     @JoinColumn(name = "manager_staff_id")
     private Staff manager;
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
 }
