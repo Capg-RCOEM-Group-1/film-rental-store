@@ -1,5 +1,8 @@
 package com.rcoem.filmrentalstore.api;
 
+import com.rcoem.filmrentalstore.entities.FilmCategory;
+import com.rcoem.filmrentalstore.repository.FilmCategoryRepository;
+import com.rcoem.filmrentalstore.repository.FilmRepository;
 import com.rcoem.filmrentalstore.repository.LanguageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +24,16 @@ public class LanguageApiTest {
     @Autowired
     LanguageRepository languageRepo;
 
+    @Autowired
+    FilmRepository filmRepo;
+
+    @Autowired
+    FilmCategoryRepository filmCategoryRepo;
+
     @BeforeEach
     public void clean(){
+        filmCategoryRepo.deleteAll();
+        filmRepo.deleteAll();
         languageRepo.deleteAll();
     }
 
