@@ -20,6 +20,7 @@ public class LanguageApiTest {
     MockMvc mockMvc;
     @Autowired
     LanguageRepository languageRepo;
+
     @BeforeEach
     public void clean(){
         languageRepo.deleteAll();

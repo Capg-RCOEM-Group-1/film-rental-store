@@ -1,7 +1,11 @@
 package com.rcoem.filmrentalstore.api;
 
+import com.rcoem.filmrentalstore.entities.Address;
 import com.rcoem.filmrentalstore.entities.Staff;
+import com.rcoem.filmrentalstore.entities.Store;
+import com.rcoem.filmrentalstore.repository.AddressRepository;
 import com.rcoem.filmrentalstore.repository.StaffRepository;
+import com.rcoem.filmrentalstore.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,21 +29,43 @@ public class StaffApiTest {
     @Autowired
     private StaffRepository staffRepository;
 
+    @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private StoreRepository storeRepository;
+
     @BeforeEach
     public void setup() {
+
         staffRepository.deleteAll();
+        storeRepository.deleteAll();
+        addressRepository.deleteAll();
+
+        Address address = new Address();
+        address.setAddress("s");
+        address = addressRepository.save(address);
+
+        Store store = new Store();
+        store.setAddress(address);
+        storeRepository.save(store);
+
         // Given: An active staff member exists
         Staff activeStaff = new Staff();
         activeStaff.setFirstName("John");
         activeStaff.setLastName("Doe");
         activeStaff.setActive(true);
         activeStaff.setPassword("pass123");
+        activeStaff.setAddress(address);
+        activeStaff.setStore(store);
         // Given: An not active staff member exists
         Staff inactiveStaff = new Staff();
         inactiveStaff.setFirstName("Jane");
         inactiveStaff.setLastName("Smith");
         inactiveStaff.setActive(false);
         inactiveStaff.setPassword("pass456");
+        inactiveStaff.setAddress(address);
+        inactiveStaff.setStore(store);
 
         staffRepository.saveAll(List.of(activeStaff, inactiveStaff));
     }

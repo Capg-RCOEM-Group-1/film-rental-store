@@ -42,20 +42,39 @@ public class StoreAPITest {
 
     @BeforeEach
     void setup() {
-        storeRepository.deleteAll();
+        // 1. Clear existing data in correct dependency order
         staffRepository.deleteAll();
+        storeRepository.deleteAll();
         addressRepository.deleteAll();
 
-        // Create prerequisites for a Store
+        // 2. Create and SAVE the Address first
+        // This gives the address an ID so the @NotNull check in Store passes
         Address address = new Address();
-        Store store = new Store();
+        address.setAddress("123 Main St");
+        address.setDistrict("Central");
+        address.setPhone("555-0123");
+        // Add any other required address fields here
         testAddress = addressRepository.save(address);
-        Staff staff = new Staff("","","");
-        staff.setAddress(address);
-        store.setAddress(address);
+
+        // 3. Create the Store and link the saved Address
+        Store store = new Store();
+        store.setAddress(testAddress);
+        // Do NOT set the manager yet, as the staff doesn't exist
         testStore = storeRepository.save(store);
-        staff.setStore(store);
+
+        // 4. Create the Staff, link to Address and Store, then SAVE
+        Staff staff = new Staff();
+        staff.setFirstName("John");
+        staff.setLastName("Doe");
+        staff.setAddress(testAddress);
+        staff.setStore(testStore);
+        staff.setActive(true);
+        staff.setPassword("secret");
         testManager = staffRepository.save(staff);
+
+        // 5. Update the Store to set the Manager
+        testStore.setManager(testManager);
+        storeRepository.save(testStore);
     }
 
     // GET Endpoints

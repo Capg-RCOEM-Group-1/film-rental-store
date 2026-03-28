@@ -52,9 +52,6 @@ public class Address {
     @OneToMany(mappedBy = "address")
     private List<Customer> customers;
 
-    @OneToOne(mappedBy = "address")
-    private Store store;
-
     @OneToMany(mappedBy = "address")
     private List<Staff> staffs;
 }

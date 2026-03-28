@@ -29,26 +29,40 @@ public class StaffRepositoryTest {
     private AddressRepository addressRepository;
     @Autowired
     private StoreRepository storeRepository;
-
     @BeforeEach
     public void setup() {
+
         staffRepository.deleteAll();
+        storeRepository.deleteAll();
+        addressRepository.deleteAll();
+
+        Address address = new Address();
+        address.setAddress("s");
+        address = addressRepository.save(address);
+
+        Store store = new Store();
+        store.setAddress(address);
+        storeRepository.save(store);
+
         // Given: An active staff member exists
         Staff activeStaff = new Staff();
         activeStaff.setFirstName("John");
         activeStaff.setLastName("Doe");
         activeStaff.setActive(true);
         activeStaff.setPassword("pass123");
+        activeStaff.setAddress(address);
+        activeStaff.setStore(store);
         // Given: An not active staff member exists
         Staff inactiveStaff = new Staff();
         inactiveStaff.setFirstName("Jane");
         inactiveStaff.setLastName("Smith");
         inactiveStaff.setActive(false);
         inactiveStaff.setPassword("pass456");
+        inactiveStaff.setAddress(address);
+        inactiveStaff.setStore(store);
 
         staffRepository.saveAll(List.of(activeStaff, inactiveStaff));
     }
-
 
     @Test
     @DisplayName("Should return only active staff members")
@@ -79,8 +93,6 @@ public class StaffRepositoryTest {
     public void testFindByActiveTrue_Empty() {
         // Given: Clear all data first
         staffRepository.deleteAll();
-        addressRepository.deleteAll();
-        storeRepository.deleteAll();
 
         // When
         List<Staff> result = staffRepository.findByActiveTrue();
@@ -92,12 +104,22 @@ public class StaffRepositoryTest {
     @Test
     @DisplayName("Should return multiple records when more than one staff is active")
     public void testFindByActiveTrue_Multiple() {
+        Address address = new Address();
+        address.setAddress("s");
+        address = addressRepository.save(address);
+
+        Store store = new Store();
+        store.setAddress(address);
+        storeRepository.save(store);
+
         // Given: Add another active staff member
         Staff secondActive = new Staff();
         secondActive.setFirstName("Jane");
         secondActive.setLastName("Wonderland");
         secondActive.setPassword("securePass789");
         secondActive.setActive(true);
+        secondActive.setAddress(address);
+        secondActive.setStore(store);
         staffRepository.save(secondActive);
 
         // When
