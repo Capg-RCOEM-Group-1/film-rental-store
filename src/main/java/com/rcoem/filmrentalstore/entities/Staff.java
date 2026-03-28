@@ -32,12 +32,11 @@ public class Staff {
 
     @NotNull
     private String password;
-
-    // Represent Status of Staff (Soft delete), Default True
+    @Column(nullable = false)
     private Boolean active = true;
 
     @UpdateTimestamp
-    @Column(name = "last_update", columnDefinition = "TIMESTAMP")
+    @Column(name = "last_update", columnDefinition = "TIMESTAMP",nullable = false)
     private Timestamp last_update;
 
     private Blob picture;
@@ -46,7 +45,17 @@ public class Staff {
     private List<Payment> payments;
 
     @ManyToOne
-    @JoinColumn(name = "store_id")
+    @JoinColumn(name = "store_id",nullable = false)
     private Store store;
+
+    public Staff(String firstName, String lastName, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+    }
+
+    @ManyToOne()
+    @JoinColumn(name = "address_id",nullable = false)
+    private Address address;
 
 }

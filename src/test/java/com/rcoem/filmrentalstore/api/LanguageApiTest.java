@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -44,5 +43,84 @@ public class LanguageApiTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void testCreateNullLanguage() throws Exception {
+        mockMvc.perform(post("/languages")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(""))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testCreateDuplicateLanguage() throws Exception {
+        String json = """
+        {
+            "name": "Spanish"
+        }
+    """;
+        mockMvc.perform(post("/languages")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/languages")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void testUpdateLanguage() throws Exception {
+        String createJson = """
+        { "name": "Java" }
+    """;
+
+        String response = mockMvc.perform(post("/languages")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createJson))
+                .andReturn().getResponse().getHeader("Location");
+        Long id = Long.parseLong(
+                response.substring(response.lastIndexOf("/") + 1)
+        );
+        String updateJson = """
+        { "name": "Java Updated" }
+    """;
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/languages/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void testUpdateNullLanguage() throws Exception{
+        String createJson = """
+        { "name": "Java" }
+    """;
+
+        String response = mockMvc.perform(post("/languages")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createJson))
+                .andReturn().getResponse().getHeader("Location");
+        Long id = Long.parseLong(
+                response.substring(response.lastIndexOf("/") + 1)
+        );
+        mockMvc.perform(MockMvcRequestBuilders.put("/languages/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(""))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void testUpdateInvalidIdLanguage() throws Exception{
+        String createJson = """
+        { "name": "Java" }
+    """;
+        mockMvc.perform(MockMvcRequestBuilders.put("/languages/" + 999)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createJson))
+                .andExpect(status().isConflict());
     }
 }

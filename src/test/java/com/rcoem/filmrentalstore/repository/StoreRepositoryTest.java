@@ -1,36 +1,164 @@
 package com.rcoem.filmrentalstore.repository;
 
-import com.rcoem.filmrentalstore.entities.Store;
-import com.rcoem.filmrentalstore.repository.StoreRepository;
+import com.rcoem.filmrentalstore.entities.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import com.rcoem.filmrentalstore.entities.Store;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import jakarta.validation.ConstraintViolationException;
 
-import java.security.PublicKey;
+import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class StoreRepositoryTest {
+
     @Autowired
-    StoreRepository storeRepository;
+    private StoreRepository storeRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private StaffRepository staffRepository;
+
+    private Store testStore;
+    private Address testAddress;
+    private Staff testManager;
+
 
     @BeforeEach
-    public void clean(){
+    void setup() {
         storeRepository.deleteAll();
+        addressRepository.deleteAll();
+        staffRepository.deleteAll();
+
+        testAddress = new Address();
+        testAddress = addressRepository.save(testAddress);
+
+        testManager = new Staff("","","");
+        testManager.setAddress(testAddress);
+
+        Store store = new Store();
+        store.setAddress(testAddress);
+        store.setManager(testManager);
+        testStore = storeRepository.save(store);
+
+        testManager.setStore(store);
+        testManager = staffRepository.save(testManager);
+        store.setManager(testManager);
+
     }
 
-//    @Test
-//    public void testStoreId(){
-//        Store store = new Store(null , "AK Films");
-//        storeRepository.save(store);
-//        Optional<Store> store1 = storeRepository.findById(store.getId());
-//        assertThat(store1).isPresent();
-//        assertThat(store1.get().getStore_name()).isEqualTo("AK Films");
-//    }
 
+    @Test
+    void testSaveStore() {
+        Staff manager = staffRepository.save(testManager);
+        Address address = addressRepository.save(new Address());
+
+        Store store = new Store();
+        store.setManager(manager);
+        store.setAddress(address);
+        Store saved = storeRepository.save(store);
+
+        assertThat(saved).isNotNull();
+        assertThat(saved.getStoreId()).isNotNull();
+    }
+
+
+    @Test
+    void testViewAllStores() {
+        List<Store> stores = storeRepository.findAll();
+        assertThat(stores).isNotEmpty();
+        assertThat(stores.size()).isGreaterThanOrEqualTo(1);
+    }
+
+
+    @Test
+    void testUpdateStore() {
+        Address newAddress = addressRepository.save(new Address());
+        testStore.setAddress(newAddress);
+        storeRepository.save(testStore);
+        Store updated = storeRepository.findById(testStore.getStoreId()).get();
+        assertThat(updated.getAddress()).isEqualTo(newAddress);
+    }
+
+
+    @Test
+    void testFindStoreByAddress() {
+        Optional<Store> found = storeRepository.findByAddress(testAddress);
+        assertThat(found).isPresent();
+        assertThat(found.get().getAddress()).isEqualTo(testAddress);
+    }
+
+
+    @Test
+    void testDeleteStore() {
+        storeRepository.delete(testStore);
+        Optional<Store> deleted = storeRepository.findById(testStore.getStoreId());
+        assertThat(deleted).isEmpty();
+    }
+
+
+    // Negative and Null Cases :
+
+    //Could Create a Circular dependency
+    /*@Test
+    void testSaveStore_NullManager_ShouldThrowException() {
+        // Create store without a manager
+        Store store = new Store();
+        store.setAddress(testAddress);
+        // manager is null by default
+
+        // Expecting a DataIntegrityViolation because manager_id is likely @NotNull in DB
+        assertThrows(ConstraintViolationException.class, () -> {
+            storeRepository.saveAndFlush(store);
+        });
+    }*/
+
+    @Test
+    void testSaveStore_NullAddress_ShouldThrowException() {
+        // Create store without an address
+        Store store = new Store();
+        store.setManager(testManager);
+
+        // saveAndFlush forces Hibernate to send the SQL to DB immediately to trigger the error
+        assertThrows(ConstraintViolationException.class, () -> {
+            storeRepository.saveAndFlush(store);
+        });
+    }
+
+    @Test
+    void testFindStoreByAddress_NonExistentAddress() {
+        // Create a new address but DON'T save a store linked to it
+        Address unsavedAddress = addressRepository.save(new Address());
+
+        Optional<Store> found = storeRepository.findByAddress(unsavedAddress);
+
+        assertThat(found).isEmpty();
+    }
+
+    @Test
+    void testFindById_InvalidId() {
+        // ID that definitely doesn't exist
+        Optional<Store> found = storeRepository.findById(9999L);
+
+        assertThat(found).isNotPresent();
+    }
+
+    //Could create circular dependency
+    /*@Test
+    void testUpdateStore_SetManagerToNull_ShouldFail() {
+        testStore.setManager(null);
+
+        assertThrows(ConstraintViolationException.class, () -> {
+            storeRepository.saveAndFlush(testStore);
+        });
+    }*/
 }

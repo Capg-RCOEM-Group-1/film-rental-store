@@ -23,6 +23,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("Invalid parameter type provided", HttpStatus.BAD_REQUEST);
     }
 
+    // handles the unique constraint violation for the film-category relationship
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDuplicateEntry(Exception ex) {
+        return new ResponseEntity<>("Duplicate film-category entry not allowed", HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException ex){
         return new ResponseEntity<>("Resource not found with given identifier",HttpStatus.NOT_FOUND);

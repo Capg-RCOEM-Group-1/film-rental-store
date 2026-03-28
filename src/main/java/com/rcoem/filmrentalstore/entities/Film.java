@@ -3,61 +3,67 @@ package com.rcoem.filmrentalstore.entities;
 import java.sql.Timestamp;
 import java.util.List;
 
+import com.rcoem.filmrentalstore.enums.Rating;
+import com.rcoem.filmrentalstore.enums.Set;
+import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Film {
-
-     @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long filmId;
+
+    @Column(nullable = false)
     private String title;
+
     private String description;
-    private String releaseYear;
-    private Long rentalDuration;
-    private Long rentalRate;
-    private Long length;
-    private Long replacementCost;
-    private String rating;
-    private String specialFeatures;
 
-    
-    @NotNull
-    @UpdateTimestamp
-    @Column(columnDefinition = "TIMESTAMP")
-    private Timestamp timestamp;
+    @Column(columnDefinition = "YEAR")
+    private Integer releaseYear;
 
-    @OneToMany(mappedBy = "inventory_id")
-    private List<Inventory>inventories;
+    @Column(nullable = false)
+    private Integer rentalDuration;
 
-    public Film() {}
-    
-    public Film(String title, String description, String releaseYear, Long rentalDuration, Long rentalRate, Long length, Long replacementCost, String rating, String specialFeatures, Timestamp timestamp) {
-        this.title = title;
-        this.description = description;
-        this.releaseYear = releaseYear;
-        this.rentalDuration = rentalDuration;
-        this.rentalRate = rentalRate;
-        this.length = length;
-        this.replacementCost = replacementCost;
-        this.rating = rating;
-        this.specialFeatures = specialFeatures;
-        this.timestamp = timestamp;
-    }
+    @Column(nullable = false, columnDefinition = "DECIMAL")
+    private Double rentalRate;
 
+    private Integer length;
 
-   
+    @Column(nullable = false, columnDefinition = "DECIMAL")
+    private Double replacementCost;
+
+    @Enumerated(EnumType.STRING)
+    private Rating rating;
+
+    @Enumerated(EnumType.STRING)
+    private Set specialFeatures;
+
+    @ManyToOne()
+    @JoinColumn(name = "language_id", nullable = false)
+    private Language language;
+
+    @ManyToOne()
+    @JoinColumn(name = "original_language_id", nullable = true)
+    private Language originalLanguage;
+
+    @CreationTimestamp
+    @Column(name = "timestamp", nullable = false)
+    private Timestamp lastUpdate;
+
+    @OneToMany(mappedBy = "film")
+    private List<Inventory> inventories;
+
+    @ManyToMany(mappedBy = "films")
+    List<Actor> actors;
+
+    @ManyToMany(mappedBy = "films")
+    List<Category> categories;
 }

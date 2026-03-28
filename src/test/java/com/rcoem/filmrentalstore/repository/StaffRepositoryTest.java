@@ -1,6 +1,8 @@
 package com.rcoem.filmrentalstore.repository;
 
+import com.rcoem.filmrentalstore.entities.Address;
 import com.rcoem.filmrentalstore.entities.Staff;
+import com.rcoem.filmrentalstore.entities.Store;
 import com.rcoem.filmrentalstore.entities.StaffView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +25,10 @@ public class StaffRepositoryTest {
 
     @Autowired
     private StaffRepository staffRepository;
+    @Autowired
+    private AddressRepository addressRepository;
+    @Autowired
+    private StoreRepository storeRepository;
 
     @BeforeEach
     public void setup() {
@@ -73,6 +79,8 @@ public class StaffRepositoryTest {
     public void testFindByActiveTrue_Empty() {
         // Given: Clear all data first
         staffRepository.deleteAll();
+        addressRepository.deleteAll();
+        storeRepository.deleteAll();
 
         // When
         List<Staff> result = staffRepository.findByActiveTrue();

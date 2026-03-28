@@ -1,6 +1,7 @@
 package com.rcoem.filmrentalstore.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -27,13 +28,19 @@ public class Store {
         this.storeId = storeId;
     }
 
-    @OneToMany
+    @OneToMany(mappedBy = "store")
     private List<Staff> staffs;
 
-    @OneToMany
+    @OneToMany(mappedBy = "store")
     private List<Inventory> inventories;
+
 
     @OneToOne
     @JoinColumn(name = "manager_staff_id")
     private Staff manager;
+
+    @NotNull
+    @OneToOne
+    @JoinColumn(name = "address_id",nullable = false)
+    private Address address;
 }
