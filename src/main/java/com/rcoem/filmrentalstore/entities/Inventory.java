@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long inventoryId;
+    private Long inventory_id;
 
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)

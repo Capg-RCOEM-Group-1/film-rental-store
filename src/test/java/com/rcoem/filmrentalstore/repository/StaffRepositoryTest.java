@@ -1,6 +1,7 @@
 package com.rcoem.filmrentalstore.repository;
 
 import com.rcoem.filmrentalstore.entities.Staff;
+import com.rcoem.filmrentalstore.entities.StaffView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,40 +25,101 @@ public class StaffRepositoryTest {
     private StaffRepository staffRepository;
 
     @BeforeEach
-    public void cleanup(){
+    public void setup() {
         staffRepository.deleteAll();
+        // Given: An active staff member exists
+        Staff activeStaff = new Staff();
+        activeStaff.setFirstName("John");
+        activeStaff.setLastName("Doe");
+        activeStaff.setActive(true);
+        activeStaff.setPassword("pass123");
+        // Given: An not active staff member exists
+        Staff inactiveStaff = new Staff();
+        inactiveStaff.setFirstName("Jane");
+        inactiveStaff.setLastName("Smith");
+        inactiveStaff.setActive(false);
+        inactiveStaff.setPassword("pass456");
+
+        staffRepository.saveAll(List.of(activeStaff, inactiveStaff));
+    }
+
+
+    @Test
+    @DisplayName("Should return only active staff members")
+    public void testFindByActiveTrue() {
+        // When
+        List<Staff> activeStaff = staffRepository.findByActiveTrue();
+
+        // Then
+        assertThat(activeStaff).hasSize(1);
+        assertThat(activeStaff.get(0).getFirstName()).isEqualTo("John");
+        assertThat(activeStaff.get(0).getLastName()).isEqualTo("Doe");
     }
 
     @Test
-    @DisplayName("Save Staff Test List")
-    public void givenStudentObjects_whenSaveStaff_thenReturnStaffList() {
-        Staff staff = new Staff();
-        staff.setFirstName("First Name");
-        staff.setLastName("Last Name");
-        staff.setEmail("Email");
-        staff.setUsername("Username");
-        staff.setPassword("Password");
-        staff.setActive(true);
-        staff = staffRepository.save(staff);
-        Staff staff1 = new Staff();
-        staff1.setFirstName("First Name");
-        staff1.setLastName("Last Name");
-        staff1.setEmail("Email 1");
-        staff1.setUsername("Username1");
-        staff1.setPassword("Password");
-        staff1.setActive(true);
+    @DisplayName("Should return only inactive staff members")
+    public void testFindByActiveFalse() {
+        // When
+        List<Staff> inactiveStaff = staffRepository.findByActiveFalse();
 
-        staff1 = staffRepository.save(staff1);
-        List<Staff> staffList = staffRepository.findAll();
-        //check list has 2 objects
-        assertThat(staffList.size()).isEqualTo(2);
-        Set<Long> staffIds = staffList.stream()
-                .map(Staff::getId)
-                .collect(Collectors.toSet());
+        // Then
+        assertThat(inactiveStaff).hasSize(1);
+        assertThat(inactiveStaff.get(0).getFirstName()).isEqualTo("Jane");
+        assertThat(inactiveStaff.get(0).getLastName()).isEqualTo("Smith");
+    }
 
+    @Test
+    @DisplayName("Should return empty list when no active staff exist")
+    public void testFindByActiveTrue_Empty() {
+        // Given: Clear all data first
+        staffRepository.deleteAll();
 
-        //Check All staff ids exist in output
-        assertThat(staffIds).contains(staff.getId(), staff1.getId());
+        // When
+        List<Staff> result = staffRepository.findByActiveTrue();
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should return multiple records when more than one staff is active")
+    public void testFindByActiveTrue_Multiple() {
+        // Given: Add another active staff member
+        Staff secondActive = new Staff();
+        secondActive.setFirstName("Jane");
+        secondActive.setLastName("Wonderland");
+        secondActive.setPassword("securePass789");
+        secondActive.setActive(true);
+        staffRepository.save(secondActive);
+
+        // When
+        List<Staff> result = staffRepository.findByActiveTrue();
+
+        // Then
+        assertThat(result).hasSize(2);
+        assertThat(result).extracting(Staff::getFirstName)
+                .containsExactlyInAnyOrder("John", "Jane");
+    }
+
+    @Test
+    @DisplayName("Should reflect status change when staff is deactivated")
+    public void testStatusChangeReflectedInProjection() {
+        // Given: Find the active staff saved in @BeforeEach and deactivate them
+        // Note: You may need a findByFirstName or similar in your Repo to grab the specific entity
+        Staff john = staffRepository.findAll().stream()
+                .filter(s -> s.getFirstName().equals("John"))
+                .findFirst().get();
+
+        john.setActive(false);
+        staffRepository.saveAndFlush(john); // Force the update to DB
+
+        // When
+        List<Staff> activeStaff = staffRepository.findByActiveTrue();
+        List<Staff> inactiveStaff = staffRepository.findByActiveFalse();
+
+        // Then
+        assertThat(activeStaff).isEmpty();
+        assertThat(inactiveStaff).hasSize(2); // Jane + the newly deactivated John
     }
 
 }
