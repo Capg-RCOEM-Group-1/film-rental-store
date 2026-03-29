@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface StaffRepository extends JpaRepository<Staff, Long> {
+public interface StaffRepository extends JpaRepository<Staff, Byte> {
 
     // Fetches only required columns for active staff
     Page<Staff> findByActiveTrue(Pageable pageable);

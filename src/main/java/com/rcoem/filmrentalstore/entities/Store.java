@@ -14,7 +14,7 @@ import java.util.List;
 public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long storeId;
+    private Byte storeId;
 
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
@@ -24,7 +24,7 @@ public class Store {
     public Store() {
     }
 
-    public Store(Long storeId) {
+    public Store(Byte storeId) {
         this.storeId = storeId;
     }
 

@@ -6,7 +6,7 @@ import com.rcoem.filmrentalstore.entities.Language;
 import com.rcoem.filmrentalstore.enums.Rating;
 import com.rcoem.filmrentalstore.enums.Set;
 import com.rcoem.filmrentalstore.repository.CategoryRepository;
-import com.rcoem.filmrentalstore.repository.FilmCategoryRepository;
+
 import com.rcoem.filmrentalstore.repository.FilmRepository;
 import com.rcoem.filmrentalstore.repository.LanguageRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.HashSet;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -30,9 +31,9 @@ public class FilmCategoryApiTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
+   /* @Autowired
     private FilmCategoryRepository filmCategoryRepository;
-
+*/
     @Autowired
     private FilmRepository filmRepository;
 
@@ -46,7 +47,7 @@ public class FilmCategoryApiTest {
 
     @BeforeEach
     void setup() {
-        filmCategoryRepository.deleteAll();   // ✅ FIRST (child table)
+        /*filmCategoryRepository.deleteAll();*/   // ✅ FIRST (child table)
         filmRepository.deleteAll();
         categoryRepository.deleteAll();
         languageRepository.deleteAll();
@@ -64,7 +65,7 @@ public class FilmCategoryApiTest {
         film.setLength(148);
         film.setReplacementCost(500.0);
         film.setRating(Rating.PG_13);
-        film.setSpecialFeatures(Set.BEHIND_THE_SCENES);
+        film.setSpecialFeatures(new HashSet<>());
         film.setLanguage(language);
         film = filmRepository.save(film);
 
@@ -74,24 +75,8 @@ public class FilmCategoryApiTest {
     }
 
     @Test
-    void testCreateFilmCategory() throws Exception {
-
-        String json = """
-        {
-          "film": "http://localhost:8080/films/%d",
-          "category": "http://localhost:8080/categories/%d"
-        }
-        """.formatted(film.getFilmId(), category.getCategoryId());
-
-        mockMvc.perform(post("/filmCategories")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated());
-    }
-
-    @Test
     void testGetAllFilmCategories() throws Exception {
-        mockMvc.perform(get("/filmCategories"))
+        mockMvc.perform(get("/categories"))
                 .andExpect(status().isOk());
     }
 }

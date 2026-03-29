@@ -43,8 +43,8 @@ public class CustomerRepositoryTest {
     public void setup() {
         customerRepository.deleteAll();
         testTimestamp = Timestamp.from(Instant.now());
-        address = addressRepository.findById(5L).orElse(null);
-        store = storeRepository.findById(1L).orElse(null);
+        address = addressRepository.findById((short) 5).orElse(null);
+        store = storeRepository.findById((byte) 1).orElse(null);
         Customer customer = new Customer("Tom", "Hanks", "tom@email.com", store,address);
         testCustomer = customerRepository.save(customer);
     }
@@ -118,7 +118,7 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testFindByCustomerId_InvalidId_ReturnsEmpty() {
-        Optional<Customer> found = customerRepository.findById(9999L);
+        Optional<Customer> found = customerRepository.findById((short) 9999L);
         assertThat(found).isEmpty();
     }
 
