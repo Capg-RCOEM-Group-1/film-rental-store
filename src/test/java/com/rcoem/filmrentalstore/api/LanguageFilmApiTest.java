@@ -52,7 +52,7 @@ public class LanguageFilmApiTest {
 
     @Test
     public void testGetLanguageFilms() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/languages/"+lang.getId()+"/films"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/search/findByLanguage_Id?id="+lang.getId()+"&size=5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.films").exists());
     }
