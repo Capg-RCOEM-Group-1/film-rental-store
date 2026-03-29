@@ -19,12 +19,12 @@ public class Country {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long countryId;
+    private Short countryId;
     @Column(nullable = false)
     private String country;
     @Column(nullable = false, columnDefinition = "TIMESTAMP")
     @UpdateTimestamp
     private LocalDateTime lastUpdate;
-    @OneToMany
+    @OneToMany(mappedBy = "country")
     List<City> cities;
 }

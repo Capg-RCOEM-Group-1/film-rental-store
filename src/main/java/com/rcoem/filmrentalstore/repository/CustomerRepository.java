@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface CustomerRepository extends JpaRepository<Customer, Long> {
+public interface CustomerRepository extends JpaRepository<Customer, Short> {
     List<Customer> findByFirstName(String firstName);
     List<Customer> findByLastName(String lastName);
     Optional<Customer> findByEmail(String email);

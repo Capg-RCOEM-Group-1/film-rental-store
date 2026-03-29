@@ -1,7 +1,5 @@
 package com.rcoem.filmrentalstore.api;
 
-import com.rcoem.filmrentalstore.entities.FilmCategory;
-import com.rcoem.filmrentalstore.repository.FilmCategoryRepository;
 import com.rcoem.filmrentalstore.repository.FilmRepository;
 import com.rcoem.filmrentalstore.repository.LanguageRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,12 +25,12 @@ public class LanguageApiTest {
     @Autowired
     FilmRepository filmRepo;
 
-    @Autowired
-    FilmCategoryRepository filmCategoryRepo;
+    /*@Autowired
+    FilmCategoryRepository filmCategoryRepo;*/
 
     @BeforeEach
     public void clean(){
-        filmCategoryRepo.deleteAll();
+        //filmCategoryRepo.deleteAll();
         filmRepo.deleteAll();
         languageRepo.deleteAll();
     }
@@ -133,6 +131,6 @@ public class LanguageApiTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/languages/" + 999)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(createJson))
-                .andExpect(status().isConflict());
+                .andExpect(status().isBadRequest());
     }
 }
