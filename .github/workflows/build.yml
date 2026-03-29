@@ -1,0 +1,85 @@
+name: Build and Test Spring Boot App
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # 1. Set up the MySQL Service Container
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -ptestpass"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven' # Speeds up subsequent builds
+
+      - name: Wait for MySQL to be ready
+        run: |
+          echo "Waiting for MySQL..."
+          for i in {1..10}; do
+            nc -z localhost 3306 && echo "MySQL is up!" && break
+            echo "Waiting..."
+            sleep 5
+          done
+
+      # 2 & 3. Run Tests and Build JAR in one go
+      # This ensures the target folder contains both the reports and the JAR at the same time
+      - name: Build and Test
+        env:
+          SPRING_PROFILES_ACTIVE: test
+        run: mvn clean package
+
+      - name: Rename JAR with Timestamp
+        id: timestamp
+        run: |
+          # Generate current timestamp
+          TIMESTAMP=$(date +'%Y%m%d_%H%M%S')
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+          
+          # Find the main executable JAR and rename it
+          for file in target/*.jar; do
+            # Exclude plain, sources, or javadoc jars if they exist
+            if [[ $file != *"-plain.jar" && $file != *"-sources.jar" && $file != *"-javadoc.jar" ]]; then
+              mv "$file" "${file%.jar}-$TIMESTAMP.jar"
+              echo "Renamed $file to ${file%.jar}-$TIMESTAMP.jar"
+            fi
+          done
+
+      # 4. Upload Test Results and the JAR file as Artifacts
+      - name: Upload Test Reports
+        if: always() # Run this step even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/surefire-reports/
+
+      - name: Upload Built JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: spring-boot-jar-${{ env.TIMESTAMP }}
+          path: target/*.jar

@@ -58,6 +58,21 @@ public class Film {
     @Column(name = "timestamp", nullable = false)
     private Timestamp lastUpdate;
 
+    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate, Integer length, Double replacementCost, Rating rating, Set specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
+        this.title = title;
+        this.description = description;
+        this.releaseYear = releaseYear;
+        this.rentalDuration = rentalDuration;
+        this.rentalRate = rentalRate;
+        this.length = length;
+        this.replacementCost = replacementCost;
+        this.rating = rating;
+        this.specialFeatures = specialFeatures;
+        this.language = language;
+        this.originalLanguage = originalLanguage;
+        this.lastUpdate = lastUpdate;
+    }
+
     @OneToMany(mappedBy = "film")
     private List<Inventory> inventories;
 

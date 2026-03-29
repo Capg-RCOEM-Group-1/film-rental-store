@@ -26,6 +26,10 @@ public class City {
     @Column(name = "city")
     private String city;
 
+    @ManyToOne
+    @JoinColumn(name = "country_id")
+    private Country country;
+
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
