@@ -3,6 +3,7 @@ package com.rcoem.filmrentalstore.entities;
 import java.sql.Timestamp;
 import java.util.List;
 
+import com.rcoem.filmrentalstore.converter.SpecialFeatureConverter;
 import com.rcoem.filmrentalstore.enums.Rating;
 import com.rcoem.filmrentalstore.enums.Set;
 import jakarta.persistence.*;
@@ -19,7 +20,7 @@ import lombok.*;
 public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long filmId;
+    private Short filmId;
 
     @Column(nullable = false)
     private String title;
@@ -43,8 +44,9 @@ public class Film {
     @Enumerated(EnumType.STRING)
     private Rating rating;
 
-    @Enumerated(EnumType.STRING)
-    private Set specialFeatures;
+    @Convert(converter = SpecialFeatureConverter.class)
+    @Column(name = "special_features")
+    private java.util.Set<Set> specialFeatures;
 
     @ManyToOne()
     @JoinColumn(name = "language_id", nullable = false)
@@ -55,10 +57,10 @@ public class Film {
     private Language originalLanguage;
 
     @CreationTimestamp
-    @Column(name = "timestamp", nullable = false)
+    @Column(nullable = false)
     private Timestamp lastUpdate;
 
-    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate, Integer length, Double replacementCost, Rating rating, Set specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
+    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate, Integer length, Double replacementCost, Rating rating, java.util.Set<Set> specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
         this.title = title;
         this.description = description;
         this.releaseYear = releaseYear;

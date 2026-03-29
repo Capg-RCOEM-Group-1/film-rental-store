@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 public class Rental {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long rentalId;
+    private Integer rentalId;
 
     @CreationTimestamp
     @Column( nullable = false, updatable = false)

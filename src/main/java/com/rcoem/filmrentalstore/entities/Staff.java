@@ -17,7 +17,7 @@ import java.util.List;
 public class Staff {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Byte staffId;
 
     @NotNull
     private String firstName;
@@ -30,7 +30,6 @@ public class Staff {
     @Column(unique = true)
     private String username;
 
-    @NotNull
     private String password;
     @Column(nullable = false)
     private Boolean active = true;
@@ -41,7 +40,7 @@ public class Staff {
 
     private Blob picture;
 
-    @OneToMany
+    @OneToMany(mappedBy = "staff")
     private List<Payment> payments;
 
     @ManyToOne

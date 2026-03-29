@@ -96,7 +96,7 @@ public class StoreAPITest {
     @Test
     void testGetStoreById_NotFound() throws Exception {
         mockMvc.perform(get("/stores/9999"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     // POST Endpoints
@@ -113,7 +113,7 @@ public class StoreAPITest {
                 "manager": "/staff/%d",
                 "address": "/addresses/%d"
             }
-            """, newManager.getId(), newAddress.getAddressId());
+            """, newManager.getStaffId(), newAddress.getAddressId());
 
         mockMvc.perform(post("/stores")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -55,8 +55,8 @@ public class CustomerApiTest {
     public void setup() {
         customerRepository.deleteAll();
         testTimestamp = Timestamp.from(Instant.now());
-        address = addressRepository.findById(5L).orElse(null);
-        store = storeRepository.findById(1L).orElse(null);
+        address = addressRepository.findById((short) 5L).orElse(null);
+        store = storeRepository.findById((byte) 1L).orElse(null);
         Customer customer = new Customer("Tom", "Hanks", "tom@email.com", store,address);
         testCustomer = customerRepository.save(customer);
     }

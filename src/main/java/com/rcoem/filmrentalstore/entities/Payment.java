@@ -22,7 +22,7 @@ public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Short paymentId;
     @Column(columnDefinition = "DECIMAL",nullable = false)
     private Double amount;
 
