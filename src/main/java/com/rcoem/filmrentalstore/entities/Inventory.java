@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Setter
@@ -12,6 +13,7 @@ import java.sql.Timestamp;
 public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long inventoryId;
 
     @UpdateTimestamp
@@ -19,10 +21,13 @@ public class Inventory {
     private Timestamp timestamp;
 
     @ManyToOne
-    @JoinColumn(name = "film_id")
-    private Film film;
+    @JoinColumn(name = "film_id",nullable = false)
+    private Film film ;
 
-    @ManyToOne
-    @JoinColumn(name = "store_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "store_id", nullable = false)
     private Store store;
+
+    @OneToMany(mappedBy = "inventory")
+    List<Rental> rentals;
 }
