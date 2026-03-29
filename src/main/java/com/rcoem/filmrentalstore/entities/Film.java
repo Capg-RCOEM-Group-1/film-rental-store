@@ -2,6 +2,7 @@ package com.rcoem.filmrentalstore.entities;
 
 import java.sql.Timestamp;
 import java.util.List;
+
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
