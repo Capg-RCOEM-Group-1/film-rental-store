@@ -61,7 +61,7 @@ class PaymentSearchApiTest {
         Customer c = new Customer();
         c.setFirstName(fName);
         c.setLastName(lName);
-        c.setActive('Y');
+        c.setActive(true);
         c.setAddress(address);
         return customerRepository.save(c);
     }
