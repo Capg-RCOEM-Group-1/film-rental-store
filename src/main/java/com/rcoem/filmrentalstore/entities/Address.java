@@ -10,8 +10,10 @@ import lombok.Setter;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.geo.Point;
 
 @Entity
 @Table(name = "address")
@@ -40,6 +42,9 @@ public class Address {
     @Column(name = "phone")
     private String phone;
 
+    @Column(name = "location", columnDefinition = "GEOMETRY")
+    private Point location;
+
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
@@ -48,4 +53,9 @@ public class Address {
     @JoinColumn(name = "city_id")
     private City city;
 
+    @OneToMany(mappedBy = "address")
+    private List<Customer> customers;
+
+    @OneToMany(mappedBy = "address")
+    private List<Staff> staffs;
 }

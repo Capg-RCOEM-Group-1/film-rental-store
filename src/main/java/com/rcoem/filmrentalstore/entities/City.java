@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -25,12 +26,16 @@ public class City {
     @Column(name = "city")
     private String city;
 
+    @ManyToOne
+    @JoinColumn(name = "country_id")
+    private Country country;
+
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
-    @ManyToOne
-    @JoinColumn(name = "country_id")
-    private Country country;
+
+    @OneToMany(mappedBy = "city")
+    private List<Address> addresses;
 
 }
