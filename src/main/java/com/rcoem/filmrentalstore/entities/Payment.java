@@ -44,4 +44,10 @@ public class Payment {
     @ManyToOne
     @JoinColumn(name = "customer_id",nullable = false)
     private Customer customer;
+
+    public Payment(double amount, LocalDateTime now, Staff staff, Customer customer) {
+        this.amount = amount;
+        this.staff = staff;
+        this.customer = customer;
+    }
 }
