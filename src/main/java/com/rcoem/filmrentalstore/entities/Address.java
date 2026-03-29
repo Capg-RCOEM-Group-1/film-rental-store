@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.geo.Point;
 
 @Entity
 @Table(name = "address")
@@ -40,6 +41,9 @@ public class Address {
 
     @Column(name = "phone")
     private String phone;
+
+    @Column(name = "location", columnDefinition = "GEOMETRY")
+    private Point location;
 
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
