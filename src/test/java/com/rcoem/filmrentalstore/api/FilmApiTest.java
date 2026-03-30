@@ -6,6 +6,9 @@ import com.rcoem.filmrentalstore.enums.Rating;
 import com.rcoem.filmrentalstore.enums.Set;
 import com.rcoem.filmrentalstore.repository.FilmRepository;
 import com.rcoem.filmrentalstore.repository.LanguageRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +28,7 @@ import java.util.HashSet;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class FilmApiTest {
 
     @Autowired
@@ -51,9 +55,9 @@ class FilmApiTest {
         film.setDescription("A mind-bending thriller");
         film.setReleaseYear(2010);
         film.setRentalDuration(7);
-        film.setRentalRate(BigDecimal.valueOf(50.00));
+        film.setRentalRate(BigDecimal.valueOf(4.99));
         film.setLength(148);
-        film.setReplacementCost(BigDecimal.valueOf(500.00));
+        film.setReplacementCost(BigDecimal.valueOf(19.99));
         film.setRating(Rating.PG_13);
         film.setSpecialFeatures(new HashSet<>());
         film.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
@@ -96,9 +100,9 @@ class FilmApiTest {
                     "description": "Space exploration",
                     "releaseYear": 2014,
                     "rentalDuration": 5,
-                    "rentalRate": 120.0,
+                    "rentalRate": 4.99,
                     "length": 169,
-                    "replacementCost": 400.0,
+                    "replacementCost": 19.99,
                     "rating": "PG",
                     "language": "/api/languages/%d"
                 }
@@ -115,7 +119,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
     String patchJson = """
             {
                 "title": "Inception Updated",
-                "rentalRate": 200.0
+                "rentalRate": 4.99
             }
             """;
 
