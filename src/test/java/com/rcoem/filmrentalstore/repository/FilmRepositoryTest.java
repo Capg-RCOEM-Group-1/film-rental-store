@@ -69,7 +69,7 @@ class FilmRepositoryTest {
         assertEquals(148, result.getLength());
         assertEquals(500.0, result.getReplacementCost());
         assertEquals(Rating.PG_13, result.getRating());
-        assertEquals(Set.BEHIND_THE_SCENES, result.getSpecialFeatures());
+        assertTrue(result.getSpecialFeatures().contains(Set.BEHIND_THE_SCENES));
     }
 
     @Test
