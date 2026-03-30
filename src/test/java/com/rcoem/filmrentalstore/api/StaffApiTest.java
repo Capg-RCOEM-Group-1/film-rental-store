@@ -8,15 +8,20 @@ import com.rcoem.filmrentalstore.repository.StaffRepository;
 import com.rcoem.filmrentalstore.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -37,36 +42,46 @@ public class StaffApiTest {
 
     @BeforeEach
     public void setup() {
-
+        // 1. Clear in correct order (child to parent to avoid FK violations)
         staffRepository.deleteAll();
         storeRepository.deleteAll();
         addressRepository.deleteAll();
 
+        // 2. Setup Address
         Address address = new Address();
-        address.setAddress("s");
+        address.setAddress("123 Spring St");
         address = addressRepository.save(address);
 
+        // 3. Setup Store
         Store store = new Store();
         store.setAddress(address);
-        storeRepository.save(store);
+        store = storeRepository.save(store);
 
-        // Given: An active staff member exists
+        // 4. Create Active Staff
         Staff activeStaff = new Staff();
         activeStaff.setFirstName("John");
         activeStaff.setLastName("Doe");
-        activeStaff.setActive(true);
+        activeStaff.setUsername("jdoe"); // Required for your identifier lookup
+        activeStaff.setEmail("john.doe@test.com"); // Unique constraint
         activeStaff.setPassword("pass123");
+        activeStaff.setActive(true);
         activeStaff.setAddress(address);
         activeStaff.setStore(store);
-        // Given: An not active staff member exists
+        // Optional: Blob picture could be null or empty byte array
+        activeStaff.setPicture(null);
+
+        // 5. Create Inactive Staff
         Staff inactiveStaff = new Staff();
         inactiveStaff.setFirstName("Jane");
         inactiveStaff.setLastName("Smith");
-        inactiveStaff.setActive(false);
+        inactiveStaff.setUsername("jsmith"); // Required for your identifier lookup
+        inactiveStaff.setEmail("jane.smith@test.com"); // Unique constraint
         inactiveStaff.setPassword("pass456");
+        inactiveStaff.setActive(false);
         inactiveStaff.setAddress(address);
         inactiveStaff.setStore(store);
 
+        // 6. Persist
         staffRepository.saveAll(List.of(activeStaff, inactiveStaff));
     }
 
@@ -132,6 +147,86 @@ public class StaffApiTest {
                 .andExpect(jsonPath("$._embedded.staffs[0].firstName").value("Jane"))
                 .andExpect(jsonPath("$._embedded.staffs[0].active").doesNotExist()); // 'active' is not in staffView
     }
+    @Test
+    public void testAddStaff() throws Exception {
+        // Get URIs for the required dependencies created in @BeforeEach
+        String addressUri = "/addresses/" + addressRepository.findAll().get(0).getAddressId();
+        String storeUri = "/stores/" + storeRepository.findAll().get(0).getStoreId();
 
+        String newStaffJson = """
+            {
+                "firstName": "Robert",
+                "lastName": "Martin",
+                "username": "unclebob",
+                "email": "bob@example.com",
+                "password": "clean-code-rules",
+                "active": true,
+                "address": "%s",
+                "store": "%s"
+            }
+            """.formatted(addressUri, storeUri);
+
+        String location = mockMvc.perform(post("/staffs")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(newStaffJson))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andReturn().getResponse().getHeader("Location");
+
+        // Now GET the resource from the location returned
+        mockMvc.perform(get(location))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("Robert"));
+    }
+
+    @Test
+    public void testUpdateStaff() throws Exception {
+        // Get the first staff member from the DB
+        Staff existingStaff = staffRepository.findAll().get(0);
+
+        // We use PATCH for partial updates (just changing the email and lastName)
+        String updateJson = """
+            {
+                "lastName": "Updated-Name",
+                "email": "updated.email@test.com"
+            }
+            """;
+
+        mockMvc.perform(patch("/staffs/" + existingStaff.getStaffId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andExpect(status().isNoContent()); // Data REST returns 204 on successful patch
+
+        // Verify the change in the database
+        Staff updated = staffRepository.findById(existingStaff.getStaffId()).get();
+        assertEquals("Updated-Name", updated.getLastName());
+        assertEquals("updated.email@test.com", updated.getEmail());
+    }
+
+    @Test
+    public void testDeleteStaff() throws Exception {
+        Staff staffToDelete = staffRepository.findAll().get(0);
+        Byte id = staffToDelete.getStaffId();
+
+        mockMvc.perform(delete("/staffs/" + id))
+                .andExpect(status().isNoContent());
+
+        // Verify the entity is gone
+        assertFalse(staffRepository.existsById(id));
+    }
+
+    @Test
+    public void testGetStaffWithProjection() throws Exception {
+        Staff staff = staffRepository.findAll().get(0);
+
+        mockMvc.perform(get("/staffs/" + staff.getStaffId())
+                        .param("projection", "staffView"))
+                .andExpect(status().isOk())
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(jsonPath("$.firstName").exists())
+                .andExpect(jsonPath("$.username").exists())
+                // Password should NOT be in the projection
+                .andExpect(jsonPath("$.password").doesNotExist());
+    }
 
 }
