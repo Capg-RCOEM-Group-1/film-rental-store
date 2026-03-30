@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
 @RepositoryRestResource(path = "categories", excerptProjection = CategoryProjection.class)
 public interface CategoryRepository extends JpaRepository<Category, Byte> {
 
+    boolean existsByNameIgnoreCase(String name);
+
     @RestResource(path = "byName")
     Page<Category> findByNameContainingIgnoreCase(@Param("name") String name, Pageable pageable); // FIXED ANNOTATION
 }
