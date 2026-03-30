@@ -16,6 +16,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -46,7 +47,7 @@ public class LanguageFilmApiTest {
         lang = new Language();
         lang.setName("English");
         languageRepo.save(lang);
-        film = new Film("Top Gun","*",2004,2,500.0,3,30.0, Rating.PG_13, new HashSet<>(),lang,lang, Timestamp.valueOf(LocalDateTime.now()));
+        film = new Film("Top Gun","*",2004,2, BigDecimal.valueOf(500.0),3,BigDecimal.valueOf(30.0), Rating.PG_13, new HashSet<>(),lang,lang, Timestamp.valueOf(LocalDateTime.now()));
         filmRepo.save(film);
     }
 

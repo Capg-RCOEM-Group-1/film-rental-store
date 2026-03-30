@@ -13,7 +13,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import com.rcoem.filmrentalstore.entities.Film;
 
 
-@RepositoryRestResource(path = "films")
+@RepositoryRestResource(excerptProjection = FilmView.class)
 public interface FilmRepository extends JpaRepository<Film, Short> {
 
     @RestResource(path = "byTitle")

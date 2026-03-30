@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.sql.Timestamp;
 import java.util.HashSet;
@@ -40,9 +41,9 @@ class FilmRepositoryTest {
         film.setDescription("A mind-bending thriller");
         film.setReleaseYear(2010);
         film.setRentalDuration(7);
-        film.setRentalRate(150.0);
+        film.setRentalRate(BigDecimal.valueOf(150.0));
         film.setLength(148);
-        film.setReplacementCost(500.0);
+        film.setReplacementCost(BigDecimal.valueOf(500.0));
         film.setRating(Rating.PG_13);
         set = new HashSet<>();
         set.add(Set.BEHIND_THE_SCENES);
@@ -77,7 +78,7 @@ class FilmRepositoryTest {
         Film savedFilm = filmRepository.save(film);
 
         savedFilm.setTitle("Inception Updated");
-        savedFilm.setRentalRate(200.0);
+        savedFilm.setRentalRate(BigDecimal.valueOf(200.0));
         savedFilm.setLength(160);
         filmRepository.save(savedFilm);
 
@@ -99,9 +100,9 @@ class FilmRepositoryTest {
         film2.setDescription("Space exploration");
         film2.setReleaseYear(2014);
         film2.setRentalDuration(5);
-        film2.setRentalRate(120.0);
+        film2.setRentalRate(BigDecimal.valueOf(120.0));
         film2.setLength(169);
-        film2.setReplacementCost(400.0);
+        film2.setReplacementCost(BigDecimal.valueOf(400.0));
         film2.setRating(Rating.PG);
         film2.setSpecialFeatures(new HashSet<>());
         film2.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
