@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
 
+import com.rcoem.filmrentalstore.converter.EnumConverter;
 import com.rcoem.filmrentalstore.converter.SpecialFeatureConverter;
 import com.rcoem.filmrentalstore.enums.Rating;
 import com.rcoem.filmrentalstore.enums.Set;
@@ -40,7 +41,8 @@ public class Film {
     @Column(nullable = false, columnDefinition = "DECIMAL")
     private Double replacementCost;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = EnumConverter.class)
+    @Column(columnDefinition = "enum('G','PG','PG-13','R','NC-17')")
     private Rating rating;
 
     @Convert(converter = SpecialFeatureConverter.class)
