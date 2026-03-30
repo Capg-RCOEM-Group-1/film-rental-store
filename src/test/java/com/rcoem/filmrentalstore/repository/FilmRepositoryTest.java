@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
+import java.util.HashSet;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,7 +27,7 @@ class FilmRepositoryTest {
     @Autowired
     private LanguageRepository languageRepository;
     private Film film;
-
+    private java.util.Set<Set> set;
     @BeforeEach
     void setUp() {
         filmRepository.deleteAll();
@@ -44,7 +45,9 @@ class FilmRepositoryTest {
         film.setLength(148);
         film.setReplacementCost(500.0);
         film.setRating(Rating.PG_13);
-        film.setSpecialFeatures(Set.BEHIND_THE_SCENES);
+        set = new HashSet<>();
+        set.add(Set.BEHIND_THE_SCENES);
+        film.setSpecialFeatures(set);
         film.setLanguage(language);
 
     }
@@ -70,7 +73,7 @@ class FilmRepositoryTest {
         assertEquals(148, result.getLength());
         assertEquals(500.0, result.getReplacementCost()); 
         assertEquals(Rating.PG_13, result.getRating());
-        assertEquals(Set.BEHIND_THE_SCENES, result.getSpecialFeatures());
+        assertEquals(set, result.getSpecialFeatures());
 
     }
 }
