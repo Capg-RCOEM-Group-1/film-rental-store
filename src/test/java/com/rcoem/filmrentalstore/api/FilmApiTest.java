@@ -51,9 +51,9 @@ class FilmApiTest {
         film.setDescription("A mind-bending thriller");
         film.setReleaseYear(2010);
         film.setRentalDuration(7);
-        film.setRentalRate(BigDecimal.valueOf(150.0));
+        film.setRentalRate(BigDecimal.valueOf(50.00));
         film.setLength(148);
-        film.setReplacementCost(BigDecimal.valueOf(500.0));
+        film.setReplacementCost(BigDecimal.valueOf(500.00));
         film.setRating(Rating.PG_13);
         film.setSpecialFeatures(new HashSet<>());
         film.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);

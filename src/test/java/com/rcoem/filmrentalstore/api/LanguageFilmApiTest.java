@@ -47,7 +47,7 @@ public class LanguageFilmApiTest {
         lang = new Language();
         lang.setName("English");
         languageRepo.save(lang);
-        film = new Film("Top Gun","*",2004,2, BigDecimal.valueOf(500.0),3,BigDecimal.valueOf(30.0), Rating.PG_13, new HashSet<>(),lang,lang, Timestamp.valueOf(LocalDateTime.now()));
+        film = new Film("Top Gun","*",2004,2, BigDecimal.valueOf(50.00),3,BigDecimal.valueOf(300.00), Rating.PG_13, new HashSet<>(),lang,lang, Timestamp.valueOf(LocalDateTime.now()));
         filmRepo.save(film);
     }
 
