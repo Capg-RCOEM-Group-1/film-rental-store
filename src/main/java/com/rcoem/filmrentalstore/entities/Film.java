@@ -1,5 +1,6 @@
 package com.rcoem.filmrentalstore.entities;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,8 @@ import lombok.*;
 @Entity
 @Data
 public class Film {
+    @Column(precision = 5, scale = 2)
+    private BigDecimal replacementCost;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Short filmId;
@@ -33,13 +36,10 @@ public class Film {
     @Column(nullable = false)
     private Integer rentalDuration;
 
-    @Column(nullable = false, columnDefinition = "DECIMAL(4,2)")
-    private Double rentalRate;
-
     private Integer length;
 
-    @Column(nullable = false, columnDefinition = "DECIMAL")
-    private Double replacementCost;
+    @Column(nullable = false, precision = 4, scale = 2)
+    private BigDecimal rentalRate;
 
     @Convert(converter = EnumConverter.class)
     @Column(columnDefinition = "enum('G','PG','PG-13','R','NC-17')")
@@ -64,7 +64,7 @@ public class Film {
 
     public Film(){}
 
-    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate, Integer length, Double replacementCost, Rating rating, HashSet<Set> specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
+    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, BigDecimal rentalRate, Integer length, BigDecimal replacementCost, Rating rating, HashSet<Set> specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
         this.title = title;
         this.description = description;
         this.releaseYear = releaseYear;
