@@ -35,27 +35,20 @@ public class StoreRepositoryTest {
 
     @BeforeEach
     void setup() {
-        // 1. Clear existing data in correct dependency order
         staffRepository.deleteAll();
         storeRepository.deleteAll();
         addressRepository.deleteAll();
 
-        // 2. Create and SAVE the Address first
-        // This gives the address an ID so the @NotNull check in Store passes
         Address address = new Address();
         address.setAddress("123 Main St");
         address.setDistrict("Central");
         address.setPhone("555-0123");
-        // Add any other required address fields here
         testAddress = addressRepository.save(address);
 
-        // 3. Create the Store and link the saved Address
         Store store = new Store();
         store.setAddress(testAddress);
-        // Do NOT set the manager yet, as the staff doesn't exist
         testStore = storeRepository.save(store);
 
-        // 4. Create the Staff, link to Address and Store, then SAVE
         Staff staff = new Staff();
         staff.setFirstName("John");
         staff.setLastName("Doe");
@@ -65,7 +58,6 @@ public class StoreRepositoryTest {
         staff.setPassword("secret");
         testManager = staffRepository.save(staff);
 
-        // 5. Update the Store to set the Manager
         testStore.setManager(testManager);
         storeRepository.save(testStore);
     }
@@ -122,20 +114,6 @@ public class StoreRepositoryTest {
 
     // Negative and Null Cases :
 
-    //Could Create a Circular dependency
-    /*@Test
-    void testSaveStore_NullManager_ShouldThrowException() {
-        // Create store without a manager
-        Store store = new Store();
-        store.setAddress(testAddress);
-        // manager is null by default
-
-        // Expecting a DataIntegrityViolation because manager_id is likely @NotNull in DB
-        assertThrows(ConstraintViolationException.class, () -> {
-            storeRepository.saveAndFlush(store);
-        });
-    }*/
-
     @Test
     void testSaveStore_NullAddress_ShouldThrowException() {
         // Create store without an address
@@ -150,7 +128,6 @@ public class StoreRepositoryTest {
 
     @Test
     void testFindStoreByAddress_NonExistentAddress() {
-        // Create a new address but DON'T save a store linked to it
         Address unsavedAddress = addressRepository.save(new Address());
 
         List<Store> found = storeRepository.findByAddress(unsavedAddress);
