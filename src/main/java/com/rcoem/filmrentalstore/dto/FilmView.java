@@ -4,6 +4,8 @@ import com.rcoem.filmrentalstore.entities.Film;
 import com.rcoem.filmrentalstore.enums.Rating;
 import org.springframework.data.rest.core.config.Projection;
 
+import java.util.Set;
+
 @Projection(name = "FilmView", types = {Film.class})
 public interface FilmView {
     String getTitle();
@@ -13,5 +15,6 @@ public interface FilmView {
     Double getRentalRate();
     Integer getLength();
     Double getReplacementCost();
-    Rating getRating();
+    String getRating();
+    Set<com.rcoem.filmrentalstore.enums.Set> getSpecialFeatures();
 }
