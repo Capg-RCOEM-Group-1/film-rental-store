@@ -32,7 +32,7 @@ public class Film {
     @Column(nullable = false)
     private Integer rentalDuration;
 
-    @Column(nullable = false, columnDefinition = "DECIMAL")
+    @Column(nullable = false, columnDefinition = "DECIMAL(4,2)")
     private Double rentalRate;
 
     private Integer length;
