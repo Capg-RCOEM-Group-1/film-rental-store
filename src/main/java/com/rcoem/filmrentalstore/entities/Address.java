@@ -42,7 +42,7 @@ public class Address {
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "location", columnDefinition = "GEOMETRY")
+    @Column(name = "location", columnDefinition = "GEOMETRY", nullable = true)
     private Point location;
 
     @UpdateTimestamp
