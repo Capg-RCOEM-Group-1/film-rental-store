@@ -1,6 +1,5 @@
-package com.rcoem.filmrentalstore.dto;
+package com.rcoem.filmrentalstore.entities;
 
-import com.rcoem.filmrentalstore.entities.Staff;
 import org.springframework.data.rest.core.config.Projection;
 
 @Projection(name = "staffView", types = { Staff.class })
