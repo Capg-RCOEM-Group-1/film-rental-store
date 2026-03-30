@@ -1,6 +1,7 @@
 package com.rcoem.filmrentalstore.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,6 +43,7 @@ public class Address {
     @Column(name = "phone")
     private String phone;
 
+    @NotNull
     @Column(name = "location", columnDefinition = "GEOMETRY")
     private Point location;
 
@@ -49,6 +51,7 @@ public class Address {
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "city_id")
     private City city;

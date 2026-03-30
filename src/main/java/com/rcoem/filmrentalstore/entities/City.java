@@ -1,6 +1,7 @@
 package com.rcoem.filmrentalstore.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +27,7 @@ public class City {
     @Column(name = "city")
     private String city;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "country_id")
     private Country country;
