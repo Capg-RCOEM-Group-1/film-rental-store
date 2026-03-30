@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.geo.Point;
+import org.locationtech.jts.geom.Point;
 
 @Entity
 @Table(name = "address")
