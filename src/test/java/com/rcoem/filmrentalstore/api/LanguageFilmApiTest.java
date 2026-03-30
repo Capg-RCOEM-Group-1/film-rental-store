@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class LanguageFilmApiTest {
 
     @Autowired
@@ -40,9 +42,6 @@ public class LanguageFilmApiTest {
     private Language lang;
     @BeforeEach
     void setup(){
-        //filmCategoryRepo.deleteAll();
-        filmRepo.deleteAll();
-        languageRepo.deleteAll();
 
         lang = new Language();
         lang.setName("English");

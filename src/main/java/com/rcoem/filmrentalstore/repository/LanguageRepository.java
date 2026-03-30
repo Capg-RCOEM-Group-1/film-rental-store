@@ -7,4 +7,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource(excerptProjection = LanguageView.class)
 public interface LanguageRepository extends JpaRepository<Language,Byte> {
+    boolean existsByNameIgnoreCase(String name);
 }
