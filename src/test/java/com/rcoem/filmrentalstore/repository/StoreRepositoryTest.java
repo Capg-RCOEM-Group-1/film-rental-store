@@ -106,9 +106,9 @@ public class StoreRepositoryTest {
 
     @Test
     void testFindStoreByAddress() {
-        Optional<Store> found = storeRepository.findByAddress(testAddress);
-        assertThat(found).isPresent();
-        assertThat(found.get().getAddress()).isEqualTo(testAddress);
+        List<Store> found = storeRepository.findByAddress(testAddress);
+        assertThat(found).isNotEmpty();
+        assertThat(found.get(0).getAddress()).isEqualTo(testAddress);
     }
 
 
@@ -153,7 +153,7 @@ public class StoreRepositoryTest {
         // Create a new address but DON'T save a store linked to it
         Address unsavedAddress = addressRepository.save(new Address());
 
-        Optional<Store> found = storeRepository.findByAddress(unsavedAddress);
+        List<Store> found = storeRepository.findByAddress(unsavedAddress);
 
         assertThat(found).isEmpty();
     }
