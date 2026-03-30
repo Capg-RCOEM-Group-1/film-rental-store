@@ -2,6 +2,7 @@ package com.rcoem.filmrentalstore.repository;
 
 import java.util.List;
 
+import com.rcoem.filmrentalstore.dto.FilmView;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,6 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 
 import com.rcoem.filmrentalstore.entities.Film;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 
 @RepositoryRestResource(path = "films")

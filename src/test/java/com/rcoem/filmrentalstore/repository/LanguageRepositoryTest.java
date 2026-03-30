@@ -90,10 +90,10 @@ public class LanguageRepositoryTest {
         Language language = new Language();
         language.setName("Sanskrit");
         languageRepo.save(language);
-        Optional<Language> lang = languageRepo.findById(999L);
+        Optional<Language> lang = languageRepo.findById((byte) 999L);
         assertThat(lang).isEmpty();
         assertThatThrownBy(()->{
-            languageRepo.findById(99L).orElseThrow(()->new ResourceNotFoundException("Resource not found with id "));
+            languageRepo.findById((byte) 99L).orElseThrow(()->new ResourceNotFoundException("Resource not found with id "));
         }).isInstanceOf(ResourceNotFoundException.class);
     }
 

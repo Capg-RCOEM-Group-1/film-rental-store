@@ -14,7 +14,7 @@ public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    private Long inventoryId;
+    private Integer inventoryId;
 
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)

@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -38,13 +41,15 @@ public class CustomerRepositoryTest {
     private Customer testCustomer;
     private Address address;
     private Store store;
+    private Pageable pageable;
 
     @BeforeEach
     public void setup() {
         customerRepository.deleteAll();
+        pageable = PageRequest.of(0, 10);
         testTimestamp = Timestamp.from(Instant.now());
-        address = addressRepository.findById(5L).orElse(null);
-        store = storeRepository.findById(1L).orElse(null);
+        address = addressRepository.findById((short) 5).orElse(null);
+        store = storeRepository.findById((byte) 1).orElse(null);
         Customer customer = new Customer("Tom", "Hanks", "tom@email.com", store,address);
         testCustomer = customerRepository.save(customer);
     }
@@ -70,7 +75,7 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testFindByFirstName_Valid() {
-        List<Customer> foundList = customerRepository.findByFirstName(testCustomer.getFirstName());
+        List<Customer> foundList = customerRepository.findByFirstName(testCustomer.getFirstName(), pageable).toList();
 
         assertThat(foundList).isNotEmpty();
         assertThat(foundList.get(0).getLastName()).isEqualTo(testCustomer.getLastName());
@@ -79,7 +84,7 @@ public class CustomerRepositoryTest {
     @Test
     public void testFindByLastName_Valid() {
 
-        List<Customer> foundList = customerRepository.findByLastName(testCustomer.getLastName());
+        List<Customer> foundList = customerRepository.findByLastName(testCustomer.getLastName(), pageable).toList();
 
         assertThat(foundList).isNotEmpty();
         assertThat(foundList.get(0).getFirstName()).isEqualTo(testCustomer.getFirstName());
@@ -97,7 +102,7 @@ public class CustomerRepositoryTest {
     @Test
     public void testFindByActive_Valid() {
 
-        List<Customer> foundList = customerRepository.findByActive(testCustomer.getActive());
+        List<Customer> foundList = customerRepository.findByActive(testCustomer.getActive(), pageable).toList();
 
         assertThat(foundList).isNotEmpty();
         assertThat(foundList.get(0).getFirstName()).isEqualTo(testCustomer.getFirstName());
@@ -108,7 +113,7 @@ public class CustomerRepositoryTest {
         Customer dbCustomer = customerRepository.findById(testCustomer.getCustomerId()).orElseThrow();
         LocalDateTime exactDbDate = dbCustomer.getCreateDate();
 
-        List<Customer> foundList = customerRepository.findByCreateDate(exactDbDate);
+        List<Customer> foundList = customerRepository.findByCreateDate(exactDbDate, pageable).toList();
 
         assertThat(foundList).isNotEmpty();
         assertThat(foundList.get(0).getFirstName()).isEqualTo(testCustomer.getFirstName());
@@ -118,7 +123,7 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testFindByCustomerId_InvalidId_ReturnsEmpty() {
-        Optional<Customer> found = customerRepository.findById(9999L);
+        Optional<Customer> found = customerRepository.findById((short) 9999L);
         assertThat(found).isEmpty();
     }
 

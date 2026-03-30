@@ -161,7 +161,7 @@ public class StoreRepositoryTest {
     @Test
     void testFindById_InvalidId() {
         // ID that definitely doesn't exist
-        Optional<Store> found = storeRepository.findById(9999L);
+        Optional<Store> found = storeRepository.findById((byte) 9999L);
 
         assertThat(found).isNotPresent();
     }
