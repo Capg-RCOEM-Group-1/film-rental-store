@@ -1,6 +1,7 @@
 package com.rcoem.filmrentalstore.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public class Store {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long storeId;
+    private Byte storeId;
 
     @UpdateTimestamp
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
@@ -23,7 +24,7 @@ public class Store {
     public Store() {
     }
 
-    public Store(Long storeId) {
+    public Store(Byte storeId) {
         this.storeId = storeId;
     }
 
@@ -33,7 +34,13 @@ public class Store {
     @OneToMany(mappedBy = "store")
     private List<Inventory> inventories;
 
+
     @OneToOne
     @JoinColumn(name = "manager_staff_id")
     private Staff manager;
+
+    @NotNull
+    @OneToOne
+    @JoinColumn(name = "address_id",nullable = false)
+    private Address address;
 }

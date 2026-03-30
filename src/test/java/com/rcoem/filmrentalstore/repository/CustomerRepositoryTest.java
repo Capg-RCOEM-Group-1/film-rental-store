@@ -1,6 +1,8 @@
 package com.rcoem.filmrentalstore.repository;
 
+import com.rcoem.filmrentalstore.entities.Address;
 import com.rcoem.filmrentalstore.entities.Customer;
+import com.rcoem.filmrentalstore.entities.Store;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +28,24 @@ public class CustomerRepositoryTest {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private StoreRepository storeRepository;
+
     private Timestamp testTimestamp;
     private Customer testCustomer;
+    private Address address;
+    private Store store;
 
     @BeforeEach
     public void setup() {
         customerRepository.deleteAll();
         testTimestamp = Timestamp.from(Instant.now());
-        Customer customer = new Customer("Tom", "Hanks", "tom@email.com", 'Y', testTimestamp);
+        address = addressRepository.findById((short) 5).orElse(null);
+        store = storeRepository.findById((byte) 1).orElse(null);
+        Customer customer = new Customer("Tom", "Hanks", "tom@email.com", store,address);
         testCustomer = customerRepository.save(customer);
     }
 
@@ -58,7 +70,7 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testFindByFirstName_Valid() {
-        List<Customer> foundList = customerRepository.findByFirstName(testCustomer.getFirstName()).orElse(null);
+        List<Customer> foundList = customerRepository.findByFirstName(testCustomer.getFirstName());
 
         assertThat(foundList).isNotEmpty();
         assertThat(foundList.get(0).getLastName()).isEqualTo(testCustomer.getLastName());
@@ -67,7 +79,7 @@ public class CustomerRepositoryTest {
     @Test
     public void testFindByLastName_Valid() {
 
-        List<Customer> foundList = customerRepository.findByLastName(testCustomer.getLastName()).orElse(null);
+        List<Customer> foundList = customerRepository.findByLastName(testCustomer.getLastName());
 
         assertThat(foundList).isNotEmpty();
         assertThat(foundList.get(0).getFirstName()).isEqualTo(testCustomer.getFirstName());
@@ -85,7 +97,7 @@ public class CustomerRepositoryTest {
     @Test
     public void testFindByActive_Valid() {
 
-        List<Customer> foundList = customerRepository.findByActive(testCustomer.getActive()).orElse(null);
+        List<Customer> foundList = customerRepository.findByActive(testCustomer.getActive());
 
         assertThat(foundList).isNotEmpty();
         assertThat(foundList.get(0).getFirstName()).isEqualTo(testCustomer.getFirstName());
@@ -94,9 +106,9 @@ public class CustomerRepositoryTest {
     @Test
     public void testFindByCreateDate_Valid() {
         Customer dbCustomer = customerRepository.findById(testCustomer.getCustomerId()).orElseThrow();
-        Date exactDbDate = dbCustomer.getCreateDate();
+        LocalDateTime exactDbDate = dbCustomer.getCreateDate();
 
-        List<Customer> foundList = customerRepository.findByCreateDate(exactDbDate).orElse(null);
+        List<Customer> foundList = customerRepository.findByCreateDate(exactDbDate);
 
         assertThat(foundList).isNotEmpty();
         assertThat(foundList.get(0).getFirstName()).isEqualTo(testCustomer.getFirstName());
@@ -106,7 +118,7 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testFindByCustomerId_InvalidId_ReturnsEmpty() {
-        Optional<Customer> found = customerRepository.findById(9999L);
+        Optional<Customer> found = customerRepository.findById((short) 9999L);
         assertThat(found).isEmpty();
     }
 
@@ -118,7 +130,7 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testSaveCustomer_MissingFirstName_ThrowsConstraintViolation() {
-        Customer customer = new Customer(null, "Hanks", "tom@email.com", 'Y', testTimestamp);
+        Customer customer = new Customer(null, "Hanks", "tom@email.com", store, address);
 
         assertThatThrownBy(() -> {
             customerRepository.save(customer);
@@ -128,7 +140,7 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testSaveCustomer_InvalidEmailFormat_ThrowsConstraintViolation() {
-        Customer customer = new Customer("Tom", "Hanks", "not-an-email", 'Y', testTimestamp);
+        Customer customer = new Customer("Tom", "Hanks", "not-an-email", store, address);
 
         assertThatThrownBy(() -> {
             customerRepository.save(customer);
