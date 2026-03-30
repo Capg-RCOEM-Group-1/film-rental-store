@@ -4,6 +4,7 @@ import com.rcoem.filmrentalstore.entities.Film;
 import com.rcoem.filmrentalstore.enums.Rating;
 import org.springframework.data.rest.core.config.Projection;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 @Projection(name = "FilmView", types = {Film.class})
@@ -12,9 +13,9 @@ public interface FilmView {
     String getDescription();
     Integer getReleaseYear();
     Integer getRentalDuration();
-    Double getRentalRate();
+    BigDecimal getRentalRate();
     Integer getLength();
-    Double getReplacementCost();
-    String getRating();
+    BigDecimal getReplacementCost();
+    Rating getRating();
     Set<com.rcoem.filmrentalstore.enums.Set> getSpecialFeatures();
 }

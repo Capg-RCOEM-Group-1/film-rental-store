@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashSet;
 
@@ -50,9 +51,9 @@ class FilmApiTest {
         film.setDescription("A mind-bending thriller");
         film.setReleaseYear(2010);
         film.setRentalDuration(7);
-        film.setRentalRate(150.0);
+        film.setRentalRate(BigDecimal.valueOf(50.00));
         film.setLength(148);
-        film.setReplacementCost(500.0);
+        film.setReplacementCost(BigDecimal.valueOf(500.00));
         film.setRating(Rating.PG_13);
         film.setSpecialFeatures(new HashSet<>());
         film.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
