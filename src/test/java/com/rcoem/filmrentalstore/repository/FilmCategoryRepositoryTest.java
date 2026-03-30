@@ -37,7 +37,8 @@ public class FilmCategoryRepositoryTest {
 
         Film film = new Film();
         film.setTitle("Test Film");
-        film.setTimestamp(Timestamp.from(Instant.now()));
+
+        film.setLastUpdate(Timestamp.from(Instant.now()));
         film = filmRepository.save(film);
 
         Category category = new Category();

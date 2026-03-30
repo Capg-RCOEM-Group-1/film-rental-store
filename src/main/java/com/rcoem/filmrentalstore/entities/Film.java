@@ -61,9 +61,6 @@ public class Film {
     @OneToMany(mappedBy = "film")
     private List<Inventory> inventories;
 
-    //Mapping Added By Ameya : 27th March : 11:52am
-    @OneToMany(mappedBy = "film")
-    private List<Inventory> inventories;
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(
         name = "film_actor",
@@ -75,7 +72,8 @@ public class Film {
    
 
     public Film() {}
-    
+
+
     public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate, Integer length, Double replacementCost, String rating, String specialFeatures, Timestamp lastUpdate) {
         this.title = title;
         this.description = description;

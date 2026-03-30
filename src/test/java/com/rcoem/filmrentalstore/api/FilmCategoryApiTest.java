@@ -46,7 +46,7 @@ public class FilmCategoryApiTest {
 
         film = new Film();
         film.setTitle("Test Film");
-        film.setTimestamp(Timestamp.from(Instant.now()));
+        film.setLastUpdate(Timestamp.from(Instant.now()));
         film = filmRepository.save(film);
 
         category = new Category();
