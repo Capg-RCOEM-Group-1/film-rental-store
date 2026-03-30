@@ -2,6 +2,8 @@ package com.rcoem.filmrentalstore.repository;
 
 import com.rcoem.filmrentalstore.dto.CustomerRentalDetails;
 import com.rcoem.filmrentalstore.entities.Rental;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,5 +24,5 @@ public interface RentalRepository extends JpaRepository<Rental, Integer> {
             WHERE r.customer_id = :customerId
             GROUP BY r.rental_id, f.title, r.rental_date, r.return_date
             """, nativeQuery = true)
-    List<CustomerRentalDetails> findRentalDetailsByCustomerId(@Param("customerId") Long customerId);
+    Page<CustomerRentalDetails> findRentalDetailsByCustomerId(@Param("customerId") Long customerId, Pageable pageable);
 }
