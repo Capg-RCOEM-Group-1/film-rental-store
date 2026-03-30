@@ -41,9 +41,9 @@ class FilmRepositoryTest {
         film.setDescription("A mind-bending thriller");
         film.setReleaseYear(2010);
         film.setRentalDuration(7);
-        film.setRentalRate(BigDecimal.valueOf(20.00));
+        film.setRentalRate(BigDecimal.valueOf(4.99));
         film.setLength(148);
-        film.setReplacementCost(BigDecimal.valueOf(500.00));
+        film.setReplacementCost(BigDecimal.valueOf(19.99));
         film.setRating(Rating.PG_13);
         set = new HashSet<>();
         set.add(Set.BEHIND_THE_SCENES);
@@ -66,11 +66,11 @@ class FilmRepositoryTest {
         assertEquals("A mind-bending thriller", result.getDescription());
         assertEquals(2010, result.getReleaseYear());
         assertEquals(7, result.getRentalDuration());
-        assertEquals(BigDecimal.valueOf(20.00), result.getRentalRate());
+        assertEquals(BigDecimal.valueOf(4.99), result.getRentalRate());
         assertEquals(148, result.getLength());
-        assertEquals(BigDecimal.valueOf(500.00), result.getReplacementCost());
+        assertEquals(BigDecimal.valueOf(19.99), result.getReplacementCost());
         assertEquals(Rating.PG_13, result.getRating());
-        assertEquals(Set.BEHIND_THE_SCENES, result.getSpecialFeatures());
+        assertTrue(result.getSpecialFeatures().contains(Set.BEHIND_THE_SCENES));
     }
 
     @Test
@@ -78,7 +78,7 @@ class FilmRepositoryTest {
         Film savedFilm = filmRepository.save(film);
 
         savedFilm.setTitle("Inception Updated");
-        savedFilm.setRentalRate(BigDecimal.valueOf(200.0));
+        savedFilm.setRentalRate(BigDecimal.valueOf(4.99));
         savedFilm.setLength(160);
         filmRepository.save(savedFilm);
 
@@ -89,7 +89,7 @@ class FilmRepositoryTest {
         Film result = retrieved.get();
 
         assertEquals("Inception Updated", result.getTitle());
-        assertEquals(BigDecimal.valueOf(200.0), result.getRentalRate());
+        assertEquals(BigDecimal.valueOf(4.99), result.getRentalRate());
         assertEquals(160, result.getLength());
     }
 
@@ -100,9 +100,9 @@ class FilmRepositoryTest {
         film2.setDescription("Space exploration");
         film2.setReleaseYear(2014);
         film2.setRentalDuration(5);
-        film2.setRentalRate(BigDecimal.valueOf(20.00));
+        film2.setRentalRate(BigDecimal.valueOf(4.99));
         film2.setLength(169);
-        film2.setReplacementCost(BigDecimal.valueOf(400.00));
+        film2.setReplacementCost(BigDecimal.valueOf(19.99));
         film2.setRating(Rating.PG);
         film2.setSpecialFeatures(new HashSet<>());
         film2.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
