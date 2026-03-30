@@ -3,19 +3,14 @@ package com.rcoem.filmrentalstore.repository;
 import com.rcoem.filmrentalstore.entities.Address;
 import com.rcoem.filmrentalstore.entities.Staff;
 import com.rcoem.filmrentalstore.entities.Store;
-import com.rcoem.filmrentalstore.entities.StaffView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 

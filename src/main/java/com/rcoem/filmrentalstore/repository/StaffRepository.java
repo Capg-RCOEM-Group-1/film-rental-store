@@ -2,7 +2,6 @@ package com.rcoem.filmrentalstore.repository;
 
 
 import com.rcoem.filmrentalstore.entities.Staff;
-import com.rcoem.filmrentalstore.entities.StaffView;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
