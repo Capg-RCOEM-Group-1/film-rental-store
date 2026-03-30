@@ -16,7 +16,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: testdb
+          MYSQL_DATABASE: sakila
           MYSQL_USER: testuser
           MYSQL_PASSWORD: testpass
         ports:
@@ -26,6 +26,8 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+          -v ${{ github.workspace }}/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+          -v ${{ github.workspace }}/src/main/resources/data.sql:/docker-entrypoint-initdb.d/2-data.sql
 
     steps:
       - name: Checkout code
