@@ -38,7 +38,7 @@ public class LanguageApiTest {
     void testCreateLanguage() throws Exception {
         String json = """
         {
-            "name": "Spanish"
+            "name": "Hindi"
         }
     """;
         mockMvc.perform(post("/languages")
@@ -59,7 +59,7 @@ public class LanguageApiTest {
     void testCreateDuplicateLanguage() throws Exception {
         String json = """
         {
-            "name": "Spanish"
+            "name": "Hindi"
         }
     """;
         mockMvc.perform(post("/languages")
