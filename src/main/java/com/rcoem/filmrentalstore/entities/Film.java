@@ -3,6 +3,7 @@ package com.rcoem.filmrentalstore.entities;
 import java.sql.Timestamp;
 import java.util.List;
 
+import com.rcoem.filmrentalstore.converter.SpecialFeatureConverter;
 import com.rcoem.filmrentalstore.enums.Rating;
 import com.rcoem.filmrentalstore.enums.Set;
 import jakarta.persistence.*;
@@ -41,8 +42,9 @@ public class Film {
     @Enumerated(EnumType.STRING)
     private Rating rating;
 
-    @Enumerated(EnumType.STRING)
-    private Set specialFeatures;
+    @Convert(converter = SpecialFeatureConverter.class)
+    @Column(name = "special_features")
+    private java.util.Set<Set> specialFeatures;
 
     @ManyToOne()
     @JoinColumn(name = "language_id", nullable = false)
@@ -53,7 +55,7 @@ public class Film {
     private Language originalLanguage;
 
     @CreationTimestamp
-    @Column(name = "timestamp", nullable = false)
+    @Column(nullable = false)
     private Timestamp lastUpdate;
 
 

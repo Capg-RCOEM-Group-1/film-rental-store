@@ -3,21 +3,20 @@ package com.rcoem.filmrentalstore.repository;
 import com.rcoem.filmrentalstore.entities.Address;
 import com.rcoem.filmrentalstore.entities.Staff;
 import com.rcoem.filmrentalstore.entities.Store;
-import com.rcoem.filmrentalstore.entities.StaffView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -29,22 +28,23 @@ public class StaffRepositoryTest {
     private AddressRepository addressRepository;
     @Autowired
     private StoreRepository storeRepository;
+
+    private final Pageable firstPage = PageRequest.of(0, 10);
+
     @BeforeEach
     public void setup() {
-
         staffRepository.deleteAll();
         storeRepository.deleteAll();
         addressRepository.deleteAll();
 
         Address address = new Address();
-        address.setAddress("s");
+        address.setAddress("123 Main St");
         address = addressRepository.save(address);
 
         Store store = new Store();
         store.setAddress(address);
-        storeRepository.save(store);
+        store = storeRepository.save(store);
 
-        // Given: An active staff member exists
         Staff activeStaff = new Staff();
         activeStaff.setFirstName("John");
         activeStaff.setLastName("Doe");
@@ -52,7 +52,7 @@ public class StaffRepositoryTest {
         activeStaff.setPassword("pass123");
         activeStaff.setAddress(address);
         activeStaff.setStore(store);
-        // Given: An not active staff member exists
+
         Staff inactiveStaff = new Staff();
         inactiveStaff.setFirstName("Jane");
         inactiveStaff.setLastName("Smith");
@@ -65,91 +65,84 @@ public class StaffRepositoryTest {
     }
 
     @Test
-    @DisplayName("Should return only active staff members")
+    @DisplayName("Should return only active staff members with pagination")
     public void testFindByActiveTrue() {
         // When
-        List<Staff> activeStaff = staffRepository.findByActiveTrue();
+        Page<Staff> activeStaffPage = staffRepository.findByActiveTrue(firstPage);
 
         // Then
-        assertThat(activeStaff).hasSize(1);
-        assertThat(activeStaff.get(0).getFirstName()).isEqualTo("John");
-        assertThat(activeStaff.get(0).getLastName()).isEqualTo("Doe");
+        assertThat(activeStaffPage.getContent()).hasSize(1);
+        assertThat(activeStaffPage.getTotalElements()).isEqualTo(1);
+        assertThat(activeStaffPage.getContent().get(0).getFirstName()).isEqualTo("John");
     }
 
     @Test
-    @DisplayName("Should return only inactive staff members")
+    @DisplayName("Should return only inactive staff members with pagination")
     public void testFindByActiveFalse() {
         // When
-        List<Staff> inactiveStaff = staffRepository.findByActiveFalse();
+        Page<Staff> inactiveStaffPage = staffRepository.findByActiveFalse(firstPage);
 
         // Then
-        assertThat(inactiveStaff).hasSize(1);
-        assertThat(inactiveStaff.get(0).getFirstName()).isEqualTo("Jane");
-        assertThat(inactiveStaff.get(0).getLastName()).isEqualTo("Smith");
+        assertThat(inactiveStaffPage.getContent()).hasSize(1);
+        assertThat(inactiveStaffPage.getTotalElements()).isEqualTo(1);
+        assertThat(inactiveStaffPage.getContent().get(0).getFirstName()).isEqualTo("Jane");
     }
 
     @Test
-    @DisplayName("Should return empty list when no active staff exist")
+    @DisplayName("Should return empty page when no active staff exist")
     public void testFindByActiveTrue_Empty() {
-        // Given: Clear all data first
+        // Given
         staffRepository.deleteAll();
 
         // When
-        List<Staff> result = staffRepository.findByActiveTrue();
+        Page<Staff> result = staffRepository.findByActiveTrue(firstPage);
 
         // Then
-        assertThat(result).isEmpty();
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getTotalElements()).isEqualTo(0);
     }
 
     @Test
-    @DisplayName("Should return multiple records when more than one staff is active")
+    @DisplayName("Should handle multiple pages and limit results")
     public void testFindByActiveTrue_Multiple() {
-        Address address = new Address();
-        address.setAddress("s");
-        address = addressRepository.save(address);
+        // Given: Add more active staff to test paging limits
+        Pageable smallPage = PageRequest.of(0, 1); // Only 1 per page
 
-        Store store = new Store();
-        store.setAddress(address);
-        storeRepository.save(store);
-
-        // Given: Add another active staff member
         Staff secondActive = new Staff();
-        secondActive.setFirstName("Jane");
+        secondActive.setFirstName("Alice");
         secondActive.setLastName("Wonderland");
-        secondActive.setPassword("securePass789");
         secondActive.setActive(true);
-        secondActive.setAddress(address);
-        secondActive.setStore(store);
+        secondActive.setPassword("secure789");
+        secondActive.setAddress(addressRepository.findAll().get(0));
+        secondActive.setStore(storeRepository.findAll().get(0));
         staffRepository.save(secondActive);
 
         // When
-        List<Staff> result = staffRepository.findByActiveTrue();
+        Page<Staff> result = staffRepository.findByActiveTrue(smallPage);
 
         // Then
-        assertThat(result).hasSize(2);
-        assertThat(result).extracting(Staff::getFirstName)
-                .containsExactlyInAnyOrder("John", "Jane");
+        assertThat(result.getContent()).hasSize(1); // Page size limit
+        assertThat(result.getTotalElements()).isEqualTo(2); // Total count in DB
+        assertThat(result.getTotalPages()).isEqualTo(2);
     }
 
     @Test
     @DisplayName("Should reflect status change when staff is deactivated")
-    public void testStatusChangeReflectedInProjection() {
-        // Given: Find the active staff saved in @BeforeEach and deactivate them
-        // Note: You may need a findByFirstName or similar in your Repo to grab the specific entity
+    public void testStatusChangeReflectedInPagination() {
+        // Given
         Staff john = staffRepository.findAll().stream()
                 .filter(s -> s.getFirstName().equals("John"))
-                .findFirst().get();
+                .findFirst().orElseThrow();
 
         john.setActive(false);
-        staffRepository.saveAndFlush(john); // Force the update to DB
+        staffRepository.saveAndFlush(john);
 
         // When
-        List<Staff> activeStaff = staffRepository.findByActiveTrue();
-        List<Staff> inactiveStaff = staffRepository.findByActiveFalse();
+        Page<Staff> activeStaff = staffRepository.findByActiveTrue(firstPage);
+        Page<Staff> inactiveStaff = staffRepository.findByActiveFalse(firstPage);
 
         // Then
-        assertThat(activeStaff).isEmpty();
-        assertThat(inactiveStaff).hasSize(2); // Jane + the newly deactivated John
+        assertThat(activeStaff.getContent()).isEmpty();
+        assertThat(inactiveStaff.getTotalElements()).isEqualTo(2);
     }
-
 }

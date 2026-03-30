@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 
-public interface LanguageRepository extends JpaRepository<Language,Long> {
+public interface LanguageRepository extends JpaRepository<Language,Byte> {
 }

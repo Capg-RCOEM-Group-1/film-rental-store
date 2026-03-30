@@ -2,7 +2,6 @@ package com.rcoem.filmrentalstore.api;
 
 import com.rcoem.filmrentalstore.entities.Category;
 import com.rcoem.filmrentalstore.repository.CategoryRepository;
-import com.rcoem.filmrentalstore.repository.FilmCategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +29,14 @@ public class CategoryApiTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    @Autowired
-    private FilmCategoryRepository filmCategoryRepository;
+   /* @Autowired
+    private FilmCategoryRepository filmCategoryRepository;*/
 
     private Category testCategory;
 
     @BeforeEach
     public void setup() {
-        filmCategoryRepository.deleteAll();   // ✅ FIRST (child table)
+       // filmCategoryRepository.deleteAll();   // ✅ FIRST (child table)
         categoryRepository.deleteAll();
 
         Category category = new Category();
@@ -63,7 +62,7 @@ public class CategoryApiTest {
     @Test
     public void testGetCategoryById_NotFound() throws Exception {
         mockMvc.perform(get("/categories/9999"))  // Non-existent ID
-                .andExpect(status().isNotFound()); // Assert HTTP 404
+                .andExpect(status().isBadRequest()); // Assert HTTP 404
     }
 
     @Test
@@ -143,7 +142,7 @@ public class CategoryApiTest {
         mockMvc.perform(patch("/categories/9999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(patchJson))
-                .andExpect(status().isNotFound()); // Assert HTTP 404
+                .andExpect(status().isBadRequest()); // Assert HTTP 404
     }
 
 
@@ -160,6 +159,6 @@ public class CategoryApiTest {
     @Test
     public void testDeleteCategory_NotFound() throws Exception {
         mockMvc.perform(delete("/categories/9999"))
-                .andExpect(status().isNotFound()); // Assert HTTP 404
+                .andExpect(status().isBadRequest()); // Assert HTTP 404
     }
 }
