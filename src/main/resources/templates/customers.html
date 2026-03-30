@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer List</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        tr.clickable-row:hover { background-color: #f1f1f1; cursor: pointer; }
+
+        .header-controls { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+        .hint { color: #666; font-size: 0.9em; margin: 0; }
+
+        /* Search Bar Styles */
+        .search-container input { padding: 10px; width: 300px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; }
+
+        /* Pagination Styles */
+        .pagination-container { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .pagination-controls button { padding: 8px 16px; margin: 0 5px; cursor: pointer; border: 1px solid #ccc; background-color: #f9f9f9; border-radius: 4px; }
+        .pagination-controls button:hover:not(:disabled) { background-color: #e9e9e9; }
+        .pagination-controls button:disabled { color: #aaa; cursor: not-allowed; }
+        .page-info { font-size: 0.9em; color: #555; }
+    </style>
+</head>
+<body>
+
+<h2>Customer Directory</h2>
+
+<div class="header-controls">
+    <p class="hint">Click on any customer row to view their rental history.</p>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search name, email, or address..." onkeyup="handleSearch()">
+    </div>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Sr No</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Address</th>
+    </tr>
+    </thead>
+    <tbody id="customer-table-body">
+    <tr><td colspan="5">Loading customers...</td></tr>
+    </tbody>
+</table>
+
+<div class="pagination-container">
+    <div class="page-info" id="page-info"></div>
+    <div class="pagination-controls" id="pagination-controls"></div>
+</div>
+
+<script>
+    const PAGE_SIZE = 20;
+    let currentKeyword = '';
+    let searchTimeout = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchCustomers(0);
+    });
+
+    // Triggers when the user types in the search box
+    function handleSearch() {
+        clearTimeout(searchTimeout);
+
+        // Wait 500ms after the user stops typing before making the API call
+        searchTimeout = setTimeout(() => {
+            currentKeyword = document.getElementById('searchInput').value.trim();
+            fetchCustomers(0); // Reset to page 0 on a new search
+        }, 500);
+    }
+
+    async function fetchCustomers(pageNumber) {
+        try {
+            // Determine which URL to call based on whether there is a search keyword
+            let apiUrl = '';
+            if (currentKeyword === '') {
+                apiUrl = `/customers?page=${pageNumber}&size=${PAGE_SIZE}`;
+            } else {
+                apiUrl = `/customers/search/search-all?keyword=${encodeURIComponent(currentKeyword)}&page=${pageNumber}&size=${PAGE_SIZE}`;
+            }
+
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            // Spring Data REST embeds results
+            let customers = [];
+            if (data._embedded) {
+                customers = data._embedded.customers || data._embedded.customerDetailsList || Object.values(data._embedded)[0];
+            }
+
+            const pageData = data.page;
+            const tbody = document.getElementById('customer-table-body');
+            tbody.innerHTML = '';
+
+            if (customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No customers found matching your search.</td></tr>';
+                updatePaginationUI(null);
+                return;
+            }
+
+            customers.forEach((customer, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'clickable-row';
+
+                const srNo = (pageData.number * pageData.size) + index + 1;
+
+                // Grab the ID directly from your updated projection!
+                const customerId = customer.customerId;
+
+                tr.innerHTML = `
+                        <td>${srNo}</td>
+                        <td>${customer.name}</td>
+                        <td>${customer.email}</td>
+                        <td>${customer.fullAddress}</td>
+                    `;
+
+                // Simplified click handler
+                tr.onclick = () => {
+                    window.location.href = `/ekansh/rentals?customerId=${customerId}&name=${encodeURIComponent(customer.name)}`;
+                };
+
+                tbody.appendChild(tr);
+            });
+
+            updatePaginationUI(pageData);
+
+        } catch (error) {
+            console.error("Error fetching customers:", error);
+            document.getElementById('customer-table-body').innerHTML =
+                '<tr><td colspan="5" style="color:red; text-align: center;">Failed to load data.</td></tr>';
+        }
+    }
+
+    function updatePaginationUI(pageData) {
+        const controlsDiv = document.getElementById('pagination-controls');
+        const infoDiv = document.getElementById('page-info');
+
+        if (!pageData) {
+            controlsDiv.innerHTML = '';
+            infoDiv.innerHTML = '';
+            return;
+        }
+
+        const currentPage = pageData.number;
+        const totalPages = pageData.totalPages;
+
+        infoDiv.textContent = `Showing page ${currentPage + 1} of ${totalPages} (Total: ${pageData.totalElements} customers)`;
+
+        let buttonsHtml = '';
+
+        if (currentPage > 0) {
+            buttonsHtml += `<button onclick="fetchCustomers(${currentPage - 1})">Previous</button>`;
+        } else {
+            buttonsHtml += `<button disabled>Previous</button>`;
+        }
+
+        if (currentPage < totalPages - 1) {
+            buttonsHtml += `<button onclick="fetchCustomers(${currentPage + 1})">Next</button>`;
+        } else {
+            buttonsHtml += `<button disabled>Next</button>`;
+        }
+
+        controlsDiv.innerHTML = buttonsHtml;
+    }
+</script>
+</body>
+</html>
