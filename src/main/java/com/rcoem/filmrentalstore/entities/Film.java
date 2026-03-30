@@ -17,7 +17,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Film {
     @Column(precision = 5, scale = 2)
     private BigDecimal replacementCost;

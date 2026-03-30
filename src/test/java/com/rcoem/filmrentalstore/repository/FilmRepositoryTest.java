@@ -4,6 +4,9 @@ import com.rcoem.filmrentalstore.entities.Film;
 import com.rcoem.filmrentalstore.entities.Language;
 import com.rcoem.filmrentalstore.enums.Rating;
 import com.rcoem.filmrentalstore.enums.Set;
+
+import jakarta.transaction.Transactional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class FilmRepositoryTest {
 
@@ -30,13 +34,15 @@ class FilmRepositoryTest {
     private HashSet<Set> set;
     @BeforeEach
     void setUp() {
-        filmRepository.deleteAll();
-        languageRepository.deleteAll();
+        // filmRepository.deleteAll();
+        // languageRepository.deleteAll();
 
-        film = new Film();
-        Language language = new Language();
-        language.setName("A");
-        languageRepository.save(language);
+film = new Film();
+    Language language = new Language();
+    language.setName("A");
+    languageRepository.save(language);
+
+       
         film.setTitle("Inception");
         film.setDescription("A mind-bending thriller");
         film.setReleaseYear(2010);
@@ -93,29 +99,31 @@ class FilmRepositoryTest {
         assertEquals(160, result.getLength());
     }
 
-    @Test
-    void testFindAllFilms() {
-        Film film2 = new Film();
-        film2.setTitle("Interstellar");
-        film2.setDescription("Space exploration");
-        film2.setReleaseYear(2014);
-        film2.setRentalDuration(5);
-        film2.setRentalRate(BigDecimal.valueOf(4.99));
-        film2.setLength(169);
-        film2.setReplacementCost(BigDecimal.valueOf(19.99));
-        film2.setRating(Rating.PG);
-        film2.setSpecialFeatures(new HashSet<>());
-        film2.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
-        film2.setLanguage(film.getLanguage());
+   @Test
+void testFindAllFilms() {
+    int countBefore = filmRepository.findAll().size();
 
-        filmRepository.save(film);
-        filmRepository.save(film2);
+    Film film2 = new Film();
+    film2.setTitle("Interstellar");
+    film2.setDescription("Space exploration");
+    film2.setReleaseYear(2014);
+    film2.setRentalDuration(5);
+    film2.setRentalRate(BigDecimal.valueOf(4.99));
+    film2.setLength(169);
+    film2.setReplacementCost(BigDecimal.valueOf(19.99));
+    film2.setRating(Rating.PG);
+    film2.setSpecialFeatures(new HashSet<>());
+    film2.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
+    film2.setLanguage(film.getLanguage());
+    film2.setLastUpdate(new Timestamp(System.currentTimeMillis())); 
 
-        List<Film> allFilms = filmRepository.findAll();
+    filmRepository.save(film);
+    filmRepository.save(film2);
 
-        assertEquals(2, allFilms.size(), "There should be 2 films in the repository");
-    }
+    int countAfter = filmRepository.findAll().size();
 
+    assertEquals(countBefore + 2, countAfter);
+}
     @Test
     void testFindByTitleContainingIgnoreCase() {
         filmRepository.save(film);
@@ -130,7 +138,7 @@ class FilmRepositoryTest {
     void testFindByTitleContainingIgnoreCase_NoMatch() {
         filmRepository.save(film);
 
-        List<Film> results = filmRepository.findByTitleContainingIgnoreCase("avatar");
+        List<Film> results = filmRepository.findByTitleContainingIgnoreCase("xyznonexistentfilm123");
 
         assertTrue(results.isEmpty(), "Should return empty list when no title matches");
     }
