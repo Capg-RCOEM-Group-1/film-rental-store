@@ -1,6 +1,7 @@
 package com.rcoem.filmrentalstore.entities;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.List;
 
 import com.rcoem.filmrentalstore.converter.SpecialFeatureConverter;
@@ -44,7 +45,7 @@ public class Film {
 
     @Convert(converter = SpecialFeatureConverter.class)
     @Column(name = "special_features")
-    private java.util.Set<Set> specialFeatures;
+    private HashSet<Set> specialFeatures;
 
     @ManyToOne()
     @JoinColumn(name = "language_id", nullable = false)
@@ -61,7 +62,7 @@ public class Film {
 
     public Film(){}
 
-    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate, Integer length, Double replacementCost, Rating rating, Set specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
+    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate, Integer length, Double replacementCost, Rating rating, HashSet<Set> specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
         this.title = title;
         this.description = description;
         this.releaseYear = releaseYear;

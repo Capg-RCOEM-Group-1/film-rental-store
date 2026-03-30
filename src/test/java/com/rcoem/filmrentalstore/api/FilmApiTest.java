@@ -19,6 +19,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.HashSet;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class FilmApiTest {
@@ -33,7 +35,7 @@ class FilmApiTest {
     private LanguageRepository languageRepository;
 
     private Short savedFilmId;
-    private Long savedLanguageId;
+    private Byte savedLanguageId;
 
     @BeforeEach
     void setUp() {
@@ -51,7 +53,8 @@ class FilmApiTest {
         film.setLength(148);
         film.setReplacementCost(500.0);
         film.setRating(Rating.PG_13);
-        film.setSpecialFeatures(Set.BEHIND_THE_SCENES);
+        film.setSpecialFeatures(new HashSet<>());
+        film.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
         film.setLanguage(savedLanguage);
         Film savedFilm = filmRepository.save(film);
         savedFilmId = savedFilm.getFilmId();

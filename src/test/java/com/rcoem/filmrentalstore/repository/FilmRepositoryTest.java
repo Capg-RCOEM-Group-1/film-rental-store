@@ -25,7 +25,7 @@ class FilmRepositoryTest {
     @Autowired
     private LanguageRepository languageRepository;
     private Film film;
-    private java.util.Set<Set> set;
+    private HashSet<Set> set;
     @BeforeEach
     void setUp() {
         filmRepository.deleteAll();
@@ -101,7 +101,8 @@ class FilmRepositoryTest {
         film2.setLength(169);
         film2.setReplacementCost(400.0);
         film2.setRating(Rating.PG);
-        film2.setSpecialFeatures(Set.BEHIND_THE_SCENES);
+        film2.setSpecialFeatures(new HashSet<>());
+        film2.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
         film2.setLanguage(film.getLanguage());
 
         filmRepository.save(film);
