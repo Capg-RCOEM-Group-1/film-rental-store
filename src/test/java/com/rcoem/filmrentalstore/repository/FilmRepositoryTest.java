@@ -11,6 +11,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
 import java.util.List;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -25,7 +26,7 @@ class FilmRepositoryTest {
     @Autowired
     private LanguageRepository languageRepository;
     private Film film;
-    private java.util.Set<Set> set;
+    private HashSet<Set> set;
     @BeforeEach
     void setUp() {
         filmRepository.deleteAll();
@@ -47,6 +48,7 @@ class FilmRepositoryTest {
         set.add(Set.BEHIND_THE_SCENES);
         film.setSpecialFeatures(set);
         film.setLanguage(language);
+        film.setLastUpdate(new Timestamp(System.currentTimeMillis()));
     }
 
     @Test
@@ -101,7 +103,8 @@ class FilmRepositoryTest {
         film2.setLength(169);
         film2.setReplacementCost(400.0);
         film2.setRating(Rating.PG);
-        film2.setSpecialFeatures(Set.BEHIND_THE_SCENES);
+        film2.setSpecialFeatures(new HashSet<>());
+        film2.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
         film2.setLanguage(film.getLanguage());
 
         filmRepository.save(film);
