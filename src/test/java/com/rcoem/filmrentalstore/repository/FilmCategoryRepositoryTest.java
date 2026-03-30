@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -48,8 +49,8 @@ public class FilmCategoryRepositoryTest {
         film.setLanguage(language);
         languageRepository.save(language);
         film.setRentalDuration(9);
-        film.setRentalRate(0.0);
-        film.setReplacementCost(0.0);
+        film.setRentalRate(BigDecimal.valueOf(0.0));
+        film.setReplacementCost(BigDecimal.valueOf(0.0));
         film = filmRepository.save(film);
 
         Category category = new Category();

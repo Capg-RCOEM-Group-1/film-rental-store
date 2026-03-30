@@ -17,6 +17,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashSet;
@@ -61,16 +62,17 @@ public class FilmCategoryApiTest {
         film.setDescription("A mind-bending thriller");
         film.setReleaseYear(2010);
         film.setRentalDuration(7);
-        film.setRentalRate(150.0);
+        film.setRentalRate(BigDecimal.valueOf(15.0));
+        System.out.println("FINAL VALUE = " + film.getRentalRate());
         film.setLength(148);
-        film.setReplacementCost(500.0);
+        film.setReplacementCost(BigDecimal.valueOf(50.0));
         film.setRating(Rating.PG_13);
         film.setSpecialFeatures(new HashSet<>());
         film.setLanguage(language);
         film = filmRepository.save(film);
 
         category = new Category();
-        category.setName("Action_" + System.currentTimeMillis());  // ✅ avoid duplicate
+        category.setName("Action_" + System.currentTimeMillis());
         category = categoryRepository.save(category);
     }
 
