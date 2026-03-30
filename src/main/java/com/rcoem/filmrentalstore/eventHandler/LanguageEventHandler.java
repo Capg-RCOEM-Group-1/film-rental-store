@@ -1,6 +1,7 @@
 package com.rcoem.filmrentalstore.eventHandler;
 
 import com.rcoem.filmrentalstore.entities.Language;
+import com.rcoem.filmrentalstore.exception.DuplicateException;
 import com.rcoem.filmrentalstore.repository.LanguageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
@@ -18,7 +19,7 @@ public class LanguageEventHandler {
     public void handleBeforeCreate(Language language) {
 
         if (languageRepo.existsByNameIgnoreCase(language.getName())) {
-            throw new RuntimeException("Language already exists: " + language.getName());
+            throw new DuplicateException("Language already exists: " + language.getName());
         }
     }
 }

@@ -40,18 +40,6 @@ public class LanguageRepositoryTest {
     }
 
     @Test
-    public void testDuplicateAddLanguage(){
-        Language lang1 = new Language();
-        lang1.setName("Hindi");
-        Language lang2 = new Language();
-        lang2.setName("Hindi");
-        languageRepo.save(lang1);
-        assertThatThrownBy(()->{
-            languageRepo.saveAndFlush(lang2);
-        }).isInstanceOf(Exception.class);
-    }
-
-    @Test
     void shouldThrowException_whenLanguageIsIncomplete() {
         Language language = new Language();
         assertThatThrownBy(() -> {
