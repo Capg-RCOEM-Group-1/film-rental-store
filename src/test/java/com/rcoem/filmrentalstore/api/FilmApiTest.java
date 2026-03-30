@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.sql.Timestamp;
 import java.util.HashSet;
 
 @SpringBootTest
@@ -56,6 +57,7 @@ class FilmApiTest {
         film.setSpecialFeatures(new HashSet<>());
         film.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
         film.setLanguage(savedLanguage);
+        film.setLastUpdate(new Timestamp(System.currentTimeMillis()));
         Film savedFilm = filmRepository.save(film);
         savedFilmId = savedFilm.getFilmId();
     }
@@ -81,7 +83,7 @@ class FilmApiTest {
 
     @Test
     void shouldReturnNotFoundForInvalidFilmId() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/99999"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/32767"))
                 .andExpect(status().isNotFound());
     }
 
