@@ -32,7 +32,7 @@ class FilmApiTest {
     @Autowired
     private LanguageRepository languageRepository;
 
-    private Long savedFilmId;
+    private Short savedFilmId;
     private Long savedLanguageId;
 
     @BeforeEach

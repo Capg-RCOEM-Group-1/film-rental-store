@@ -17,7 +17,7 @@ import lombok.*;
 public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long filmId;
+    private Short filmId;
 
     @Column(nullable = false)
     private String title;
