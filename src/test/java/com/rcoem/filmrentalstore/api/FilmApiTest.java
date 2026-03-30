@@ -45,10 +45,11 @@ class FilmApiTest {
 
     @BeforeEach
     void setUp() {
-        Language language = new Language();
-        language.setName("English");
-        Language savedLanguage = languageRepository.save(language);
-        savedLanguageId = savedLanguage.getId();
+      Language language = new Language();
+language.setName("English");
+Language savedLanguage = languageRepository.save(language);
+savedLanguageId = savedLanguage.getId();
+
 
         Film film = new Film();
         film.setTitle("Inception");
@@ -75,20 +76,20 @@ class FilmApiTest {
 
     @Test
     void shouldReturnAllFilms() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films"))
                 .andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnFilmById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/" + savedFilmId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilmId))
                 .andDo(print()) 
                 .andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnNotFoundForInvalidFilmId() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/32767"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/32767"))
                 .andExpect(status().isNotFound());
     }
 
@@ -108,7 +109,7 @@ class FilmApiTest {
                 }
                 """.formatted(savedLanguageId);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/films")
+        mockMvc.perform(MockMvcRequestBuilders.post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(filmJson))
                 .andExpect(status().isCreated());
@@ -123,7 +124,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
             }
             """;
 
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/films/" + savedFilmId)
+    mockMvc.perform(MockMvcRequestBuilders.patch("/films/" + savedFilmId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(patchJson))
             .andExpect(status().isNoContent());
@@ -131,7 +132,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
 
     @Test
     void shouldSearchFilmByTitle() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/search/byTitle")
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "Inception"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.films").isArray());
@@ -139,7 +140,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
 
     @Test
     void shouldReturnEmptyListForUnknownTitle() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/search/byTitle")
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "xyzunknownfilm"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.films").isEmpty());

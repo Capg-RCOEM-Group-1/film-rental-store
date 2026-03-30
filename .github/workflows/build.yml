@@ -16,7 +16,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: testdb
+          MYSQL_DATABASE: sakila
           MYSQL_USER: testuser
           MYSQL_PASSWORD: testpass
         ports:
@@ -36,19 +36,29 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-          cache: 'maven' # Speeds up subsequent builds
+          cache: 'maven'
 
       - name: Wait for MySQL to be ready
         run: |
-          echo "Waiting for MySQL..."
-          for i in {1..10}; do
-            nc -z localhost 3306 && echo "MySQL is up!" && break
-            echo "Waiting..."
-            sleep 5
+          echo "Waiting for MySQL to accept connections..."
+          until mysqladmin ping -h 127.0.0.1 -u testuser --password=testpass --silent; do
+            echo "MySQL is unavailable - sleeping..."
+            sleep 2
           done
+          echo "MySQL is up and running!"
+
+      - name: Initialize Database
+        env:
+          MYSQL_PWD: root
+        run: |
+          # 1. Use the root user to flip the 'trust' switch
+          mysql -h 127.0.0.1 -u root -e "SET GLOBAL log_bin_trust_function_creators = 1;"
+          
+          # 2. Now run your schema and data imports as the regular user
+          mysql -h 127.0.0.1 -u testuser --password=testpass sakila < src/main/resources/schema.sql
+          mysql -h 127.0.0.1 -u testuser --password=testpass sakila < src/main/resources/data.sql
 
       # 2 & 3. Run Tests and Build JAR in one go
-      # This ensures the target folder contains both the reports and the JAR at the same time
       - name: Build and Test
         env:
           SPRING_PROFILES_ACTIVE: test
