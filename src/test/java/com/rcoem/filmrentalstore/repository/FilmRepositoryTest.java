@@ -11,6 +11,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 
 import java.util.List;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -47,6 +48,7 @@ class FilmRepositoryTest {
         set.add(Set.BEHIND_THE_SCENES);
         film.setSpecialFeatures(set);
         film.setLanguage(language);
+        film.setLastUpdate(new Timestamp(System.currentTimeMillis()));
     }
 
     @Test

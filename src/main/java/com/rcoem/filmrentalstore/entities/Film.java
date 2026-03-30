@@ -56,7 +56,7 @@ public class Film {
     private Language originalLanguage;
 
     @CreationTimestamp
-    @Column(nullable = false)
+    @Column( name = "last_update", nullable = false,columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp lastUpdate;
 
 
