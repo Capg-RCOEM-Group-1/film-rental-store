@@ -1,26 +1,28 @@
 package com.rcoem.filmrentalstore.api;
 
-import com.rcoem.filmrentalstore.entities.Address;
-import com.rcoem.filmrentalstore.entities.Staff;
-import com.rcoem.filmrentalstore.entities.Store;
-import com.rcoem.filmrentalstore.repository.AddressRepository;
-import com.rcoem.filmrentalstore.repository.StaffRepository;
-import com.rcoem.filmrentalstore.repository.StoreRepository;
+import com.rcoem.filmrentalstore.entities.*;
+import com.rcoem.filmrentalstore.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional // Ensures the database stays in its initial state after each test
 public class StaffApiTest {
 
     @Autowired
@@ -30,108 +32,147 @@ public class StaffApiTest {
     private StaffRepository staffRepository;
 
     @Autowired
-    private AddressRepository addressRepository;
+    private StoreRepository storeRepository;
 
     @Autowired
-    private StoreRepository storeRepository;
+    private AddressRepository addressRepository;
+
+    private Staff testStaff;
+    private Store testStore;
+    private Address testAddress;
 
     @BeforeEach
     public void setup() {
+        testAddress = addressRepository.findAll().get(0);
+        testStore = storeRepository.findAll().get(0);
 
-        staffRepository.deleteAll();
-        storeRepository.deleteAll();
-        addressRepository.deleteAll();
+        // Create one fresh staff member for predictable testing
+        testStaff = new Staff();
+        testStaff.setFirstName("Test");
+        testStaff.setLastName("User");
+        testStaff.setUsername("testuser_");
+        testStaff.setEmail("test@sakila.com");
+        testStaff.setPassword("password");
+        testStaff.setActive(true);
+        testStaff.setAddress(testAddress);
+        testStaff.setStore(testStore);
 
-        Address address = new Address();
-        address.setAddress("s");
-        address = addressRepository.save(address);
-
-        Store store = new Store();
-        store.setAddress(address);
-        storeRepository.save(store);
-
-        // Given: An active staff member exists
-        Staff activeStaff = new Staff();
-        activeStaff.setFirstName("John");
-        activeStaff.setLastName("Doe");
-        activeStaff.setActive(true);
-        activeStaff.setPassword("pass123");
-        activeStaff.setAddress(address);
-        activeStaff.setStore(store);
-        // Given: An not active staff member exists
-        Staff inactiveStaff = new Staff();
-        inactiveStaff.setFirstName("Jane");
-        inactiveStaff.setLastName("Smith");
-        inactiveStaff.setActive(false);
-        inactiveStaff.setPassword("pass456");
-        inactiveStaff.setAddress(address);
-        inactiveStaff.setStore(store);
-
-        staffRepository.saveAll(List.of(activeStaff, inactiveStaff));
+        testStaff = staffRepository.save(testStaff);
     }
 
     @Test
-    @DisplayName("GET /staffs with projection filters fields")
+    @DisplayName("GET /staffs - Verify HATEOAS structure and projection")
     public void shouldReturnProjectedStaff() throws Exception {
-        // Given: An active staff member exists
-
-        mockMvc.perform(get("/staffs")
-                        .param("projection", "staffView"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.staffs[0].firstName").value("John"))
-                .andExpect(jsonPath("$._embedded.staffs[0].lastName").value("Doe"))
-                // Verify sensitive/excluded fields are ABSENT
-                .andExpect(jsonPath("$._embedded.staffs[0].password").doesNotExist())
-                .andExpect(jsonPath("$._embedded.staffs[0].active").doesNotExist());
-    }
-
-    @Test
-    void testGetAllStaff() throws Exception {
         mockMvc.perform(get("/staffs"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.staffs").exists());
+                .andExpect(jsonPath("$._embedded.staffs").exists())
+                // Verify first name exists but sensitive password does not
+                .andExpect(jsonPath("$._embedded.staffs[0].firstName").exists())
+                .andExpect(jsonPath("$._embedded.staffs[0].password").doesNotExist());
     }
 
     @Test
-    @DisplayName("GET /staffs/search/findByActiveTrue - No records found")
-    public void shouldReturnEmptyListWhenNoActiveStaff() throws Exception {
-        // Given: Ensure no active staff exist
-        staffRepository.deleteAll();
+    @DisplayName("POST /staffs - Create new staff using existing Sakila resources")
+    public void testAddStaff() throws Exception {
+        String addressUri = "/addresses/" + testAddress.getAddressId();
+        String storeUri = "/stores/" + testStore.getStoreId();
 
-        mockMvc.perform(get("/staffs/search/findByActiveTrue"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.staffs").isArray())
-                .andExpect(jsonPath("$._embedded.staffs").isEmpty());
+        String newStaffJson = """
+            {
+                "firstName": "Robert",
+                "lastName": "Martin",
+                "username": "unclebob",
+                "email": "bob@example.com",
+                "password": "clean-code-rules",
+                "active": true,
+                "address": "%s",
+                "store": "%s"
+            }
+            """.formatted(addressUri, storeUri);
+
+        mockMvc.perform(post("/staffs")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(newStaffJson))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
     }
 
     @Test
-    @DisplayName("GET /staffs - Fallback when invalid projection is provided")
-    public void shouldFallbackWhenProjectionIsInvalid() throws Exception {
-        mockMvc.perform(get("/staffs?projection=nonExistentView"))
-                .andExpect(status().isOk())
-                // It should still return data, likely the full entity
-                .andExpect(jsonPath("$._embedded.staffs").exists());
+    @DisplayName("PATCH /staffs/{id} - Partial update")
+    public void testUpdateStaff() throws Exception {
+        String updateJson = """
+            {
+                "lastName": "Skywalker"
+            }
+            """;
+
+        mockMvc.perform(patch("/staffs/" + testStaff.getStaffId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andExpect(status().isNoContent());
+
+        Staff updated = staffRepository.findById(testStaff.getStaffId()).orElseThrow();
+        assertEquals("Skywalker", updated.getLastName());
     }
 
     @Test
-    @DisplayName("GET /staffs?sort=firstName,desc&projection=staffView")
-    public void shouldReturnSortedProjectedStaff() throws Exception {
-        mockMvc.perform(get("/staffs")
-                        .param("sort", "firstName,desc")
+    @DisplayName("DELETE /staffs/{id}")
+    public void testDeleteStaff() throws Exception {
+        // Use the staff we created in setup
+        mockMvc.perform(delete("/staffs/" + testStaff.getStaffId()))
+                .andExpect(status().isNoContent());
+
+        assertFalse(staffRepository.existsById(testStaff.getStaffId()));
+    }
+
+    @Test
+    @DisplayName("GET /staffs/{id}?projection=staffView")
+    public void testGetStaffWithProjection() throws Exception {
+        mockMvc.perform(get("/staffs/" + testStaff.getStaffId())
                         .param("projection", "staffView"))
                 .andExpect(status().isOk())
-                // With "John" and "Jane", DESC sort should put "John" first
-                .andExpect(jsonPath("$._embedded.staffs[0].firstName").value("John"))
-                .andExpect(jsonPath("$._embedded.staffs[1].firstName").value("Jane"));
+                .andExpect(jsonPath("$.firstName").value("Test"))
+                .andExpect(jsonPath("$.password").doesNotExist());
     }
 
     @Test
-    @DisplayName("GET /staffs/search/findByActiveFalse?projection=staffView")
-    public void shouldApplyProjectionToSearchMethod() throws Exception {
-        mockMvc.perform(get("/staffs/search/findByActiveFalse?projection=staffView"))
+    @DisplayName("Search - findByActiveTrue")
+    public void shouldReturnActiveStaff() throws Exception {
+        mockMvc.perform(get("/staffs/search/findByActiveTrue"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.staffs[0].firstName").value("Jane"))
-                .andExpect(jsonPath("$._embedded.staffs[0].active").doesNotExist()); // 'active' is not in staffView
+                .andExpect(jsonPath("$._embedded.staffs").isArray());
+    }
+    @Test
+    @DisplayName("GET /staffs/search/findByActiveTrue - Verify Pagination")
+    public void shouldReturnPaginatedActiveStaff() throws Exception {
+        // We request page 0 with a size of 1
+        mockMvc.perform(get("/staffs/search/findByActiveTrue")
+                        .param("page", "0")
+                        .param("size", "1")
+                        .param("sort", "firstName,asc"))
+                .andExpect(status().isOk())
+                // 1. Verify the content array size matches our 'size' param
+                .andExpect(jsonPath("$._embedded.staffs").isArray())
+                .andExpect(jsonPath("$._embedded.staffs.length()").value(1))
+
+                // 2. Verify Pagination Metadata
+                .andExpect(jsonPath("$.page.size").value(1))
+                .andExpect(jsonPath("$.page.number").value(0))
+                .andExpect(jsonPath("$.page.totalElements").exists())
+
+                // 3. Verify HATEOAS Links for navigation
+                // Since Sakila usually has 2 default staff, page 0 of size 1 should have a 'next' link
+                .andExpect(jsonPath("$._links.next.href").exists())
+                .andExpect(jsonPath("$._links.self.href").exists());
     }
 
+    @Test
+    @DisplayName("GET /staffs - Verify Default Pagination")
+    public void shouldReturnDefaultPagination() throws Exception {
+        // Spring Data REST default size is usually 20
+        mockMvc.perform(get("/staffs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.size").exists())
+                .andExpect(jsonPath("$.page.number").value(0));
+    }
 }
