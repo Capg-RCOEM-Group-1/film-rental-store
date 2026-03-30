@@ -75,8 +75,7 @@ public class StaffApiTest {
     public void shouldReturnProjectedStaff() throws Exception {
         // Given: An active staff member exists
 
-        mockMvc.perform(get("/staffs")
-                        .param("projection", "staffView"))
+        mockMvc.perform(get("/staffs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.staffs[0].firstName").value("John"))
                 .andExpect(jsonPath("$._embedded.staffs[0].lastName").value("Doe"))
@@ -114,11 +113,11 @@ public class StaffApiTest {
     }
 
     @Test
-    @DisplayName("GET /staffs?sort=firstName,desc&projection=staffView")
+    @DisplayName("GET /staffs")
     public void shouldReturnSortedProjectedStaff() throws Exception {
         mockMvc.perform(get("/staffs")
                         .param("sort", "firstName,desc")
-                        .param("projection", "staffView"))
+                        )
                 .andExpect(status().isOk())
                 // With "John" and "Jane", DESC sort should put "John" first
                 .andExpect(jsonPath("$._embedded.staffs[0].firstName").value("John"))
@@ -126,12 +125,13 @@ public class StaffApiTest {
     }
 
     @Test
-    @DisplayName("GET /staffs/search/findByActiveFalse?projection=staffView")
+    @DisplayName("GET /staffs/search/findByActiveFalse")
     public void shouldApplyProjectionToSearchMethod() throws Exception {
-        mockMvc.perform(get("/staffs/search/findByActiveFalse?projection=staffView"))
+        mockMvc.perform(get("/staffs/search/findByActiveFalse"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.staffs[0].firstName").value("Jane"))
                 .andExpect(jsonPath("$._embedded.staffs[0].active").doesNotExist()); // 'active' is not in staffView
     }
+
 
 }
