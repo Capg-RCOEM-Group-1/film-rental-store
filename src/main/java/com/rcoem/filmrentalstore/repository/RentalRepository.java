@@ -1,6 +1,5 @@
 package com.rcoem.filmrentalstore.repository;
 
-import com.rcoem.filmrentalstore.dto.CustomerRentalDetails;
 import com.rcoem.filmrentalstore.entities.Rental;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
