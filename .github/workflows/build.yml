@@ -33,7 +33,10 @@ jobs:
 
       - name: Initialize Database
         run: |
-            sudo apt-get update && sudo apt-get install -y mysql-client
+#           1. Use the root user to flip the 'trust' switch
+            mysql -h 127.0.0.1 -u root --password=root -e "SET GLOBAL log_bin_trust_function_creators = 1;"
+          
+#           2. Now run your schema and data imports as the regular user
             mysql -h 127.0.0.1 -u testuser --password=testpass sakila < src/main/resources/schema.sql
             mysql -h 127.0.0.1 -u testuser --password=testpass sakila < src/main/resources/data.sql
 
