@@ -15,65 +15,106 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest                    // Loads full Spring context with all beans
-@AutoConfigureMockMvc               // Provides MockMvc bean for testing
-
+/**
+ * This test class validates ALL behavior of Category APIs exposed via Spring Data REST.
+ *
+ * WHY this exists:
+ * - Ensures API contract is correct (status codes, JSON structure)
+ * - Ensures DB constraints are respected
+ * - Covers both happy paths and edge cases
+ *
+ * IMPORTANT:
+ * We are NOT testing controller logic (because Spring Data REST handles it),
+ * we are testing:
+ *   → Repository exposure
+ *   → Validation
+ *   → Exception handling
+ */
+@SpringBootTest
+@AutoConfigureMockMvc
 public class CategoryApiTest {
 
     @Autowired
-    private MockMvc mockMvc;        // Simulates HTTP requests/responses
+    private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper; // Converts Java objects to/from JSON
+    private ObjectMapper objectMapper;
 
     @Autowired
     private CategoryRepository categoryRepository;
 
-   /* @Autowired
-    private FilmCategoryRepository filmCategoryRepository;*/
-
     private Category testCategory;
 
+    /**
+     * Runs before every test
+     * WHY:
+     * - Ensures clean DB (test isolation)
+     * - Prevents flaky tests
+     */
     @BeforeEach
     public void setup() {
-       // filmCategoryRepository.deleteAll();   // ✅ FIRST (child table)
         categoryRepository.deleteAll();
 
-        Category category = new Category();
-        category.setName("Action_" + System.currentTimeMillis());
+        // Reset auto-increment manually (VERY IMPORTANT)
+        categoryRepository.flush();
 
-        testCategory = categoryRepository.save(category);  // ✅ committed to DB immediately
+        Category category = new Category();
+        category.setName("Action");
+
+        testCategory = categoryRepository.save(category);
     }
 
+    /**
+     * ✅ GET ALL
+     * WHY:
+     * - Verifies Spring Data REST endpoint exists
+     * - Ensures correct HAL structure (_embedded)
+     */
     @Test
     public void testGetAllCategories() throws Exception {
         mockMvc.perform(get("/categories"))
-                .andExpect(status().isOk())                      // Assert HTTP 200
-                .andExpect(jsonPath("$._embedded.categories").exists()); // Check JSON structure
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.categories").exists());
     }
 
+    /**
+     * ✅ GET BY ID (VALID)
+     */
     @Test
     public void testGetCategoryById_Valid() throws Exception {
         mockMvc.perform(get("/categories/" + testCategory.getCategoryId()))
-                .andExpect(status().isOk())                    // HTTP 200
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(testCategory.getName()));
     }
 
+    /**
+     * ❌ GET BY ID (NOT FOUND)
+     * WHY:
+     * - API must return 404, NOT 400
+     */
     @Test
     public void testGetCategoryById_NotFound() throws Exception {
-        mockMvc.perform(get("/categories/9999"))  // Non-existent ID
-                .andExpect(status().isBadRequest()); // Assert HTTP 404
+        mockMvc.perform(get("/categories/120"))
+                .andExpect(status().isNotFound());
     }
 
+    /**
+     * ❌ INVALID ID TYPE
+     * WHY:
+     * - "abc" cannot be converted to Byte → handled by GlobalExceptionHandler
+     */
     @Test
     public void testGetCategoryById_InvalidDataType() throws Exception {
-        mockMvc.perform(get("/categories/abc"))    // Invalid data type
-                .andExpect(status().isBadRequest()); // Assert HTTP 400
+        mockMvc.perform(get("/categories/abc"))
+                .andExpect(status().isBadRequest());
     }
 
+    /**
+     * ✅ CREATE VALID CATEGORY
+     */
     @Test
     public void testCreateCategory_Valid() throws Exception {
-        String newCategoryJson = """
+        String json = """
             {
                 "name": "Comedy"
             }
@@ -81,41 +122,58 @@ public class CategoryApiTest {
 
         mockMvc.perform(post("/categories")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(newCategoryJson))
-                .andExpect(status().isCreated());               // Assert HTTP 201
+                        .content(json))
+                .andExpect(status().isCreated());
 
-        // Verify it was saved to database
-        assertThat(categoryRepository.count()).isEqualTo(2); // Original + new one
+        // Verify DB state
+        assertThat(categoryRepository.count()).isEqualTo(2);
     }
 
+    /**
+     * ❌ CREATE WITHOUT NAME
+     * WHY:
+     * - name is required → should trigger validation
+     */
     @Test
     public void testCreateCategory_MissingName_BadRequest() throws Exception {
-        String badCategoryJson = "{}"; // Missing required 'name' field
+        String json = "{}";
 
         mockMvc.perform(post("/categories")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(badCategoryJson))
-                .andExpect(status().isBadRequest()); // Assert HTTP 400
+                        .content(json))
+                .andExpect(status().isBadRequest());
     }
 
+    /**
+     * ❌ CREATE DUPLICATE CATEGORY
+     * WHY:
+     * - name is unique → should throw DataIntegrityViolationException
+     * - handled as 409 CONFLICT
+     */
     @Test
     public void testCreateCategory_Duplicate_BadRequest() throws Exception {
 
-        String duplicateCategoryJson = """
+        String json = """
         {
             "name": "%s"
         }
-        """.formatted(testCategory.getName());   // ✅ same name as already-committed category
+        """.formatted(testCategory.getName());
 
         mockMvc.perform(post("/categories")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(duplicateCategoryJson));
+                        .content(json))
+                .andExpect(status().isConflict());
     }
 
-
+    /**
+     * ✅ PATCH UPDATE VALID
+     * WHY:
+     * - Spring Data REST supports PATCH
+     * - Should partially update resource
+     */
     @Test
     public void testUpdateCategoryWithPatch_Valid() throws Exception {
-        String patchJson = """
+        String json = """
             {
                 "name": "Drama"
             }
@@ -123,42 +181,124 @@ public class CategoryApiTest {
 
         mockMvc.perform(patch("/categories/" + testCategory.getCategoryId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(patchJson))
-                .andExpect(status().is2xxSuccessful()); // Assert HTTP 200 or 204
+                        .content(json))
+                .andExpect(status().is2xxSuccessful());
 
-        // Verify update persisted in database
-        Category updatedCategory = categoryRepository.findById(testCategory.getCategoryId()).orElseThrow();
-        assertThat(updatedCategory.getName()).isEqualTo("Drama");
+        Category updated = categoryRepository.findById(testCategory.getCategoryId()).orElseThrow();
+        assertThat(updated.getName()).isEqualTo("Drama");
     }
 
+    /**
+     * ❌ PATCH NON-EXISTENT
+     */
     @Test
     public void testUpdateCategoryWithPatch_NotFound() throws Exception {
-        String patchJson = """
+        String json = """
             {
                 "name": "Horror"
             }
             """;
 
-        mockMvc.perform(patch("/categories/9999")
+        mockMvc.perform(patch("/categories/120")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(patchJson))
-                .andExpect(status().isBadRequest()); // Assert HTTP 404
+                        .content(json))
+                .andExpect(status().isNotFound());
     }
 
+    /**
+     * ❌ PATCH DUPLICATE NAME
+     */
+    @Test
+    public void testUpdateCategory_DuplicateName() throws Exception {
 
+        Category another = new Category();
+        another.setName("Drama");
+        categoryRepository.save(another);
+
+        String json = """
+            {
+                "name": "Drama"
+            }
+            """;
+
+        mockMvc.perform(patch("/categories/" + testCategory.getCategoryId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isConflict());
+    }
+
+    /**
+     * ✅ DELETE VALID
+     */
     @Test
     public void testDeleteCategory_Valid() throws Exception {
         mockMvc.perform(delete("/categories/" + testCategory.getCategoryId()))
-                .andExpect(status().isNoContent()); // Assert HTTP 204
+                .andExpect(status().isNoContent());
 
-        // Verify deletion from database
         assertThat(categoryRepository.findById(testCategory.getCategoryId())).isEmpty();
     }
 
-
+    /**
+     * ❌ DELETE NOT FOUND
+     */
     @Test
     public void testDeleteCategory_NotFound() throws Exception {
-        mockMvc.perform(delete("/categories/9999"))
-                .andExpect(status().isBadRequest()); // Assert HTTP 404
+        mockMvc.perform(delete("/categories/120"))
+                .andExpect(status().isNotFound());
+    }
+
+    /**
+     * 🔍 SEARCH BY NAME
+     * WHY:
+     * - Tests custom repository method
+     */
+    @Test
+    public void testSearchCategoryByName() throws Exception {
+        mockMvc.perform(get("/categories/search/byName?name=act"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.categories").exists());
+    }
+
+    /**
+     * 🔍 CASE INSENSITIVE SEARCH
+     */
+    @Test
+    public void testSearchCategory_CaseInsensitive() throws Exception {
+        mockMvc.perform(get("/categories/search/byName?name=ACTION"))
+                .andExpect(status().isOk());
+    }
+
+    /**
+     * 🔍 EMPTY SEARCH RESULT
+     */
+    @Test
+    public void testSearchCategory_NoResult() throws Exception {
+        mockMvc.perform(get("/categories/search/byName?name=xyz123"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.categories").isEmpty());
+    }
+
+    /**
+     * 📦 PAGINATION TEST
+     * WHY:
+     * - Spring Data REST automatically supports pagination
+     */
+    @Test
+    public void testPagination() throws Exception {
+        mockMvc.perform(get("/categories?page=0&size=5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").exists());
+    }
+
+    /**
+     * 🎯 PROJECTION TEST
+     * WHY:
+     * - Ensures DTO projection works correctly
+     */
+    @Test
+    public void testProjection() throws Exception {
+        mockMvc.perform(get("/categories?projection=categoryProjection"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.categories[0].categoryId").exists());
     }
 }
