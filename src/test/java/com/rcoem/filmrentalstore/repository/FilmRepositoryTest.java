@@ -25,7 +25,7 @@ class FilmRepositoryTest {
     @Autowired
     private LanguageRepository languageRepository;
     private Film film;
-    private java.util.Set<Set> set;
+    private HashSet<Set> set;
     @BeforeEach
     void setUp() {
         filmRepository.deleteAll();
