@@ -1,16 +1,24 @@
 package com.rcoem.filmrentalstore.api;
 
+import com.rcoem.filmrentalstore.entities.Category;
+import com.rcoem.filmrentalstore.entities.Film;
+import com.rcoem.filmrentalstore.entities.Language;
+import com.rcoem.filmrentalstore.enums.Rating;
+import com.rcoem.filmrentalstore.repository.CategoryRepository;
+import com.rcoem.filmrentalstore.repository.FilmRepository;
+import com.rcoem.filmrentalstore.repository.LanguageRepository;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
-<<<<<<< HEAD
-import org.springframework.transaction.annotation.Transactional;
-=======
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
->>>>>>> ameya
+
+
+import java.math.BigDecimal;
+import java.util.HashSet;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class FilmCategoryApiTest {
 
     @Autowired
-<<<<<<< HEAD
     private MockMvc mockMvc;
 
    /* @Autowired
@@ -62,9 +69,7 @@ public class FilmCategoryApiTest {
         category.setName("Action_" + System.currentTimeMillis());
         category = categoryRepository.save(category);
     }
-=======
-    MockMvc mockMvc;
->>>>>>> ameya
+
 
     @Test
     void shouldReturnFilmById() throws Exception {
