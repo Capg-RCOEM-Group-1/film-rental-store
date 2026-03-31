@@ -94,10 +94,12 @@ public class CustomerApiTest {
     @Test
     public void testSearchByFirstNameIgnoreCase_Valid() throws Exception {
         mockMvc.perform(get("/customers/search/findByFirstNameIgnoreCase")
-                        .param("firstName", "MARY"))
+                        .param("firstName", "MARY")
+                        // Explicitly ask for the projection
+                        .param("projection", "customerDetailsProjection"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.customers[0].firstName").value("MARY"))
-                .andExpect(jsonPath("$._embedded.customers[0].lastName").value("SMITH"));
+                // Now "name" will exist in the JSON
+                .andExpect(jsonPath("$._embedded.customers[0].name").value("MARY SMITH"));
     }
 
     @Test
