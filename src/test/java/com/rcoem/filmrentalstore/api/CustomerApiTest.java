@@ -22,6 +22,7 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -95,10 +96,9 @@ public class CustomerApiTest {
     public void testSearchByFirstNameIgnoreCase_Valid() throws Exception {
         mockMvc.perform(get("/customers/search/findByFirstNameIgnoreCase")
                         .param("firstName", "MARY")
-                        // Explicitly ask for the projection
                         .param("projection", "customerDetailsProjection"))
+                .andDo(print()) // <--- ADD THIS to see the JSON in GitHub logs
                 .andExpect(status().isOk())
-                // Now "name" will exist in the JSON
                 .andExpect(jsonPath("$._embedded.customers[0].name").value("MARY SMITH"));
     }
 
