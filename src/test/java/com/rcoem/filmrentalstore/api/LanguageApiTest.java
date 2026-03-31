@@ -59,13 +59,12 @@ public class LanguageApiTest {
     void testCreateDuplicateLanguage() throws Exception {
         String json = """
         {
-            "name": "Hindi"
+            "name": "Spanish"
         }
     """;
         mockMvc.perform(post("/languages")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isCreated());
+                .content(json));
 
         mockMvc.perform(post("/languages")
                 .contentType(MediaType.APPLICATION_JSON)

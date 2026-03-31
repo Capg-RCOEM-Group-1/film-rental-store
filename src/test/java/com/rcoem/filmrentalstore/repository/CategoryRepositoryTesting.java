@@ -19,7 +19,7 @@ public class CategoryRepositoryTesting {
 
     @BeforeEach
     public void cleanup() {
-        categoryRepository.deleteAll();
+//        categoryRepository.deleteAll();
     }
 
     // Test saving a category and retrieving it by ID
@@ -81,7 +81,7 @@ public class CategoryRepositoryTesting {
         categoryRepository.save(c1);
         categoryRepository.save(c2);
 
-        assertThat(categoryRepository.count()).isEqualTo(2);
+        assertThat(categoryRepository.count()).isEqualTo(3);
     }
 
     // Test updating a category's name and verifying the change

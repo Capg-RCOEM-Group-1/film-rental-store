@@ -70,8 +70,8 @@ savedLanguageId = savedLanguage.getId();
 
     @AfterEach
     void tearDown() {
-        filmRepository.deleteAll();
-        languageRepository.deleteAll();
+//        filmRepository.deleteAll();
+//        languageRepository.deleteAll();
     }
 
     @Test
@@ -143,6 +143,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "xyzunknownfilm"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.films").isArray())
                 .andExpect(jsonPath("$._embedded.films").isEmpty());
     }
 }
