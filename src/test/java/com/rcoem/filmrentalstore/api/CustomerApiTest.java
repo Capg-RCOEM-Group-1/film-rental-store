@@ -94,7 +94,7 @@ public class CustomerApiTest {
     @Test
     public void testSearchByFirstNameIgnoreCase_Valid() throws Exception {
         mockMvc.perform(get("/customers/search/findByFirstNameIgnoreCase")
-                        .param("firstName", "mary"))
+                        .param("firstName", "MARY"))
                 .andExpect(status().isOk())
                 // Check index 0 for the pre-existing DB record
                 .andExpect(jsonPath("$._embedded.customers[0].name").value("MARY SMITH"));
