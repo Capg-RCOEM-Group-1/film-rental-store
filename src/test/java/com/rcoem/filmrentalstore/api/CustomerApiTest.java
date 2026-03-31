@@ -94,12 +94,22 @@ public class CustomerApiTest {
 
     @Test
     public void testSearchByFirstNameIgnoreCase_Valid() throws Exception {
+        // 1. Create MARY SMITH specifically for this test
+        Customer mary = new Customer("MARY", "SMITH", "mary.smith@email.com", store, address);
+
+        // Use saveAndFlush so the custom HTTP search query can actually see it in the DB
+        mary = customerRepository.saveAndFlush(mary);
+
+        // 2. Perform the search
         mockMvc.perform(get("/customers/search/findByFirstNameIgnoreCase")
                         .param("firstName", "MARY")
                         .param("projection", "customerDetailsProjection"))
-                .andDo(print()) // <--- ADD THIS to see the JSON in GitHub logs
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.customers[0].name").value("MARY SMITH"));
+
+        // 3. Optional: Manual cleanup (Though @Transactional handles this automatically)
+        customerRepository.delete(mary);
     }
 
     @Test
