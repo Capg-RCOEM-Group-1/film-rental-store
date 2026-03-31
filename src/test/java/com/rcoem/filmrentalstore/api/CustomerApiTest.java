@@ -20,6 +20,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -95,10 +96,8 @@ public class CustomerApiTest {
         mockMvc.perform(get("/customers/search/findByFirstName")
                         .param("firstName", "Tom"))
                 .andExpect(status().isOk())
-                // Check index 0 for the pre-existing DB record
-                .andExpect(jsonPath("$._embedded.customers[0].name").value("TOM MILNER"))
-                // Check index 1 for the record created in @BeforeEach
-                .andExpect(jsonPath("$._embedded.customers[1].name").value("Tom Hanks"));
+                .andExpect(jsonPath("$._embedded.customers[*].name",
+                        containsInAnyOrder("Tom Hanks", "TOM MILNER")));
     }
 
     @Test
