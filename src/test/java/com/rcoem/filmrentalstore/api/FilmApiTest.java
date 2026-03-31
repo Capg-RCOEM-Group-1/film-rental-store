@@ -143,6 +143,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "xyzunknownfilm"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.films").isArray())
                 .andExpect(jsonPath("$._embedded.films").isEmpty());
     }
 }
