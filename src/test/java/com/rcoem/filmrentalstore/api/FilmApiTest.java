@@ -40,17 +40,18 @@ class FilmApiTest {
     @Autowired
     private LanguageRepository languageRepository;
 
-    private Short savedFilmId;
-    private Byte savedLanguageId;
+    private Film savedFilm;
+    private Language savedLanguage;
 
     @BeforeEach
-    void setUp() {
-      Language language = new Language();
-language.setName("English");
-Language savedLanguage = languageRepository.save(language);
-savedLanguageId = savedLanguage.getId();
+    public void setUp() {
+        // 1. Create and save Language
+        Language language = new Language();
+        language.setName("English");
+        // Use saveAndFlush if using JpaRepository to ensure it's in the DB immediately
+        savedLanguage = languageRepository.saveAndFlush(language);
 
-
+        // 2. Create and save Film
         Film film = new Film();
         film.setTitle("Inception");
         film.setDescription("A mind-bending thriller");
@@ -60,18 +61,16 @@ savedLanguageId = savedLanguage.getId();
         film.setLength(148);
         film.setReplacementCost(BigDecimal.valueOf(19.99));
         film.setRating(Rating.PG_13);
-        film.setSpecialFeatures(new HashSet<>());
-        film.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
+
+        // Ensure the Set is initialized
+        HashSet<Set> features = new HashSet<>();
+        features.add(Set.BEHIND_THE_SCENES);
+        film.setSpecialFeatures(features);
+
         film.setLanguage(savedLanguage);
         film.setLastUpdate(new Timestamp(System.currentTimeMillis()));
-        Film savedFilm = filmRepository.save(film);
-        savedFilmId = savedFilm.getFilmId();
-    }
 
-    @AfterEach
-    void tearDown() {
-//        filmRepository.deleteAll();
-//        languageRepository.deleteAll();
+        savedFilm = filmRepository.saveAndFlush(film);
     }
 
     @Test
@@ -82,7 +81,7 @@ savedLanguageId = savedLanguage.getId();
 
     @Test
     void shouldReturnFilmById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilmId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilm.getFilmId()))
                 .andDo(print()) 
                 .andExpect(status().isOk());
     }
@@ -107,7 +106,7 @@ savedLanguageId = savedLanguage.getId();
                     "rating": "PG",
                     "language": "/api/languages/%d"
                 }
-                """.formatted(savedLanguageId);
+                """.formatted(savedLanguage.getId());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -117,14 +116,14 @@ savedLanguageId = savedLanguage.getId();
 
 @Test
 void shouldPartiallyUpdateFilm() throws Exception {
-    String patchJson = """
+        String patchJson = """
             {
                 "title": "Inception Updated",
                 "rentalRate": 4.99
             }
             """;
 
-    mockMvc.perform(MockMvcRequestBuilders.patch("/films/" + savedFilmId)
+    mockMvc.perform(MockMvcRequestBuilders.patch("/films/" +savedFilm.getFilmId())
             .contentType(MediaType.APPLICATION_JSON)
             .content(patchJson))
             .andExpect(status().isNoContent());
