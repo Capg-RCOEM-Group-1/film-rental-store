@@ -23,6 +23,6 @@ public interface FilmRepository extends JpaRepository<Film, Short> {
 
     @RestResource(path = "byCategory")
     Page<Film> findByCategories_NameIgnoreCase(@Param("name") String name, Pageable pageable);
-    
+
 }
 
