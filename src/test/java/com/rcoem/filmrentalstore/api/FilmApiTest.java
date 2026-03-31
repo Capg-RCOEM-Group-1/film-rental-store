@@ -9,7 +9,6 @@ import com.rcoem.filmrentalstore.repository.LanguageRepository;
 
 import jakarta.transaction.Transactional;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.math.BigDecimal;
@@ -45,11 +43,10 @@ class FilmApiTest {
 
     @BeforeEach
     void setUp() {
-      Language language = new Language();
-language.setName("English");
-Language savedLanguage = languageRepository.save(language);
-savedLanguageId = savedLanguage.getId();
-
+        Language language = new Language();
+        language.setName("English");
+        Language savedLanguage = languageRepository.save(language);
+        savedLanguageId = savedLanguage.getId();
 
         Film film = new Film();
         film.setTitle("Inception");
@@ -68,28 +65,23 @@ savedLanguageId = savedLanguage.getId();
         savedFilmId = savedFilm.getFilmId();
     }
 
-    @AfterEach
-    void tearDown() {
-        filmRepository.deleteAll();
-        languageRepository.deleteAll();
-    }
 
     @Test
     void shouldReturnAllFilms() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films"))
                 .andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnFilmById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/" + savedFilmId))
-                .andDo(print()) 
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilmId))
+                .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnNotFoundForInvalidFilmId() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/32767"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/30000"))
                 .andExpect(status().isNotFound());
     }
 
@@ -105,45 +97,46 @@ savedLanguageId = savedLanguage.getId();
                     "length": 169,
                     "replacementCost": 19.99,
                     "rating": "PG",
-                    "language": "/api/languages/%d"
+                    "language": "http://localhost/languages/%d"
                 }
                 """.formatted(savedLanguageId);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/films")
+        mockMvc.perform(MockMvcRequestBuilders.post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(filmJson))
                 .andExpect(status().isCreated());
     }
 
-@Test
-void shouldPartiallyUpdateFilm() throws Exception {
-    String patchJson = """
-            {
-                "title": "Inception Updated",
-                "rentalRate": 4.99
-            }
-            """;
+    @Test
+    void shouldPartiallyUpdateFilm() throws Exception {
+        String patchJson = """
+                {
+                    "title": "Inception Updated",
+                    "rentalRate": 4.99
+                }
+                """;
 
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/films/" + savedFilmId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(patchJson))
-            .andExpect(status().isNoContent());
-}
+        mockMvc.perform(MockMvcRequestBuilders.patch("/films/" + savedFilmId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(patchJson))
+                .andExpect(status().isNoContent());
+    }
 
     @Test
     void shouldSearchFilmByTitle() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/search/byTitle")
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "Inception"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.films").isArray());
     }
 
-    @Test
-    void shouldReturnEmptyListForUnknownTitle() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/search/byTitle")
-                .param("title", "xyzunknownfilm"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.films").isEmpty());
-    }
+   @Test
+void shouldReturnEmptyListForUnknownTitle() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
+            .param("title", "xyzunknownfilm"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$._embedded.films").isArray())
+            .andExpect(jsonPath("$._embedded.films").isEmpty());
 }
 
+}
