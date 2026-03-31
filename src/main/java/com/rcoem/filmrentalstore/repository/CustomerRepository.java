@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @RepositoryRestResource(excerptProjection = CustomerDetails.class)
 public interface CustomerRepository extends JpaRepository<Customer, Short> {
-    Page<Customer> findByFirstName(String firstName, Pageable pageable);
+    Page<Customer> findByFirstNameIgnoreCase(String firstName, Pageable pageable);
     Page<Customer> findByLastName(String lastName, Pageable pageable);
     Optional<Customer> findByEmail(String email);
     Page<Customer> findByActive(Boolean status, Pageable pageable);

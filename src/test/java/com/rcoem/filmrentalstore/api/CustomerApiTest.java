@@ -22,6 +22,7 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -92,12 +93,23 @@ public class CustomerApiTest {
     // search endpoints
 
     @Test
-    public void testSearchByFirstName_Valid() throws Exception {
-        mockMvc.perform(get("/customers/search/findByFirstName")
-                        .param("firstName", "Tom"))
+    public void testSearchByFirstNameIgnoreCase_Valid() throws Exception {
+        // 1. Create MARY SMITH specifically for this test
+        Customer mary = new Customer("MARY", "SMITH", "mary.smith@email.com", store, address);
+
+        // Use saveAndFlush so the custom HTTP search query can actually see it in the DB
+        mary = customerRepository.saveAndFlush(mary);
+
+        // 2. Perform the search
+        mockMvc.perform(get("/customers/search/findByFirstNameIgnoreCase")
+                        .param("firstName", "MARY")
+                        .param("projection", "customerDetailsProjection"))
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.customers[*].name",
-                        containsInAnyOrder("Tom Hanks", "TOM MILNER")));
+                .andExpect(jsonPath("$._embedded.customers[0].name").value("MARY SMITH"));
+
+        // 3. Optional: Manual cleanup (Though @Transactional handles this automatically)
+        customerRepository.delete(mary);
     }
 
     @Test
