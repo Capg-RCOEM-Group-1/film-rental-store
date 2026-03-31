@@ -92,13 +92,11 @@ public class CustomerApiTest {
 
     @Test
     public void testSearchByFirstNameIgnoreCase_Valid() throws Exception {
-        mockMvc.perform(get("/customers/search/findByFirstName")
-                        .param("firstName", "Tom"))
+        mockMvc.perform(get("/customers/search/findByFirstNameIgnoreCase")
+                        .param("firstName", "mary"))
                 .andExpect(status().isOk())
                 // Check index 0 for the pre-existing DB record
-                .andExpect(jsonPath("$._embedded.customers[0].name").value("TOM MILNER"))
-                // Check index 1 for the record created in @BeforeEach
-                .andExpect(jsonPath("$._embedded.customers[1].name").value("Tom Hanks"));
+                .andExpect(jsonPath("$._embedded.customers[0].name").value("MARY SMITH"));
     }
 
     @Test

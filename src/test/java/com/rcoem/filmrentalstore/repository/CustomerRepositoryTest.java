@@ -77,7 +77,7 @@ public class CustomerRepositoryTest {
 
     @Test
     public void testFindByFirstName_Valid() {
-        List<Customer> foundList = customerRepository.findByFirstName(testCustomer.getFirstName(), pageable).toList();
+        List<Customer> foundList = customerRepository.findByFirstNameIgnoreCase(testCustomer.getFirstName(), pageable).toList();
 
         assertThat(foundList).isNotEmpty();
         // Check if ANY of the returned customers have the last name "Hanks"
