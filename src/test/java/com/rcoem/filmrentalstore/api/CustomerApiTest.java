@@ -96,8 +96,8 @@ public class CustomerApiTest {
         mockMvc.perform(get("/customers/search/findByFirstNameIgnoreCase")
                         .param("firstName", "MARY"))
                 .andExpect(status().isOk())
-                // Check index 0 for the pre-existing DB record
-                .andExpect(jsonPath("$._embedded.customers[0].name").value("MARY SMITH"));
+                .andExpect(jsonPath("$._embedded.customers[0].firstName").value("MARY"))
+                .andExpect(jsonPath("$._embedded.customers[0].lastName").value("SMITH"));
     }
 
     @Test
