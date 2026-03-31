@@ -50,6 +50,7 @@ public class StoreRepositoryTest {
 
     //--------- Test Cases to Save the Store ( Valid , Negative , Null , Without Manager , Without Address) ------------
     @Test
+    @Transactional
     void testSaveStore() {
         Staff manager = new Staff();
         manager.setFirstName("Test");
@@ -81,12 +82,14 @@ public class StoreRepositoryTest {
     }
 
     @Test
+    @Transactional
     void testNullSaveStore() {
         assertThatThrownBy(() -> storeRepo.save(null))
                 .isInstanceOf(InvalidDataAccessApiUsageException.class);
     }
 
     @Test
+    @Transactional
     void testSaveStoreMissingAddress() {
         Store store = new Store();
         store.setManager(staff);
@@ -96,6 +99,7 @@ public class StoreRepositoryTest {
     }
 
     @Test
+    @Transactional
     void testSaveStoreWithoutManager() {
         Store store = new Store();
         store.setAddress(address);
@@ -105,6 +109,7 @@ public class StoreRepositoryTest {
     }
 
     @Test
+    @Transactional
     void testSaveStoreWithoutAddress() {
         Store store = new Store();
         store.setManager(staff);
@@ -117,12 +122,14 @@ public class StoreRepositoryTest {
 
     //------------------------ Test Cases to View the Store ( All , ByAddress ,  ) ---------------------------------------
     @Test
+    @Transactional
     void testViewAllStores() {
         List<Store> list = storeRepo.findAll();
         assertThat(list.size()).isGreaterThan(0);
     }
 
     @Test
+    @Transactional
     void testFindStoreByAddress() {
         List<Store> found = storeRepo.findByAddress(address);
 
@@ -134,6 +141,7 @@ public class StoreRepositoryTest {
 
     //------------------------ Test Cases to Update the Store ( Valid , Negative , Null , New Address ) ------------------------------
     @Test
+    @Transactional
     void testUpdateStore() {
 
         Staff manager = new Staff();
@@ -166,6 +174,7 @@ public class StoreRepositoryTest {
     }
 
     @Test
+    @Transactional
     void testNullUpdateStore() {
 
         Staff manager = new Staff();
@@ -198,12 +207,14 @@ public class StoreRepositoryTest {
 
 
     @Test
+    @Transactional
     void testInvalidIdUpdateStore() {
         Optional<Store> missing = storeRepo.findById((byte) 99);
         assertThat(missing).isNotPresent();
     }
 
     @Test
+    @Transactional
     void testUpdateStoreWithNewAddress() {
         Address newAddress = addressRepo.findById((short) 2)
                 .orElseThrow(() -> new RuntimeException("Address ID 2 not found"));
@@ -240,6 +251,7 @@ public class StoreRepositoryTest {
 
     //------------------------ Test Cases to Delete the Store ( Valid , Negative , Null , ALL ) ------------------------------
     @Test
+    @Transactional
     void testDeleteStore() {
         Store store = storeRepo.findAll().get(0);
 
@@ -250,12 +262,14 @@ public class StoreRepositoryTest {
     }
 
     @Test
+    @Transactional
     void testDeleteStoreInvalidId() {
         storeRepo.deleteById((byte) 100);
         assertThat(storeRepo.findById((byte) 100)).isNotPresent();
     }
 
     @Test
+    @Transactional
     void testDeleteNullStore() {
         assertThatThrownBy(() -> storeRepo.delete(null))
                 .isInstanceOf(InvalidDataAccessApiUsageException.class);
