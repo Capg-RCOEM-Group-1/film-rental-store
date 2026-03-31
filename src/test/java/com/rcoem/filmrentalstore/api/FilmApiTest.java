@@ -64,8 +64,8 @@ class FilmApiTest {
 
     @AfterEach
     void tearDown() {
-        filmRepository.deleteAll();
-        languageRepository.deleteAll();
+//        filmRepository.deleteAll();
+//        languageRepository.deleteAll();
     }
 
     @Test

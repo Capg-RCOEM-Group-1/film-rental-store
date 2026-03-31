@@ -29,8 +29,8 @@ class FilmRepositoryTest {
     private HashSet<Set> set;
     @BeforeEach
     void setUp() {
-        filmRepository.deleteAll();
-        languageRepository.deleteAll();
+//        filmRepository.deleteAll();
+//        languageRepository.deleteAll();
 
         film = new Film();
         Language language = new Language();

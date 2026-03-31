@@ -40,8 +40,8 @@ public class LanguageFilmApiTest {
     @BeforeEach
     void setup(){
         //filmCategoryRepo.deleteAll();
-        filmRepo.deleteAll();
-        languageRepo.deleteAll();
+//        filmRepo.deleteAll();
+//        languageRepo.deleteAll();
 
         lang = new Language();
         lang.setName("English");

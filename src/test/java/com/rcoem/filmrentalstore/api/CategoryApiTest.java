@@ -37,7 +37,7 @@ public class CategoryApiTest {
     @BeforeEach
     public void setup() {
        // filmCategoryRepository.deleteAll();   // ✅ FIRST (child table)
-        categoryRepository.deleteAll();
+//        categoryRepository.deleteAll();
 
         Category category = new Category();
         category.setName("Action_" + System.currentTimeMillis());

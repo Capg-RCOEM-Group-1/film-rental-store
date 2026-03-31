@@ -38,9 +38,9 @@ public class StaffApiTest {
     @BeforeEach
     public void setup() {
 
-        staffRepository.deleteAll();
-        storeRepository.deleteAll();
-        addressRepository.deleteAll();
+//        staffRepository.deleteAll();
+//        storeRepository.deleteAll();
+//        addressRepository.deleteAll();
 
         Address address = new Address();
         address.setAddress("s");
@@ -96,7 +96,7 @@ public class StaffApiTest {
     @DisplayName("GET /staffs/search/findByActiveTrue - No records found")
     public void shouldReturnEmptyListWhenNoActiveStaff() throws Exception {
         // Given: Ensure no active staff exist
-        staffRepository.deleteAll();
+//        staffRepository.deleteAll();
 
         mockMvc.perform(get("/staffs/search/findByActiveTrue"))
                 .andExpect(status().isOk())

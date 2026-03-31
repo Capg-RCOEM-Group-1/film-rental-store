@@ -21,7 +21,7 @@ public class LanguageRepositoryTest {
     LanguageRepository languageRepo;
     @BeforeEach
     public void cleanUp(){
-        languageRepo.deleteAll();
+//        languageRepo.deleteAll();
     }
     @Test
     public void testAddLanguageRepository(){

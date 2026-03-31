@@ -1,155 +1,282 @@
 package com.rcoem.filmrentalstore.repository;
 
-import com.rcoem.filmrentalstore.entities.*;
+import com.rcoem.filmrentalstore.entities.Address;
+import com.rcoem.filmrentalstore.entities.Staff;
+import com.rcoem.filmrentalstore.entities.Store;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import com.rcoem.filmrentalstore.entities.Store;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class StoreRepositoryTest {
 
     @Autowired
-    private StoreRepository storeRepository;
-
+    StoreRepository storeRepo;
     @Autowired
-    private AddressRepository addressRepository;
-
+    AddressRepository addressRepo;
     @Autowired
-    private StaffRepository staffRepository;
+    StaffRepository staffRepo;
 
-    private Store testStore;
-    private Address testAddress;
-    private Staff testManager;
+    Address address;
+    Staff staff;
+    Store store;
 
-
+    // --------------------- Make a testing Entity that can be used for all the testCases ------------------------------
     @BeforeEach
     void setup() {
-        staffRepository.deleteAll();
-        storeRepository.deleteAll();
-        addressRepository.deleteAll();
 
-        Address address = new Address();
-        address.setAddress("123 Main St");
-        address.setDistrict("Central");
-        address.setPhone("555-0123");
-        testAddress = addressRepository.save(address);
+        store = storeRepo.findById((byte) 1).orElseThrow(() -> new RuntimeException(("Storeid Not found")));
 
-        Store store = new Store();
-        store.setAddress(testAddress);
-        testStore = storeRepository.save(store);
+        address = addressRepo.findById((short) 1)
+                .orElseThrow(() -> new RuntimeException("Address ID 1 not found"));
 
-        Staff staff = new Staff();
-        staff.setFirstName("John");
-        staff.setLastName("Doe");
-        staff.setAddress(testAddress);
-        staff.setStore(testStore);
-        staff.setActive(true);
-        staff.setPassword("secret");
-        testManager = staffRepository.save(staff);
-
-        testStore.setManager(testManager);
-        storeRepository.save(testStore);
+        staff = staffRepo.findById((byte) 2)
+                .orElseThrow(() -> new RuntimeException("Staff ID 1 not found"));
     }
+    //------------------------------------------------------------------------------------------------------------------
 
 
+    //--------- Test Cases to Save the Store ( Valid , Negative , Null , Without Manager , Without Address) ------------
     @Test
     void testSaveStore() {
-        Staff manager = staffRepository.save(testManager);
-        Address address = addressRepository.save(new Address());
+        Staff manager = new Staff();
+        manager.setFirstName("Test");
+        manager.setLastName("Manager");
+        manager.setAddress(address);
+        manager.setActive(true);
+        manager.setStore(store);
+        manager.setUsername("am");
+        manager.setPassword("123");
+        manager.setEmail("gd");
 
-        Store store = new Store();
-        store.setManager(manager);
-        store.setAddress(address);
-        Store saved = storeRepository.save(store);
+        Staff manager1 = staffRepo.save(manager);
 
-        assertThat(saved).isNotNull();
-        assertThat(saved.getStoreId()).isNotNull();
+        // Step 2: Create Store with this manager
+        Store store1 = new Store();
+        store1.setAddress(address);
+        store1.setManager(manager1);
+
+        store1 = storeRepo.save(store1);
+
+        manager1.setStore(store1);
+        staffRepo.save(manager1);
+
+        // Assertions
+        Optional<Store> saved = storeRepo.findById(store.getStoreId());
+        assertThat(saved).isPresent();
+        assertThat(saved.get().getAddress().getAddress())
+                .isEqualTo(address.getAddress());
     }
 
+    @Test
+    void testNullSaveStore() {
+        assertThatThrownBy(() -> storeRepo.save(null))
+                .isInstanceOf(InvalidDataAccessApiUsageException.class);
+    }
 
+    @Test
+    void testSaveStoreMissingAddress() {
+        Store store = new Store();
+        store.setManager(staff);
+
+        assertThatThrownBy(() -> storeRepo.saveAndFlush(store))
+                .isInstanceOf(Exception.class);
+    }
+
+    @Test
+    void testSaveStoreWithoutManager() {
+        Store store = new Store();
+        store.setAddress(address);
+
+        assertThatThrownBy(() -> storeRepo.saveAndFlush(store))
+                .isInstanceOf(Exception.class);
+    }
+
+    @Test
+    void testSaveStoreWithoutAddress() {
+        Store store = new Store();
+        store.setManager(staff);
+
+        assertThatThrownBy(() -> storeRepo.saveAndFlush(store))
+                .isInstanceOf(Exception.class);
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+
+
+    //------------------------ Test Cases to View the Store ( All , ByAddress ,  ) ---------------------------------------
     @Test
     void testViewAllStores() {
-        List<Store> stores = storeRepository.findAll();
-        assertThat(stores).isNotEmpty();
-        assertThat(stores.size()).isGreaterThanOrEqualTo(1);
+        List<Store> list = storeRepo.findAll();
+        assertThat(list.size()).isGreaterThan(0);
     }
-
-
-    @Test
-    void testUpdateStore() {
-        Address newAddress = addressRepository.save(new Address());
-        testStore.setAddress(newAddress);
-        storeRepository.save(testStore);
-        Store updated = storeRepository.findById(testStore.getStoreId()).get();
-        assertThat(updated.getAddress()).isEqualTo(newAddress);
-    }
-
 
     @Test
     void testFindStoreByAddress() {
-        List<Store> found = storeRepository.findByAddress(testAddress);
-        assertThat(found).isNotEmpty();
-        assertThat(found.get(0).getAddress()).isEqualTo(testAddress);
+        List<Store> found = storeRepo.findByAddress(address);
+
+        assertThat(found).isNotNull();
+        assertThat(found.size()).isGreaterThan(0);
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+
+
+    //------------------------ Test Cases to Update the Store ( Valid , Negative , Null , New Address ) ------------------------------
+    @Test
+    void testUpdateStore() {
+
+        Staff manager = new Staff();
+        manager.setFirstName("Test");
+        manager.setLastName("Manager");
+        manager.setAddress(address);
+        manager.setActive(true);
+        manager.setStore(store);
+        manager.setUsername("u1");
+        manager.setPassword("123");
+        manager.setEmail("e1");
+
+        Staff manager1 = staffRepo.save(manager);
+
+        Store store1 = new Store();
+        store1.setAddress(address);
+        store1.setManager(manager1);
+
+        store1 = storeRepo.save(store1);
+
+        manager1.setStore(store1);
+        staffRepo.save(manager1);
+
+        Store saved = storeRepo.findById(store1.getStoreId()).get();
+        saved.setAddress(address);
+
+        storeRepo.save(saved);
+
+        assertThat(saved.getStoreId()).isEqualTo(store1.getStoreId());
+    }
+
+    @Test
+    void testNullUpdateStore() {
+
+        Staff manager = new Staff();
+        manager.setFirstName("Test");
+        manager.setLastName("Manager");
+        manager.setAddress(address);
+        manager.setActive(true);
+        manager.setStore(store);
+        manager.setUsername("u2");
+        manager.setPassword("123");
+        manager.setEmail("e2");
+
+        Staff manager1 = staffRepo.save(manager);
+
+        Store store1 = new Store();
+        store1.setAddress(address);
+        store1.setManager(manager1);
+
+        store1 = storeRepo.save(store1);
+
+        manager1.setStore(store1);
+        staffRepo.save(manager1);
+
+        Store saved = storeRepo.findById(store1.getStoreId()).get();
+        saved.setAddress(null);
+
+        assertThatThrownBy(() -> storeRepo.saveAndFlush(saved))
+                .isInstanceOf(Exception.class);
     }
 
 
+    @Test
+    void testInvalidIdUpdateStore() {
+        Optional<Store> missing = storeRepo.findById((byte) 99);
+        assertThat(missing).isNotPresent();
+    }
+
+    @Test
+    void testUpdateStoreWithNewAddress() {
+        Address newAddress = addressRepo.findById((short) 2)
+                .orElseThrow(() -> new RuntimeException("Address ID 2 not found"));
+
+        Staff manager = new Staff();
+        manager.setFirstName("Test");
+        manager.setLastName("Manager");
+        manager.setAddress(address);
+        manager.setActive(true);
+        manager.setStore(store);
+        manager.setUsername("u3");
+        manager.setPassword("123");
+        manager.setEmail("e3");
+
+        Staff manager1 = staffRepo.save(manager);
+
+        Store store1 = new Store();
+        store1.setAddress(address);
+        store1.setManager(manager1);
+
+        store1 = storeRepo.save(store1);
+
+        manager1.setStore(store1);
+        staffRepo.save(manager1);
+
+        store1.setAddress(newAddress);
+        Store updated = storeRepo.save(store1);
+
+        assertThat(updated.getAddress().getAddress()).isEqualTo(newAddress.getAddress());
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+
+    //------------------------ Test Cases to Delete the Store ( Valid , Negative , Null , ALL ) ------------------------------
     @Test
     void testDeleteStore() {
-        storeRepository.delete(testStore);
-        Optional<Store> deleted = storeRepository.findById(testStore.getStoreId());
-        assertThat(deleted).isEmpty();
-    }
+        Store store = storeRepo.findAll().get(0);
 
+        storeRepo.deleteById(store.getStoreId());
 
-    // Negative and Null Cases :
-
-    @Test
-    void testSaveStore_NullAddress_ShouldThrowException() {
-        // Create store without an address
-        Store store = new Store();
-        store.setManager(testManager);
-
-        // saveAndFlush forces Hibernate to send the SQL to DB immediately to trigger the error
-        assertThrows(ConstraintViolationException.class, () -> {
-            storeRepository.saveAndFlush(store);
-        });
+        Optional<Store> deleted = storeRepo.findById(store.getStoreId());
+        assertThat(deleted).isNotPresent();
     }
 
     @Test
-    void testFindStoreByAddress_NonExistentAddress() {
-        Address unsavedAddress = addressRepository.save(new Address());
-
-        List<Store> found = storeRepository.findByAddress(unsavedAddress);
-
-        assertThat(found).isEmpty();
+    void testDeleteStoreInvalidId() {
+        storeRepo.deleteById((byte) 100);
+        assertThat(storeRepo.findById((byte) 100)).isNotPresent();
     }
 
     @Test
-    void testFindById_InvalidId() {
-        // ID that definitely doesn't exist
-        Optional<Store> found = storeRepository.findById((byte) 9999L);
-
-        assertThat(found).isNotPresent();
+    void testDeleteNullStore() {
+        assertThatThrownBy(() -> storeRepo.delete(null))
+                .isInstanceOf(InvalidDataAccessApiUsageException.class);
     }
 
-    //Could create circular dependency
-    /*@Test
-    void testUpdateStore_SetManagerToNull_ShouldFail() {
-        testStore.setManager(null);
 
-        assertThrows(ConstraintViolationException.class, () -> {
-            storeRepository.saveAndFlush(testStore);
-        });
-    }*/
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+
+    //---------------------------------- Methods Needed to For Test Cases ----------------------------------------------
+    private Staff getAvailableManager() {
+        List<Staff> all = staffRepo.findAll();
+
+        List<Byte> managerIds = storeRepo.findAll()
+                .stream()
+                .map(s -> s.getManager().getStaffId())
+                .toList();
+
+        return all.stream()
+                .filter(st -> !managerIds.contains(st.getStaffId()))
+                .findFirst()
+                .orElse(all.get(0));
+    }
+
 }

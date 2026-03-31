@@ -33,9 +33,9 @@ public class FilmCategoryRepositoryTest {
     @BeforeEach
     void setup() {
         /*filmCategoryRepository.deleteAll();*/   // ✅ FIRST
-        filmRepository.deleteAll();
-        categoryRepository.deleteAll();
-        languageRepository.deleteAll();
+//        filmRepository.deleteAll();
+//        categoryRepository.deleteAll();
+//        languageRepository.deleteAll();
     }
 
     @Test

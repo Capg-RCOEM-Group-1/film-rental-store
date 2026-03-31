@@ -17,7 +17,7 @@ public class Inventory {
     private Integer inventoryId;
 
     @UpdateTimestamp
-    @Column(columnDefinition = "TIMESTAMP", nullable = false)
+    @Column(columnDefinition = "TIMESTAMP", nullable = false, name = "last_update")
     private Timestamp timestamp;
 
     @ManyToOne

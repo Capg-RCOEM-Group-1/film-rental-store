@@ -45,7 +45,7 @@ public class CustomerRepositoryTest {
 
     @BeforeEach
     public void setup() {
-        customerRepository.deleteAll();
+//        customerRepository.deleteAll();
         pageable = PageRequest.of(0, 10);
         testTimestamp = Timestamp.from(Instant.now());
         address = addressRepository.findById((short) 5).orElse(null);

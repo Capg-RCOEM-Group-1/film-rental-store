@@ -48,9 +48,9 @@ public class FilmCategoryApiTest {
     @BeforeEach
     void setup() {
         /*filmCategoryRepository.deleteAll();*/   // ✅ FIRST (child table)
-        filmRepository.deleteAll();
-        categoryRepository.deleteAll();
-        languageRepository.deleteAll();
+//        filmRepository.deleteAll();
+//        categoryRepository.deleteAll();
+//        languageRepository.deleteAll();
 
         Language language = new Language();
         language.setName("Spanish");

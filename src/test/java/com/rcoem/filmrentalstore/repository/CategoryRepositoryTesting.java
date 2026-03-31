@@ -19,7 +19,7 @@ public class CategoryRepositoryTesting {
 
     @BeforeEach
     public void cleanup() {
-        categoryRepository.deleteAll();
+//        categoryRepository.deleteAll();
     }
 
     @Test

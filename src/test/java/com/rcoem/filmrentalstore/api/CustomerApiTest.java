@@ -53,7 +53,7 @@ public class CustomerApiTest {
 
     @BeforeEach
     public void setup() {
-        customerRepository.deleteAll();
+//        customerRepository.deleteAll();
         testTimestamp = Timestamp.from(Instant.now());
         address = addressRepository.findById((short) 5L).orElse(null);
         store = storeRepository.findById((byte) 1L).orElse(null);

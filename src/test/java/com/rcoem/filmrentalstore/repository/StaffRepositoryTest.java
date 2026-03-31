@@ -33,9 +33,9 @@ public class StaffRepositoryTest {
 
     @BeforeEach
     public void setup() {
-        staffRepository.deleteAll();
-        storeRepository.deleteAll();
-        addressRepository.deleteAll();
+//        staffRepository.deleteAll();
+//        storeRepository.deleteAll();
+//        addressRepository.deleteAll();
 
         Address address = new Address();
         address.setAddress("123 Main St");
@@ -92,7 +92,7 @@ public class StaffRepositoryTest {
     @DisplayName("Should return empty page when no active staff exist")
     public void testFindByActiveTrue_Empty() {
         // Given
-        staffRepository.deleteAll();
+//        staffRepository.deleteAll();
 
         // When
         Page<Staff> result = staffRepository.findByActiveTrue(firstPage);

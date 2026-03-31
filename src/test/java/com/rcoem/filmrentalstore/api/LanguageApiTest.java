@@ -31,8 +31,8 @@ public class LanguageApiTest {
     @BeforeEach
     public void clean(){
         //filmCategoryRepo.deleteAll();
-        filmRepo.deleteAll();
-        languageRepo.deleteAll();
+//        filmRepo.deleteAll();
+//        languageRepo.deleteAll();
     }
 
     @Test
