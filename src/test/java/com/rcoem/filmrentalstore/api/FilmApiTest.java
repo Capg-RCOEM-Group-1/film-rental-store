@@ -28,7 +28,7 @@ import java.util.HashSet;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
+
 class FilmApiTest {
 
     @Autowired
@@ -74,12 +74,14 @@ class FilmApiTest {
     }
 
     @Test
+    @Transactional
     void shouldReturnAllFilms() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films"))
                 .andExpect(status().isOk());
     }
 
     @Test
+    @Transactional
     void shouldReturnFilmById() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilm.getFilmId()))
                 .andDo(print()) 
@@ -87,12 +89,14 @@ class FilmApiTest {
     }
 
     @Test
+    @Transactional
     void shouldReturnNotFoundForInvalidFilmId() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/32767"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @Transactional
     void shouldCreateFilm() throws Exception {
         String filmJson = """
                 {
@@ -115,6 +119,7 @@ class FilmApiTest {
     }
 
 @Test
+@Transactional
 void shouldPartiallyUpdateFilm() throws Exception {
         String patchJson = """
             {
@@ -130,6 +135,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
 }
 
     @Test
+    @Transactional
     void shouldSearchFilmByTitle() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "Inception"))
@@ -138,6 +144,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
     }
 
     @Test
+    @Transactional
     void shouldReturnEmptyListForUnknownTitle() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "xyzunknownfilm"))
