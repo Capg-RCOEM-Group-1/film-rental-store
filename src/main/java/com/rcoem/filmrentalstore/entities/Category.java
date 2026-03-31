@@ -26,10 +26,12 @@ public class Category {
     @NotNull
     @Column(unique = true, nullable = false)
     private String name;
+
     @Column(columnDefinition = "TIMESTAMP", name = "last_update")
     @UpdateTimestamp
     private LocalDateTime lastUpdate;
-    @ManyToMany()
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "film_category",
             joinColumns = @JoinColumn(name = "category_id"),

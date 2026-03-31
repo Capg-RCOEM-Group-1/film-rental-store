@@ -42,7 +42,7 @@ public class FilmCategoryRepositoryTest {
     @Test
     void testCreateFilmCategory() {
         Language language = new Language();
-        language.setName("");
+        language.setName("English");
         Film film = new Film();
         film.setTitle("Test Film");
 

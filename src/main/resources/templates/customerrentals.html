@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Rentals</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .back-link { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #0056b3; font-weight: bold;}
+        .back-link:hover { text-decoration: underline; }
+
+        /* Pagination Styles */
+        .pagination-container { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .pagination-controls button { padding: 8px 16px; margin: 0 5px; cursor: pointer; border: 1px solid #ccc; background-color: #f9f9f9; border-radius: 4px; }
+        .pagination-controls button:hover:not(:disabled) { background-color: #e9e9e9; }
+        .pagination-controls button:disabled { color: #aaa; cursor: not-allowed; }
+        .page-info { font-size: 0.9em; color: #555; }
+    </style>
+</head>
+<body>
+
+<a href="/ekansh/customers" class="back-link">← Back to Customer List</a>
+
+<h2 id="page-title">Rental Details</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Sr No</th>
+        <th>Film Name</th>
+        <th>Price Paid</th>
+        <th>Rental Date</th>
+        <th>Return Date</th>
+    </tr>
+    </thead>
+    <tbody id="rentals-table-body">
+    <tr><td colspan="5" id="loading-text">Loading rentals...</td></tr>
+    </tbody>
+</table>
+
+<div class="pagination-container">
+    <div class="page-info" id="page-info"></div>
+    <div class="pagination-controls" id="pagination-controls"></div>
+</div>
+
+<script>
+    const PAGE_SIZE = 10; // Matching the size from your JSON log
+    let globalCustomerId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        globalCustomerId = urlParams.get('customerId');
+        const customerName = urlParams.get('name');
+
+        if (customerName) {
+            document.getElementById('page-title').textContent = `Rental Details for ${customerName}`;
+        }
+
+        if (globalCustomerId) {
+            fetchRentals(0); // Fetch first page
+        } else {
+            document.getElementById('loading-text').textContent = 'Error: No Customer ID provided in URL.';
+        }
+    });
+
+    async function fetchRentals(pageNumber) {
+        try {
+            const apiUrl = `/customer-rentals/search/by-customer?customerId=${globalCustomerId}&page=${pageNumber}&size=${PAGE_SIZE}`;
+
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            const tbody = document.getElementById('rentals-table-body');
+            tbody.innerHTML = '';
+
+            // Extracting exactly from the key shown in your console log
+            const rentals = data._embedded ? data._embedded.customerRentalViews : [];
+            const pageData = data.page;
+
+            if (rentals.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No rentals found for this customer.</td></tr>';
+                updatePaginationUI(null);
+                return;
+            }
+
+            rentals.forEach((rental, index) => {
+                const tr = document.createElement('tr');
+
+                const srNo = (pageData.number * pageData.size) + index + 1;
+
+                const rDate = rental.rentalDate ? new Date(rental.rentalDate).toLocaleString() : 'N/A';
+                const retDate = rental.returnDate ? new Date(rental.returnDate).toLocaleString() : 'Not Returned Yet';
+                const priceFormatted = rental.price ? `$${rental.price.toFixed(2)}` : '$0.00';
+
+                tr.innerHTML = `
+                        <td>${srNo}</td>
+                        <td>${rental.filmName}</td>
+                        <td>${priceFormatted}</td>
+                        <td>${rDate}</td>
+                        <td>${retDate}</td>
+                    `;
+                tbody.appendChild(tr);
+            });
+
+            updatePaginationUI(pageData);
+
+        } catch (error) {
+            console.error("Error fetching rentals:", error);
+            document.getElementById('rentals-table-body').innerHTML =
+                '<tr><td colspan="5" style="color:red; text-align: center;">Failed to load rental data.</td></tr>';
+        }
+    }
+
+    function updatePaginationUI(pageData) {
+        const controlsDiv = document.getElementById('pagination-controls');
+        const infoDiv = document.getElementById('page-info');
+
+        if (!pageData) {
+            controlsDiv.innerHTML = '';
+            infoDiv.innerHTML = '';
+            return;
+        }
+
+        const currentPage = pageData.number;
+        const totalPages = pageData.totalPages;
+
+        infoDiv.textContent = `Showing page ${currentPage + 1} of ${totalPages} (Total: ${pageData.totalElements} rentals)`;
+
+        let buttonsHtml = '';
+
+        if (currentPage > 0) {
+            buttonsHtml += `<button onclick="fetchRentals(${currentPage - 1})">Previous</button>`;
+        } else {
+            buttonsHtml += `<button disabled>Previous</button>`;
+        }
+
+        if (currentPage < totalPages - 1) {
+            buttonsHtml += `<button onclick="fetchRentals(${currentPage + 1})">Next</button>`;
+        } else {
+            buttonsHtml += `<button disabled>Next</button>`;
+        }
+
+        controlsDiv.innerHTML = buttonsHtml;
+    }
+</script>
+</body>
+</html>

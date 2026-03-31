@@ -75,13 +75,13 @@ class FilmApiTest {
     @Test
     void shouldReturnFilmById() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilmId))
-                .andDo(print())
+                .andDo(print()) 
                 .andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnNotFoundForInvalidFilmId() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/films/30000"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/32767"))
                 .andExpect(status().isNotFound());
     }
 
@@ -116,11 +116,11 @@ class FilmApiTest {
                 }
                 """;
 
-        mockMvc.perform(MockMvcRequestBuilders.patch("/films/" + savedFilmId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(patchJson))
-                .andExpect(status().isNoContent());
-    }
+    mockMvc.perform(MockMvcRequestBuilders.patch("/films/" + savedFilmId)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(patchJson))
+            .andExpect(status().isNoContent());
+}
 
     @Test
     void shouldSearchFilmByTitle() throws Exception {
@@ -130,13 +130,12 @@ class FilmApiTest {
                 .andExpect(jsonPath("$._embedded.films").isArray());
     }
 
-   @Test
-void shouldReturnEmptyListForUnknownTitle() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
-            .param("title", "xyzunknownfilm"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.films").isArray())
-            .andExpect(jsonPath("$._embedded.films").isEmpty());
+    @Test
+    void shouldReturnEmptyListForUnknownTitle() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
+                .param("title", "xyzunknownfilm"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.films").isEmpty());
+    }
 }
 
-}

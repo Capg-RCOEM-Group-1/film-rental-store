@@ -64,4 +64,9 @@ public class GlobalExceptionHandler {
         log.warn("Resource Not Found: {}", ex.getMessage());
         return new ResponseEntity<>("Resource not found with given identifier",HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(DuplicateException.class)
+    public ResponseEntity<String> handleDuplicateException(DuplicateException ex){
+        return new ResponseEntity<>(ex.getMessage(),HttpStatus.CONFLICT);
+    }
 }
