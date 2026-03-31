@@ -45,12 +45,14 @@ class FilmApiTest {
 
     @BeforeEach
     void setUp() {
-      Language language = new Language();
-language.setName("English");
-Language savedLanguage = languageRepository.save(language);
-savedLanguageId = savedLanguage.getId();
+        // 1. Create and save Language
+        Language language = new Language();
+        language.setName("English");
+        // Use saveAndFlush if using JpaRepository to ensure it's in the DB immediately
+        Language savedLanguage = languageRepository.saveAndFlush(language);
+        savedLanguageId = savedLanguage.getId();
 
-
+        // 2. Create and save Film
         Film film = new Film();
         film.setTitle("Inception");
         film.setDescription("A mind-bending thriller");
@@ -60,18 +62,17 @@ savedLanguageId = savedLanguage.getId();
         film.setLength(148);
         film.setReplacementCost(BigDecimal.valueOf(19.99));
         film.setRating(Rating.PG_13);
-        film.setSpecialFeatures(new HashSet<>());
-        film.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
+
+        // Ensure the Set is initialized
+        HashSet<Set> features = new HashSet<>();
+        features.add(Set.BEHIND_THE_SCENES);
+        film.setSpecialFeatures(features);
+
         film.setLanguage(savedLanguage);
         film.setLastUpdate(new Timestamp(System.currentTimeMillis()));
-        Film savedFilm = filmRepository.save(film);
-        savedFilmId = savedFilm.getFilmId();
-    }
 
-    @AfterEach
-    void tearDown() {
-//        filmRepository.deleteAll();
-//        languageRepository.deleteAll();
+        Film savedFilm = filmRepository.saveAndFlush(film);
+        savedFilmId = savedFilm.getFilmId();
     }
 
     @Test
