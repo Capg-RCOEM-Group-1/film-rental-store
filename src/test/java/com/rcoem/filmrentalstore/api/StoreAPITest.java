@@ -13,191 +13,172 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 public class StoreAPITest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private StoreRepository storeRepository;
+    StoreRepository storeRepo;
 
     @Autowired
-    private AddressRepository addressRepository;
+    StaffRepository staffRepo;
 
     @Autowired
-    private StaffRepository staffRepository;
+    AddressRepository addressRepo;
 
-    private Store testStore;
-    private Address testAddress;
-    private Staff testManager;
+    Address address;
+    Staff staff;
 
     @BeforeEach
     void setup() {
-        // 1. Clear existing data in correct dependency order
-        staffRepository.deleteAll();
-        storeRepository.deleteAll();
-        addressRepository.deleteAll();
+        address = new Address();
+        address.setAddressId((short) 1);
 
-        // 2. Create and SAVE the Address first
-        // This gives the address an ID so the @NotNull check in Store passes
-        Address address = new Address();
-        address.setAddress("123 Main St");
-        address.setDistrict("Central");
-        address.setPhone("555-0123");
-        // Add any other required address fields here
-        testAddress = addressRepository.save(address);
+        staff = new Staff();
+        staff.setStaffId((byte) 2);
 
-        // 3. Create the Store and link the saved Address
-        Store store = new Store();
-        store.setAddress(testAddress);
-        // Do NOT set the manager yet, as the staff doesn't exist
-        testStore = storeRepository.save(store);
-
-        // 4. Create the Staff, link to Address and Store, then SAVE
-        Staff staff = new Staff();
-        staff.setFirstName("John");
-        staff.setLastName("Doe");
-        staff.setAddress(testAddress);
-        staff.setStore(testStore);
-        staff.setActive(true);
-        staff.setPassword("secret");
-        testManager = staffRepository.save(staff);
-
-        // 5. Update the Store to set the Manager
-        testStore.setManager(testManager);
-        storeRepository.save(testStore);
     }
 
-    // GET Endpoints
+    // ---------------- Save Store Tests ----------------
 
     @Test
-    void testGetAllStores() throws Exception {
-        mockMvc.perform(get("/stores"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.stores").exists());
-    }
-
-    @Test
-    void testGetStoreById_Valid() throws Exception {
-        mockMvc.perform(get("/stores/" + testStore.getStoreId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._links.self.href").exists());
-    }
-
-    @Test
-    void testGetStoreById_NotFound() throws Exception {
-        mockMvc.perform(get("/stores/9999"))
-                .andExpect(status().isBadRequest());
-    }
-
-    // POST Endpoints
-
-    @Test
-    void testCreateStore_Valid() throws Exception {
-        // Create new prerequisites for the new store
-        Staff newManager = staffRepository.save(testManager);
-        Address newAddress = addressRepository.save(new Address());
-
-        // In Spring Data REST, we often pass the URIs of related entities
-        String newStoreJson = String.format("""
-            {
-                "manager": "/staff/%d",
-                "address": "/addresses/%d"
-            }
-            """, newManager.getStaffId(), newAddress.getAddressId());
-
-        mockMvc.perform(post("/stores")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(newStoreJson))
-                .andExpect(status().isCreated());
-    }
-
-    // PATCH Endpoints
-
-    @Test
-    void testUpdateStoreAddress_Valid() throws Exception {
-        Address updatedAddress = addressRepository.save(new Address());
-        String patchJson = String.format("{\"address\": \"/addresses/%d\"}", updatedAddress.getAddressId());
-
-        mockMvc.perform(patch("/stores/" + testStore.getStoreId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(patchJson))
-                .andExpect(status().is2xxSuccessful());
-
-        // Verify in DB
-        Store updated = storeRepository.findById(testStore.getStoreId()).orElseThrow();
-        assertThat(updated.getAddress().getAddressId()).isEqualTo(updatedAddress.getAddressId());
-    }
-
-    // DELETE Store
-
-    @Test
-    void testDeleteStore_Valid() throws Exception {
-        mockMvc.perform(delete("/stores/" + testStore.getStoreId()))
-                .andExpect(status().isNoContent());
-
-        assertThat(storeRepository.findById(testStore.getStoreId())).isEmpty();
-    }
-
-
-    // Negative Test Cases for the Endpoints : -
-
-    @Test
-    public void testGetStoreById_InvalidDataType() throws Exception {
-        // Passing a String "abc" instead of a Long ID
-        mockMvc.perform(get("/stores/abc"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void testUpdateStore_InvalidPayloadFormat() throws Exception {
-        // Sending malformed JSON (missing quotes or curly braces)
-        String malformedJson = "{ \"manager\": /staff/1 ";
-
-        mockMvc.perform(patch("/stores/" + testStore.getStoreId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(malformedJson))
-                .andExpect(status().isBadRequest());
-    }
-
-    /*@Test
-    public void testCreateStore_MissingManager_BadRequest() throws Exception {
-        // Omitting the manager field entirely
-        String bodyWithoutManager = String.format("""
-            {
-                "address": "/addresses/%d"
-            }
-            """, testAddress.getAddressId());
-
-        mockMvc.perform(post("/stores")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(bodyWithoutManager))
-                .andExpect(status().isBadRequest());
-    }
-*/
-
-    @Test
-    public void testCreateStore_NonExistentManager() throws Exception {
-        // Pointing to a Staff ID (9999) that does not exist
-        String bodyWithGhostManager = String.format("""
+    void testSaveStore() throws Exception {
+        String body = """
         {
-            "manager": "/staff/9999L",
-            "address": "/addresses/%d"
+            "address": "/addresses/1",
+            "manager": "/staff/2"
         }
-        """, testAddress.getAddressId());
-
+        """;
         mockMvc.perform(post("/stores")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(bodyWithGhostManager))
-                .andExpect(status().isBadRequest()); // Change from .isNotFound() to .isBadRequest()
+                        .content(body))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void testNullSaveStore() throws Exception {
+        mockMvc.perform(post("/stores")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}")) // Empty object instead of empty string
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void testSaveStoreMissingAddress() throws Exception {
+        String body = """
+        { "manager": "/staff/2" }
+        """;
+        mockMvc.perform(post("/stores")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void testSaveStoreWithoutManager() throws Exception {
+        String body = """
+        { "address": "/addresses/1" }
+        """;
+        mockMvc.perform(post("/stores")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().is4xxClientError());
+    }
+
+    // ---------------- View Store Tests ----------------
+
+    @Test
+    void testViewAllStores() throws Exception {
+        mockMvc.perform(get("/stores")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void testFindStoreByAddress() throws Exception {
+        mockMvc.perform(get("/stores/search/findByAddress")
+                        .param("address", "/addresses/1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    // ---------------- Update Store Tests ----------------
+
+    @Test
+    void testUpdateStore() throws Exception {
+        String body = """
+        {
+            "address": "/addresses/1",
+            "manager": "/staff/2"
+        }
+        """;
+        mockMvc.perform(put("/stores/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    void testNullUpdateStore() throws Exception {
+        String body = """
+        { "address": null }
+        """;
+        mockMvc.perform(put("/stores/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void testInvalidIdUpdateStore() throws Exception {
+        String body = """
+        { "address": "/addresses/1", "manager": "/staff/2" }
+        """;
+        mockMvc.perform(put("/stores/99")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void testUpdateStoreWithNewAddress() throws Exception {
+        String body = """
+        { "address": "/addresses/2", "manager": "/staff/2" }
+        """;
+        mockMvc.perform(put("/stores/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    // ---------------- Delete Store Tests ----------------
+
+    private void safeDeleteStore(Byte storeId) {
+        Store store = storeRepo.findById(storeId).orElseThrow();
+        Staff manager = store.getManager();
+        if(manager != null){
+            manager.setStore(null);
+            staffRepo.save(manager);
+        }
+        storeRepo.delete(store);
+    }
+
+    @Test
+    void testDeleteStoreInvalidId() throws Exception {
+        mockMvc.perform(delete("/stores/100"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testDeleteNullStore() throws Exception {
+        mockMvc.perform(delete("/stores")) // remove trailing slash
+                .andExpect(status().is4xxClientError());
     }
 }

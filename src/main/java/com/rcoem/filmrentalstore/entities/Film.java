@@ -59,11 +59,22 @@ public class Film {
     private Language originalLanguage;
 
     @CreationTimestamp
-    @Column( name = "last_update", nullable = false,columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "last_update", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp lastUpdate;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(name = "film_actor", joinColumns = @JoinColumn(name = "film_id"), inverseJoinColumns = @JoinColumn(name = "actor_id"))
+    private List<Actor> actors;
 
-    public Film(){}
+    @ManyToMany(mappedBy = "films")
+    List<Category> categories;
+
+    public Film() {
+    }
+
+    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate,
+            Integer length, Double replacementCost, String rating, String specialFeatures, Timestamp lastUpdate) {
+    }
 
     public Film(String title, String description, Integer releaseYear, Integer rentalDuration, BigDecimal rentalRate, Integer length, BigDecimal replacementCost, Rating rating, HashSet<Set> specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
         this.title = title;
@@ -83,14 +94,4 @@ public class Film {
     @OneToMany(mappedBy = "film")
     private List<Inventory> inventories;
 
-    @ManyToMany
-@JoinTable(
-    name = "film_actor",
-    joinColumns = @JoinColumn(name = "film_id"),
-    inverseJoinColumns = @JoinColumn(name = "actor_id")
-)
-private List<Actor> actors;
-
-    @ManyToMany(mappedBy = "films")
-    List<Category> categories;
 }

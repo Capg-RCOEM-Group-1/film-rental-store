@@ -1,30 +1,19 @@
 package com.rcoem.filmrentalstore.api;
 
-import com.rcoem.filmrentalstore.entities.Category;
-import com.rcoem.filmrentalstore.entities.Film;
-import com.rcoem.filmrentalstore.entities.Language;
-import com.rcoem.filmrentalstore.enums.Rating;
-import com.rcoem.filmrentalstore.enums.Set;
-import com.rcoem.filmrentalstore.repository.CategoryRepository;
-
-import com.rcoem.filmrentalstore.repository.FilmRepository;
-import com.rcoem.filmrentalstore.repository.LanguageRepository;
-import org.junit.jupiter.api.BeforeEach;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+<<<<<<< HEAD
 import org.springframework.transaction.annotation.Transactional;
+=======
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+>>>>>>> ameya
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.HashSet;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -32,6 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class FilmCategoryApiTest {
 
     @Autowired
+<<<<<<< HEAD
     private MockMvc mockMvc;
 
    /* @Autowired
@@ -72,10 +62,14 @@ public class FilmCategoryApiTest {
         category.setName("Action_" + System.currentTimeMillis());
         category = categoryRepository.save(category);
     }
+=======
+    MockMvc mockMvc;
+>>>>>>> ameya
 
     @Test
-    void testGetAllFilmCategories() throws Exception {
-        mockMvc.perform(get("/categories"))
+    void shouldReturnFilmById() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byCategory?name=Action&size=5"))
+                .andDo(print())
                 .andExpect(status().isOk());
     }
 }
