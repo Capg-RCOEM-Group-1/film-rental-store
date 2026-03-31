@@ -235,6 +235,7 @@ public class StoreRepositoryTest {
         Staff manager1 = staffRepo.save(manager);
 
         Store store1 = new Store();
+        store1.setStoreId((byte) 2);
         store1.setAddress(address);
         store1.setManager(manager1);
 
