@@ -8,9 +8,9 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 <<<<<<< HEAD
 import org.springframework.transaction.annotation.Transactional;
-=======
+
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
->>>>>>> ameya
+
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class FilmCategoryApiTest {
 
     @Autowired
-<<<<<<< HEAD
+
     private MockMvc mockMvc;
 
    /* @Autowired
