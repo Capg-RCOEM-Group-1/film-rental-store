@@ -43,8 +43,8 @@ class FilmApiTest {
     private Short savedFilmId;
     private Byte savedLanguageId;
 
-    @BeforeEach
-    void setUp() {
+
+    private void setUp() {
         // 1. Create and save Language
         Language language = new Language();
         language.setName("English");
@@ -83,6 +83,7 @@ class FilmApiTest {
 
     @Test
     void shouldReturnFilmById() throws Exception {
+        setUp();
         mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilmId))
                 .andDo(print()) 
                 .andExpect(status().isOk());
@@ -96,6 +97,7 @@ class FilmApiTest {
 
     @Test
     void shouldCreateFilm() throws Exception {
+        setUp();
         String filmJson = """
                 {
                     "title": "Interstellar",
@@ -118,7 +120,8 @@ class FilmApiTest {
 
 @Test
 void shouldPartiallyUpdateFilm() throws Exception {
-    String patchJson = """
+    setUp();
+        String patchJson = """
             {
                 "title": "Inception Updated",
                 "rentalRate": 4.99
@@ -133,6 +136,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
 
     @Test
     void shouldSearchFilmByTitle() throws Exception {
+        setUp();
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "Inception"))
                 .andExpect(status().isOk())
