@@ -1,8 +1,12 @@
 package com.rcoem.filmrentalstore.api;
 
 
+import com.rcoem.filmrentalstore.entities.Address;
 import com.rcoem.filmrentalstore.entities.Customer;
+import com.rcoem.filmrentalstore.entities.Store;
+import com.rcoem.filmrentalstore.repository.AddressRepository;
 import com.rcoem.filmrentalstore.repository.CustomerRepository;
+import com.rcoem.filmrentalstore.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +40,24 @@ public class CustomerApiTest {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private StoreRepository storeRepository;
+
     private Customer testCustomer;
     private Timestamp testTimestamp;
+    private Address address;
+    private Store store;
 
     @BeforeEach
     public void setup() {
         customerRepository.deleteAll();
         testTimestamp = Timestamp.from(Instant.now());
-        Customer customer = new Customer("Tom", "Hanks", "tom@email.com", 'Y', testTimestamp);
+        address = addressRepository.findById((short) 5L).orElse(null);
+        store = storeRepository.findById((byte) 1L).orElse(null);
+        Customer customer = new Customer("Tom", "Hanks", "tom@email.com", store,address);
         testCustomer = customerRepository.save(customer);
     }
 
@@ -98,7 +112,7 @@ public class CustomerApiTest {
     @Test
     public void testSearchByActive_Valid() throws Exception {
         mockMvc.perform(get("/customers/search/findByActive")
-                        .param("active", "Y"))
+                        .param("active", "true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.customers").exists());
     }
@@ -113,8 +127,7 @@ public class CustomerApiTest {
             {
                 "firstName": "Jerry",
                 "lastName": "Seinfeld",
-                "email": "jerry@email.com",
-                "active": "Y"
+                "email": "jerry@email.com"
             }
             """;
 
@@ -130,8 +143,7 @@ public class CustomerApiTest {
         String badCustomerJson = """
             {
                 "lastName": "Seinfeld",
-                "email": "jerry@email.com",
-                "active": "Y"
+                "email": "jerry@email.com"
             }
             """;
 

@@ -9,6 +9,9 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,37 +25,39 @@ public class FilmCategoryRepositoryTest {
     @Autowired
     private CategoryRepository categoryRepository;
 
+   /* @Autowired
+    private FilmCategoryRepository filmCategoryRepository;*/
     @Autowired
-    private FilmCategoryRepository filmCategoryRepository;
+    private LanguageRepository languageRepository;
 
     @BeforeEach
     void setup() {
-        filmCategoryRepository.deleteAll();   // ✅ FIRST
+        /*filmCategoryRepository.deleteAll();*/   // ✅ FIRST
         filmRepository.deleteAll();
         categoryRepository.deleteAll();
+        languageRepository.deleteAll();
     }
 
     @Test
     void testCreateFilmCategory() {
-
+        Language language = new Language();
+        language.setName("");
         Film film = new Film();
         film.setTitle("Test Film");
 
-        film.setLastUpdate(Timestamp.from(Instant.now()));
+        film.setLanguage(language);
+        languageRepository.save(language);
+        film.setRentalDuration(9);
+        film.setRentalRate(0.0);
+        film.setReplacementCost(0.0);
         film = filmRepository.save(film);
 
         Category category = new Category();
         category.setName("Action");
+        List<Film> films = new ArrayList<>();
+        films.add(film);
+        category.setFilms(films);
         category = categoryRepository.save(category);
-
-        FilmCategory fc = new FilmCategory();
-        fc.setFilm(film);
-        fc.setCategory(category);
-
-        FilmCategory saved = filmCategoryRepository.save(fc);
-
-        assertThat(saved.getId()).isNotNull();
-        assertThat(saved.getFilm().getFilmId()).isEqualTo(film.getFilmId());
-        assertThat(saved.getCategory().getCategoryId()).isEqualTo(category.getCategoryId());
+        assertThat(category.getFilms()).contains(film);
     }
 }

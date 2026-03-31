@@ -1,65 +1,66 @@
 package com.rcoem.filmrentalstore.entities;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
 import java.util.List;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.rcoem.filmrentalstore.converter.EnumConverter;
+import com.rcoem.filmrentalstore.converter.SpecialFeatureConverter;
+import com.rcoem.filmrentalstore.enums.Rating;
+import com.rcoem.filmrentalstore.enums.Set;
+import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+// import org.hibernate.annotations.UpdateTimestamp;
+
+// import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-
 @Entity
-@Getter
-@Setter
-@Table(name="film")
+@Data
 public class Film {
-
-     @Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long filmId;
+    private Short filmId;
+
     @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
-   
+    @Column(columnDefinition = "YEAR")
     private Integer releaseYear;
 
     @Column(nullable = false)
     private Integer rentalDuration;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DECIMAL(4,2)")
     private Double rentalRate;
 
     private Integer length;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "DECIMAL")
     private Double replacementCost;
 
-    
-    
-    private String rating;
+    @Convert(converter = EnumConverter.class)
+    @Column(columnDefinition = "enum('G','PG','PG-13','R','NC-17')")
+    private Rating rating;
 
-    private String specialFeatures;
+    @Convert(converter = SpecialFeatureConverter.class)
+    @Column(name = "special_features")
+    private HashSet<Set> specialFeatures;
 
-    @UpdateTimestamp
-    @Column(name = "last_update", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "language_id", nullable = false)
+    private Language language;
+
+    @ManyToOne()
+    @JoinColumn(name = "original_language_id", nullable = true)
+    private Language originalLanguage;
+
+    @CreationTimestamp
+    @Column( name = "last_update", nullable = false,columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp lastUpdate;
 
-    @OneToMany(mappedBy = "film")
-    private List<Inventory> inventories;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(
@@ -68,6 +69,11 @@ public class Film {
         inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
     private List<Actor> actors;
+
+
+
+    @ManyToMany(mappedBy = "films")
+    List<Category> categories;
     
    
 
@@ -75,6 +81,11 @@ public class Film {
 
 
     public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate, Integer length, Double replacementCost, String rating, String specialFeatures, Timestamp lastUpdate) {
+    }
+
+
+    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate, Integer length, Double replacementCost, Rating rating, HashSet<Set> specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
+
         this.title = title;
         this.description = description;
         this.releaseYear = releaseYear;
@@ -84,9 +95,13 @@ public class Film {
         this.replacementCost = replacementCost;
         this.rating = rating;
         this.specialFeatures = specialFeatures;
+        this.language = language;
+        this.originalLanguage = originalLanguage;
         this.lastUpdate = lastUpdate;
     }
 
+    @OneToMany(mappedBy = "film")
+    private List<Inventory> inventories;
 
-   
+
 }

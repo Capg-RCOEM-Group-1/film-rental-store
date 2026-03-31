@@ -4,9 +4,9 @@ import com.rcoem.filmrentalstore.entities.Address;
 import com.rcoem.filmrentalstore.entities.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface StoreRepository extends JpaRepository<Store,Long> {
-
-    Optional<Store> findByAddress(Address testAddress);
+public interface StoreRepository extends JpaRepository<Store,Byte> {
+    List<Store> findByAddress(Address testAddress);
 }

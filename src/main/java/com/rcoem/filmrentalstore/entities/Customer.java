@@ -8,52 +8,65 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.sql.Date;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @Entity
+@Table(name = "customer")
 public class Customer {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long customerId;
+    @Column(name = "customer_id")
+    private Short customerId;
 
     @NotNull
+    @Column(nullable = false, length = 45)
     private String firstName;
 
     @NotNull
+    @Column(nullable = false, length = 45)
     private String lastName;
 
     @Email
+    @Column(unique = true, length = 50)
     private String email;
 
-    @NotNull
-    private Character active;
+    @Column( nullable = false)
+    private Boolean active = true;
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false)
-    private Date createDate;
+    private LocalDateTime createDate;
 
     @UpdateTimestamp
-    @Column(columnDefinition = "TIMESTAMP", nullable = false)
-    private Timestamp lastUpdate;
+    @Column(nullable = false)
+    private LocalDateTime lastUpdate;
+
+//    @ManyToOne(optional = false) // optional=false enforces the NOT NULL at JPA level
+//    @JoinColumn(nullable = false)
 
     @ManyToOne
     @JoinColumn(name = "store_id")
     private Store store;
 
+//    @ManyToOne(optional = false)
+//    @JoinColumn(nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
+
     public Customer() {
     }
 
-    public Customer(String firstName, String lastName, String email, Character active, Timestamp lastUpdate) {
+    public Customer(String firstName, String lastName, String email, Store store, Address address) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.active = active;
-        this.lastUpdate = lastUpdate;
+        this.store = store;
+        this.address = address;
+        this.active = true;
     }
-
-
-
 }
