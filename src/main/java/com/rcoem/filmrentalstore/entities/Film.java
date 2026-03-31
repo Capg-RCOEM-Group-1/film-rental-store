@@ -76,10 +76,7 @@ public class Film {
             Integer length, Double replacementCost, String rating, String specialFeatures, Timestamp lastUpdate) {
     }
 
-    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate,
-            Integer length, Double replacementCost, Rating rating, HashSet<Set> specialFeatures, Language language,
-            Language originalLanguage, Timestamp lastUpdate) {
-
+    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, BigDecimal rentalRate, Integer length, BigDecimal replacementCost, Rating rating, HashSet<Set> specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
         this.title = title;
         this.description = description;
         this.releaseYear = releaseYear;
