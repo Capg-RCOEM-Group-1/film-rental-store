@@ -40,17 +40,16 @@ class FilmApiTest {
     @Autowired
     private LanguageRepository languageRepository;
 
-    private Short savedFilmId;
-    private Byte savedLanguageId;
+    private Film savedFilm;
+    private Language savedLanguage;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         // 1. Create and save Language
         Language language = new Language();
         language.setName("English");
         // Use saveAndFlush if using JpaRepository to ensure it's in the DB immediately
-        Language savedLanguage = languageRepository.saveAndFlush(language);
-        savedLanguageId = savedLanguage.getId();
+        savedLanguage = languageRepository.saveAndFlush(language);
 
         // 2. Create and save Film
         Film film = new Film();
@@ -71,8 +70,7 @@ class FilmApiTest {
         film.setLanguage(savedLanguage);
         film.setLastUpdate(new Timestamp(System.currentTimeMillis()));
 
-        Film savedFilm = filmRepository.saveAndFlush(film);
-        savedFilmId = savedFilm.getFilmId();
+        savedFilm = filmRepository.saveAndFlush(film);
     }
 
     @Test
@@ -83,7 +81,7 @@ class FilmApiTest {
 
     @Test
     void shouldReturnFilmById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilmId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilm.getFilmId()))
                 .andDo(print()) 
                 .andExpect(status().isOk());
     }
@@ -108,7 +106,7 @@ class FilmApiTest {
                     "rating": "PG",
                     "language": "/api/languages/%d"
                 }
-                """.formatted(savedLanguageId);
+                """.formatted(savedLanguage.getId());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -118,14 +116,14 @@ class FilmApiTest {
 
 @Test
 void shouldPartiallyUpdateFilm() throws Exception {
-    String patchJson = """
+        String patchJson = """
             {
                 "title": "Inception Updated",
                 "rentalRate": 4.99
             }
             """;
 
-    mockMvc.perform(MockMvcRequestBuilders.patch("/films/" + savedFilmId)
+    mockMvc.perform(MockMvcRequestBuilders.patch("/films/" +savedFilm.getFilmId())
             .contentType(MediaType.APPLICATION_JSON)
             .content(patchJson))
             .andExpect(status().isNoContent());
