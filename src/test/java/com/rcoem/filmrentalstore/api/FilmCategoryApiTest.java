@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -27,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class FilmCategoryApiTest {
 
     @Autowired
@@ -48,11 +50,6 @@ public class FilmCategoryApiTest {
 
     @BeforeEach
     void setup() {
-        /*filmCategoryRepository.deleteAll();*/   // ✅ FIRST (child table)
-        filmRepository.deleteAll();
-        categoryRepository.deleteAll();
-        languageRepository.deleteAll();
-
         Language language = new Language();
         language.setName("Spanish");
         languageRepository.save(language);
