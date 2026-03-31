@@ -91,7 +91,7 @@ public class CustomerApiTest {
     // search endpoints
 
     @Test
-    public void testSearchByFirstName_Valid() throws Exception {
+    public void testSearchByFirstNameIgnoreCase_Valid() throws Exception {
         mockMvc.perform(get("/customers/search/findByFirstName")
                         .param("firstName", "Tom"))
                 .andExpect(status().isOk())
