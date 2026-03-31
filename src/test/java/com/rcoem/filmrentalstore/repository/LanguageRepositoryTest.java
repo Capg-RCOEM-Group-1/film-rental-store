@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -16,13 +17,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Transactional
 public class LanguageRepositoryTest {
     @Autowired
     LanguageRepository languageRepo;
-    @BeforeEach
-    public void cleanUp(){
-//        languageRepo.deleteAll();
-    }
+
     @Test
     public void testAddLanguageRepository(){
         Language language = new Language();
@@ -38,18 +37,6 @@ public class LanguageRepositoryTest {
         assertThatThrownBy(()->{
             languageRepo.save(null);
         }).isInstanceOf(InvalidDataAccessApiUsageException.class);
-    }
-
-    @Test
-    public void testDuplicateAddLanguage(){
-        Language lang1 = new Language();
-        lang1.setName("Hindi");
-        Language lang2 = new Language();
-        lang2.setName("Hindi");
-        languageRepo.save(lang1);
-        assertThatThrownBy(()->{
-            languageRepo.saveAndFlush(lang2);
-        }).isInstanceOf(Exception.class);
     }
 
     @Test

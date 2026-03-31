@@ -6,6 +6,9 @@ import com.rcoem.filmrentalstore.enums.Rating;
 import com.rcoem.filmrentalstore.enums.Set;
 import com.rcoem.filmrentalstore.repository.FilmRepository;
 import com.rcoem.filmrentalstore.repository.LanguageRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,11 +22,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashSet;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 class FilmApiTest {
 
     @Autowired
@@ -40,19 +45,20 @@ class FilmApiTest {
 
     @BeforeEach
     void setUp() {
-        Language language = new Language();
-        language.setName("English");
-        Language savedLanguage = languageRepository.save(language);
-        savedLanguageId = savedLanguage.getId();
+      Language language = new Language();
+language.setName("English");
+Language savedLanguage = languageRepository.save(language);
+savedLanguageId = savedLanguage.getId();
+
 
         Film film = new Film();
         film.setTitle("Inception");
         film.setDescription("A mind-bending thriller");
         film.setReleaseYear(2010);
         film.setRentalDuration(7);
-        film.setRentalRate(150.0);
+        film.setRentalRate(BigDecimal.valueOf(4.99));
         film.setLength(148);
-        film.setReplacementCost(500.0);
+        film.setReplacementCost(BigDecimal.valueOf(19.99));
         film.setRating(Rating.PG_13);
         film.setSpecialFeatures(new HashSet<>());
         film.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
@@ -70,20 +76,20 @@ class FilmApiTest {
 
     @Test
     void shouldReturnAllFilms() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films"))
                 .andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnFilmById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/" + savedFilmId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilmId))
                 .andDo(print()) 
                 .andExpect(status().isOk());
     }
 
     @Test
     void shouldReturnNotFoundForInvalidFilmId() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/32767"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/32767"))
                 .andExpect(status().isNotFound());
     }
 
@@ -95,15 +101,15 @@ class FilmApiTest {
                     "description": "Space exploration",
                     "releaseYear": 2014,
                     "rentalDuration": 5,
-                    "rentalRate": 120.0,
+                    "rentalRate": 4.99,
                     "length": 169,
-                    "replacementCost": 400.0,
+                    "replacementCost": 19.99,
                     "rating": "PG",
                     "language": "/api/languages/%d"
                 }
                 """.formatted(savedLanguageId);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/films")
+        mockMvc.perform(MockMvcRequestBuilders.post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(filmJson))
                 .andExpect(status().isCreated());
@@ -114,11 +120,11 @@ void shouldPartiallyUpdateFilm() throws Exception {
     String patchJson = """
             {
                 "title": "Inception Updated",
-                "rentalRate": 200.0
+                "rentalRate": 4.99
             }
             """;
 
-    mockMvc.perform(MockMvcRequestBuilders.patch("/api/films/" + savedFilmId)
+    mockMvc.perform(MockMvcRequestBuilders.patch("/films/" + savedFilmId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(patchJson))
             .andExpect(status().isNoContent());
@@ -126,7 +132,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
 
     @Test
     void shouldSearchFilmByTitle() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/search/byTitle")
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "Inception"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.films").isArray());
@@ -134,7 +140,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
 
     @Test
     void shouldReturnEmptyListForUnknownTitle() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/films/search/byTitle")
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "xyzunknownfilm"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.films").isEmpty());

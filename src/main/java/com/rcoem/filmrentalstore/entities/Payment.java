@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -23,8 +24,9 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Short paymentId;
-    @Column(columnDefinition = "DECIMAL",nullable = false)
-    private Double amount;
+
+    @Column(nullable = false, precision = 4, scale = 2)
+    private BigDecimal amount;
 
     @CreationTimestamp
     private LocalDateTime paymentDate;
@@ -44,10 +46,4 @@ public class Payment {
     @ManyToOne
     @JoinColumn(name = "customer_id",nullable = false)
     private Customer customer;
-
-    public Payment(double amount, LocalDateTime now, Staff staff, Customer customer) {
-        this.amount = amount;
-        this.staff = staff;
-        this.customer = customer;
-    }
 }

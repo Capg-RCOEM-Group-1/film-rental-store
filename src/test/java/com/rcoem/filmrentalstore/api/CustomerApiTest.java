@@ -1,6 +1,5 @@
 package com.rcoem.filmrentalstore.api;
 
-
 import com.rcoem.filmrentalstore.entities.Address;
 import com.rcoem.filmrentalstore.entities.Customer;
 import com.rcoem.filmrentalstore.entities.Store;
@@ -17,10 +16,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -28,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional //rolls back DB changes after each test
+@Transactional // rolls back DB changes after each test
 public class CustomerApiTest {
 
     @Autowired
@@ -53,16 +50,17 @@ public class CustomerApiTest {
 
     @BeforeEach
     public void setup() {
-//        customerRepository.deleteAll();
         testTimestamp = Timestamp.from(Instant.now());
         address = addressRepository.findById((short) 5L).orElse(null);
         store = storeRepository.findById((byte) 1L).orElse(null);
-        Customer customer = new Customer("Tom", "Hanks", "tom@email.com", store,address);
-        testCustomer = customerRepository.save(customer);
+        Customer customer = new Customer("Tom", "Hanks", "tom@email.com", store, address);
+
+        // FIX 1: Use saveAndFlush so custom repository queries (like findByFirstName)
+        // can see the newly created record in the database immediately.
+        testCustomer = customerRepository.saveAndFlush(customer);
     }
 
-
-    //get all and get by id
+    // get all and get by id
 
     @Test
     public void testGetAllCustomers() throws Exception {
@@ -90,15 +88,17 @@ public class CustomerApiTest {
                 .andExpect(status().isBadRequest()); // Expect 400
     }
 
-
-    //search endpoints
+    // search endpoints
 
     @Test
     public void testSearchByFirstName_Valid() throws Exception {
         mockMvc.perform(get("/customers/search/findByFirstName")
                         .param("firstName", "Tom"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.customers[0].firstName").value("Tom"));
+                // Check index 0 for the pre-existing DB record
+                .andExpect(jsonPath("$._embedded.customers[0].name").value("TOM MILNER"))
+                // Check index 1 for the record created in @BeforeEach
+                .andExpect(jsonPath("$._embedded.customers[1].name").value("Tom Hanks"));
     }
 
     @Test
@@ -117,17 +117,19 @@ public class CustomerApiTest {
                 .andExpect(jsonPath("$._embedded.customers").exists());
     }
 
-
-    //POST
+    // POST
 
     @Test
     public void testCreateCustomer_Valid() throws Exception {
-        // Removed createDate and lastUpdate. Let the database generate them!
+        // FIX 2: Added store and address resource URIs to fulfill database constraints.
+        // Without these, Spring Data REST returns a 409 Conflict.
         String newCustomerJson = """
             {
                 "firstName": "Jerry",
                 "lastName": "Seinfeld",
-                "email": "jerry@email.com"
+                "email": "jerry@email.com",
+                "store": "/stores/1",
+                "address": "/addresses/5"
             }
             """;
 
@@ -139,11 +141,14 @@ public class CustomerApiTest {
 
     @Test
     public void testCreateCustomer_MissingFirstName_BadRequest() throws Exception {
-        // Omitting firstName to trigger @NotNull constraint violation
+        // Included store and address here as well so the test fails for the RIGHT reason
+        // (missing firstName) rather than missing associations.
         String badCustomerJson = """
             {
                 "lastName": "Seinfeld",
-                "email": "jerry@email.com"
+                "email": "jerry@email.com",
+                "store": "/stores/1",
+                "address": "/addresses/5"
             }
             """;
 
@@ -153,8 +158,7 @@ public class CustomerApiTest {
                 .andExpect(status().isBadRequest()); // Expect 400
     }
 
-
-    //PATCH/PUT
+    // PATCH/PUT
 
     @Test
     public void testUpdateCustomerWithPatch_Valid() throws Exception {
@@ -180,8 +184,7 @@ public class CustomerApiTest {
                 .andExpect(status().isNotFound()); // Expect 404
     }
 
-
-    //DELETE
+    // DELETE
 
     @Test
     public void testDeleteCustomer_Valid() throws Exception {

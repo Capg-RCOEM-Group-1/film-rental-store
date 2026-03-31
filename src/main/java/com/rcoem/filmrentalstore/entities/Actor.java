@@ -1,5 +1,8 @@
 package com.rcoem.filmrentalstore.entities;
+import java.sql.Timestamp;
 import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.*;
 
@@ -29,7 +32,12 @@ public class Actor {
     private String lastName;
 
     @ManyToMany(mappedBy = "actors")
-@JsonIgnore
+    @JsonIgnore
     private List<Film> films;
+
+     @CreationTimestamp
+    @Column( name = "last_update", nullable = false,columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private Timestamp lastUpdate;
+
 
 }
