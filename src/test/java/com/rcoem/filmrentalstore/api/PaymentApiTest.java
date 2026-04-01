@@ -105,4 +105,15 @@ public class PaymentApiTest {
                 .andExpect(jsonPath("$._embedded.payments").exists())
                 .andExpect(jsonPath("$.page").exists()); // Check for pagination metadata
     }
+    @Test
+void debugPaymentResponse() throws Exception {
+    mockMvc.perform(get("/payments/search/findPaymentsByStaff_Store_StoreId")
+                    .param("storeId", store.getStoreId().toString())
+                    .param("page", "0")
+                    .param("size", "1"))
+            .andExpect(status().isOk())
+            .andDo(result -> System.out.println(
+                "RESPONSE: " + result.getResponse().getContentAsString()
+            ));
+}
 }
