@@ -28,5 +28,8 @@ public interface FilmRepository extends JpaRepository<Film, Short> {
             Pageable pageable
     );
 
-}
+    @RestResource(path = "byCategoryId")
+    @Query("SELECT f FROM Film f JOIN f.categories c WHERE c.categoryId = :categoryId")
+    Page<Film> findByCategoryId(@Param("categoryId") Byte categoryId, Pageable pageable);
 
+}
