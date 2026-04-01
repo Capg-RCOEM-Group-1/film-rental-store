@@ -15,7 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class LanguageFilmApiTest {
 
     @Autowired
@@ -39,14 +42,11 @@ public class LanguageFilmApiTest {
     private Language lang;
     @BeforeEach
     void setup(){
-        //filmCategoryRepo.deleteAll();
-        filmRepo.deleteAll();
-        languageRepo.deleteAll();
 
         lang = new Language();
         lang.setName("English");
         languageRepo.save(lang);
-        film = new Film("Top Gun","*",2004,2,500.0,3,30.0, Rating.PG_13, new HashSet<>(),lang,lang, Timestamp.valueOf(LocalDateTime.now()));
+        film = new Film("Top Gun","*",2004,2, BigDecimal.valueOf(50.00),3,BigDecimal.valueOf(300.00), Rating.PG_13, new HashSet<>(),lang,lang, Timestamp.valueOf(LocalDateTime.now()));
         filmRepo.save(film);
     }
 

@@ -93,13 +93,13 @@ class PaymentSearchApiTest {
     void shouldReturnPaymentSummaryByStaffUsername() throws Exception {
         Staff staff = createAndSaveStaff("jdoe");
         Customer customer = createAndSaveCustomer("Jane", "Smith");
-        savePayment(100.50, staff, customer);
+        savePayment(99.50, staff, customer);
 
         mockMvc.perform(get("/payments/search/findByStaff_Username")
                         .param("username", "jdoe")
                         .param("projection", "paymentSummary"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.payments[0].amount").value(100.5))
+                .andExpect(jsonPath("$._embedded.payments[0].amount").value(99.5))
                 // Note: Ensure your PaymentSummary projection has a getCustomerName()
                 // that concatenates customer.firstName + lastName
                 .andExpect(jsonPath("$._embedded.payments[0].customerName").exists())

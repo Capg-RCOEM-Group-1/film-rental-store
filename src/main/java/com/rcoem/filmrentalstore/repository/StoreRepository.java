@@ -1,12 +1,18 @@
 package com.rcoem.filmrentalstore.repository;
 
+import com.rcoem.filmrentalstore.dto.StoreSummary;
 import com.rcoem.filmrentalstore.entities.Address;
+import com.rcoem.filmrentalstore.entities.Staff;
 import com.rcoem.filmrentalstore.entities.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import java.util.Optional;
+import java.util.List;
 
-public interface StoreRepository extends JpaRepository<Store,Byte> {
+@RepositoryRestResource(path = "stores", excerptProjection = StoreSummary.class)
+public interface StoreRepository extends JpaRepository<Store, Byte> {
 
-    Optional<Store> findByAddress(Address testAddress);
+    List<Store> findByAddress(Address address);
+
+    List<Store> findByManager(Staff manager);
 }

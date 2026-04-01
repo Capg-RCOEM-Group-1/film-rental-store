@@ -6,6 +6,7 @@ import org.springframework.data.rest.core.config.Projection;
 
 @Projection(name = "customerDetailsProjection", types = {Customer.class})
 public interface CustomerDetails {
+    String getCustomerId();
     @Value("#{target.firstName + ' ' + target.lastName}")
     String getName();
 

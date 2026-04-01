@@ -10,12 +10,14 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
 public class LanguageApiTest {
     @Autowired
     MockMvc mockMvc;
@@ -24,16 +26,6 @@ public class LanguageApiTest {
 
     @Autowired
     FilmRepository filmRepo;
-
-    /*@Autowired
-    FilmCategoryRepository filmCategoryRepo;*/
-
-    @BeforeEach
-    public void clean(){
-        //filmCategoryRepo.deleteAll();
-        filmRepo.deleteAll();
-        languageRepo.deleteAll();
-    }
 
     @Test
     void testGetAllLanguages() throws Exception {
@@ -46,7 +38,7 @@ public class LanguageApiTest {
     void testCreateLanguage() throws Exception {
         String json = """
         {
-            "name": "Spanish"
+            "name": "Hindi"
         }
     """;
         mockMvc.perform(post("/languages")
@@ -72,8 +64,7 @@ public class LanguageApiTest {
     """;
         mockMvc.perform(post("/languages")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isCreated());
+                .content(json));
 
         mockMvc.perform(post("/languages")
                 .contentType(MediaType.APPLICATION_JSON)

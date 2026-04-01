@@ -1,9 +1,11 @@
 package com.rcoem.filmrentalstore.entities;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.List;
 
+import com.rcoem.filmrentalstore.converter.EnumConverter;
 import com.rcoem.filmrentalstore.converter.SpecialFeatureConverter;
 import com.rcoem.filmrentalstore.enums.Rating;
 import com.rcoem.filmrentalstore.enums.Set;
@@ -15,8 +17,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import lombok.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Film {
+    @Column(precision = 5, scale = 2)
+    private BigDecimal replacementCost;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Short filmId;
@@ -32,15 +37,13 @@ public class Film {
     @Column(nullable = false)
     private Integer rentalDuration;
 
-    @Column(nullable = false, columnDefinition = "DECIMAL(4,2)")
-    private Double rentalRate;
-
     private Integer length;
 
-    @Column(nullable = false, columnDefinition = "DECIMAL")
-    private Double replacementCost;
+    @Column(nullable = false, precision = 4, scale = 2)
+    private BigDecimal rentalRate;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = EnumConverter.class)
+    @Column(columnDefinition = "enum('G','PG','PG-13','R','NC-17')")
     private Rating rating;
 
     @Convert(converter = SpecialFeatureConverter.class)
@@ -56,13 +59,24 @@ public class Film {
     private Language originalLanguage;
 
     @CreationTimestamp
-    @Column( name = "last_update", nullable = false,columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "last_update", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp lastUpdate;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinTable(name = "film_actor", joinColumns = @JoinColumn(name = "film_id"), inverseJoinColumns = @JoinColumn(name = "actor_id"))
+    private List<Actor> actors;
 
-    public Film(){}
+    @ManyToMany(mappedBy = "films")
+    List<Category> categories;
 
-    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate, Integer length, Double replacementCost, Rating rating, HashSet<Set> specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
+    public Film() {
+    }
+
+    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, Double rentalRate,
+            Integer length, Double replacementCost, String rating, String specialFeatures, Timestamp lastUpdate) {
+    }
+
+    public Film(String title, String description, Integer releaseYear, Integer rentalDuration, BigDecimal rentalRate, Integer length, BigDecimal replacementCost, Rating rating, HashSet<Set> specialFeatures, Language language, Language originalLanguage, Timestamp lastUpdate) {
         this.title = title;
         this.description = description;
         this.releaseYear = releaseYear;
@@ -80,14 +94,4 @@ public class Film {
     @OneToMany(mappedBy = "film")
     private List<Inventory> inventories;
 
-    @ManyToMany
-@JoinTable(
-    name = "film_actor",
-    joinColumns = @JoinColumn(name = "film_id"),
-    inverseJoinColumns = @JoinColumn(name = "actor_id")
-)
-private List<Actor> actors;
-
-    @ManyToMany(mappedBy = "films")
-    List<Category> categories;
 }
