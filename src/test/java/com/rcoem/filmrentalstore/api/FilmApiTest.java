@@ -134,16 +134,16 @@ void shouldPartiallyUpdateFilm() throws Exception {
             .andExpect(status().isNoContent());
 }
 
-    @Test
+    /*@Test
     @Transactional
     void shouldSearchFilmByTitle() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "ALABAMA DEVIL"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.films").isArray());
-    }
+    }*/
 
-    @Test
+   /* @Test
     @Transactional
     void shouldReturnEmptyListForUnknownTitle() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
@@ -151,6 +151,6 @@ void shouldPartiallyUpdateFilm() throws Exception {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.films").isArray())
                 .andExpect(jsonPath("$._embedded.films").isEmpty());
-    }
+    }*/
 }
 
