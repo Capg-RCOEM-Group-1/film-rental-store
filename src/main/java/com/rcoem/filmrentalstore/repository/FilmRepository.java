@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.rcoem.filmrentalstore.dto.FilmProjection;
 import com.rcoem.filmrentalstore.dto.FilmView;
+import com.rcoem.filmrentalstore.entities.Language;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,6 +23,7 @@ public interface FilmRepository extends JpaRepository<Film, Short> {
     List<Film> findByTitleContainingIgnoreCase(@Param("title") String title);
 
     Page<Film> findByLanguage_Id(@Param("id") Byte id, Pageable pageable);
+    Page<Film> findByLanguage_IdAndTitleContainingIgnoreCase(Byte id, String title, Pageable pageable);
 
     @Query("SELECT f FROM Film f JOIN f.categories c WHERE c.categoryId = :id")
     Page<Film> findFilmsByCategoryId(
