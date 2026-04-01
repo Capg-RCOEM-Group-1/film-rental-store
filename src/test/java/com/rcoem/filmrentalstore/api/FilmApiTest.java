@@ -26,7 +26,7 @@ import java.util.HashSet;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
+
 class FilmApiTest {
 
     @Autowired
@@ -38,16 +38,18 @@ class FilmApiTest {
     @Autowired
     private LanguageRepository languageRepository;
 
-    private Short savedFilmId;
-    private Byte savedLanguageId;
+    private Film savedFilm;
+    private Language savedLanguage;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
+        // 1. Create and save Language
         Language language = new Language();
         language.setName("English");
-        Language savedLanguage = languageRepository.save(language);
-        savedLanguageId = savedLanguage.getId();
+        // Use saveAndFlush if using JpaRepository to ensure it's in the DB immediately
+        savedLanguage = languageRepository.saveAndFlush(language);
 
+        // 2. Create and save Film
         Film film = new Film();
         film.setTitle("Inception");
         film.setDescription("A mind-bending thriller");
@@ -57,35 +59,42 @@ class FilmApiTest {
         film.setLength(148);
         film.setReplacementCost(BigDecimal.valueOf(19.99));
         film.setRating(Rating.PG_13);
-        film.setSpecialFeatures(new HashSet<>());
-        film.getSpecialFeatures().add(Set.BEHIND_THE_SCENES);
+
+        // Ensure the Set is initialized
+        HashSet<Set> features = new HashSet<>();
+        features.add(Set.BEHIND_THE_SCENES);
+        film.setSpecialFeatures(features);
+
         film.setLanguage(savedLanguage);
         film.setLastUpdate(new Timestamp(System.currentTimeMillis()));
-        Film savedFilm = filmRepository.save(film);
-        savedFilmId = savedFilm.getFilmId();
+
+        savedFilm = filmRepository.saveAndFlush(film);
     }
 
-
     @Test
+    @Transactional
     void shouldReturnAllFilms() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films"))
                 .andExpect(status().isOk());
     }
 
     @Test
+    @Transactional
     void shouldReturnFilmById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilmId))
+        mockMvc.perform(MockMvcRequestBuilders.get("/films/" + savedFilm.getFilmId()))
                 .andDo(print()) 
                 .andExpect(status().isOk());
     }
 
     @Test
+    @Transactional
     void shouldReturnNotFoundForInvalidFilmId() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/32767"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
+    @Transactional
     void shouldCreateFilm() throws Exception {
         String filmJson = """
                 {
@@ -99,7 +108,7 @@ class FilmApiTest {
                     "rating": "PG",
                     "language": "http://localhost/languages/%d"
                 }
-                """.formatted(savedLanguageId);
+                """.formatted(savedLanguage.getId());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -107,22 +116,24 @@ class FilmApiTest {
                 .andExpect(status().isCreated());
     }
 
-    @Test
-    void shouldPartiallyUpdateFilm() throws Exception {
+@Test
+@Transactional
+void shouldPartiallyUpdateFilm() throws Exception {
         String patchJson = """
-                {
-                    "title": "Inception Updated",
-                    "rentalRate": 4.99
-                }
-                """;
+            {
+                "title": "Inception Updated",
+                "rentalRate": 4.99
+            }
+            """;
 
-    mockMvc.perform(MockMvcRequestBuilders.patch("/films/" + savedFilmId)
+    mockMvc.perform(MockMvcRequestBuilders.patch("/films/" +savedFilm.getFilmId())
             .contentType(MediaType.APPLICATION_JSON)
             .content(patchJson))
             .andExpect(status().isNoContent());
 }
 
     @Test
+    @Transactional
     void shouldSearchFilmByTitle() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "Inception"))
@@ -131,10 +142,12 @@ class FilmApiTest {
     }
 
     @Test
+    @Transactional
     void shouldReturnEmptyListForUnknownTitle() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
                 .param("title", "xyzunknownfilm"))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$._embedded.films").isArray())
                 .andExpect(jsonPath("$._embedded.films").isEmpty());
     }
 }

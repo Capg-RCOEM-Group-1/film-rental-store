@@ -17,17 +17,20 @@ import java.util.Optional;
 
 @RepositoryRestResource(excerptProjection = CustomerDetails.class)
 public interface CustomerRepository extends JpaRepository<Customer, Short> {
-    Page<Customer> findByFirstName(String firstName, Pageable pageable);
+    Page<Customer> findByFirstNameIgnoreCase(String firstName, Pageable pageable);
     Page<Customer> findByLastName(String lastName, Pageable pageable);
     Optional<Customer> findByEmail(String email);
     Page<Customer> findByActive(Boolean status, Pageable pageable);
     Page<Customer> findByCreateDate(LocalDateTime createDate, Pageable pageable);
 
     @RestResource(path = "search-all", rel = "search-all")
-    @Query("SELECT c FROM Customer c JOIN c.address a WHERE " +
+    @Query("SELECT c FROM Customer c LEFT JOIN c.address a WHERE " +
             "LOWER(c.firstName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(c.lastName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(CONCAT(c.firstName, ' ', c.lastName)) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(c.email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(a.address) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+            "LOWER(a.address) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(a.district) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(a.postalCode) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Customer> searchGlobal(@Param("keyword") String keyword, Pageable pageable);
 }
