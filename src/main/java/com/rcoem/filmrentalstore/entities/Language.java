@@ -23,8 +23,8 @@ public class Language {
     @Column(name = "last_update", columnDefinition = "TIMESTAMP",nullable = false)
     @UpdateTimestamp
     private LocalDateTime lastUpdate;
-    @OneToMany(mappedBy = "language")
+    @OneToMany(mappedBy = "language",fetch = FetchType.LAZY)
     List<Film> films;
-    @OneToMany(mappedBy = "originalLanguage")
+    @OneToMany(mappedBy = "originalLanguage",fetch = FetchType.LAZY)
     List<Film> originalLanguageFilms;
 }
