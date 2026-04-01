@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Category Management</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f8f9fa; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; }
+        th { background-color: #f1f3f5; }
+        tr.clickable-row:hover { background-color: #f8f9fa; cursor: pointer; }
+        .controls { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .btn { padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; font-weight: 500; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 15% auto; padding: 20px; border-radius: 8px; width: 300px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Category Management</h2>
+    <div class="controls">
+        <button class="btn btn-primary" onclick="showModal()">+ Add New Category</button>
+        <input type="text" id="searchInput" placeholder="Search by name..." onkeyup="handleSearch()" style="padding: 8px; width: 250px; border: 1px solid #ccc; border-radius: 4px;">
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Category Name</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="category-table-body"></tbody>
+    </table>
+
+    <div id="pagination" style="margin-top: 20px; display: flex; justify-content: space-between;">
+        <span id="page-info"></span>
+        <div id="page-buttons"></div>
+    </div>
+</div>
+
+<div id="categoryModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">Add Category</h3>
+        <input type="hidden" id="editCategoryId">
+        <input type="text" id="categoryNameInput" placeholder="Enter name" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="btn" onclick="hideModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveCategory()">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentKeyword = '';
+    const PAGE_SIZE = 10;
+
+    document.addEventListener('DOMContentLoaded', () => fetchCategories(0));
+
+    function handleSearch() {
+        currentKeyword = document.getElementById('searchInput').value;
+        fetchCategories(0);
+    }
+
+    async function fetchCategories(page) {
+        try {
+            // Use root-relative path to avoid 404s
+            let url = currentKeyword
+                ? `/categories/search/byName?name=${currentKeyword}&page=${page}&size=${PAGE_SIZE}`
+                : `/categories?page=${page}&size=${PAGE_SIZE}`;
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            // Match Spring Data REST structure
+            const categories = data._embedded ? data._embedded.categories : [];
+
+            const tbody = document.getElementById('category-table-body');
+            tbody.innerHTML = categories.map(cat => `
+                <tr class="clickable-row">
+                    <td>${cat.categoryId}</td>
+                    <td>${cat.name}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="viewFilms(${cat.categoryId}, '${cat.name}')">View Films</button>
+                        <button class="btn" onclick="showModal(${cat.categoryId}, '${cat.name}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteCategory(${cat.categoryId})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            updatePagination(data.page);
+        } catch (error) {
+            console.error("Error loading categories:", error);
+        }
+    }
+
+    function viewFilms(id, name) {
+        window.location.href = `/pratham/categories/films?categoryId=${id}&name=${encodeURIComponent(name)}`;
+    }
+
+    async function saveCategory() {
+        const id = document.getElementById('editCategoryId').value;
+        const name = document.getElementById('categoryNameInput').value;
+        const method = id ? 'PATCH' : 'POST';
+        const url = id ? `/categories/${id}` : '/categories';
+
+        await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name })
+        });
+        hideModal();
+        fetchCategories(0);
+    }
+
+    async function deleteCategory(id) {
+        if (confirm('Are you sure?')) {
+            await fetch(`/categories/${id}`, { method: 'DELETE' });
+            fetchCategories(0);
+        }
+    }
+
+    function showModal(id = '', name = '') {
+        document.getElementById('editCategoryId').value = id;
+        document.getElementById('categoryNameInput').value = name;
+        document.getElementById('modalTitle').innerText = id ? 'Edit Category' : 'Add Category';
+        document.getElementById('categoryModal').style.display = 'block';
+    }
+
+    function hideModal() { document.getElementById('categoryModal').style.display = 'none'; }
+
+    function updatePagination(page) {
+        document.getElementById('page-info').innerText = `Page ${page.number + 1} of ${page.totalPages}`;
+        document.getElementById('page-buttons').innerHTML = `
+            <button class="btn" ${page.number === 0 ? 'disabled' : ''} onclick="fetchCategories(${page.number - 1})">Prev</button>
+            <button class="btn" ${page.number === page.totalPages - 1 ? 'disabled' : ''} onclick="fetchCategories(${page.number + 1})">Next</button>
+        `;
+    }
+</script>
+</body>
+</html>
