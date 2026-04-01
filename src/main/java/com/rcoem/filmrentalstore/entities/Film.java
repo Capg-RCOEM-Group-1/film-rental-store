@@ -50,11 +50,11 @@ public class Film {
     @Column(name = "special_features")
     private HashSet<Set> specialFeatures;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "language_id", nullable = false)
     private Language language;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "original_language_id", nullable = true)
     private Language originalLanguage;
 
@@ -91,7 +91,7 @@ public class Film {
         this.lastUpdate = lastUpdate;
     }
 
-    @OneToMany(mappedBy = "film")
+    @OneToMany(mappedBy = "film",fetch = FetchType.LAZY)
     private List<Inventory> inventories;
 
 }
