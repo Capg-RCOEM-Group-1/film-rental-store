@@ -2,6 +2,7 @@ package com.rcoem.filmrentalstore.repository;
 
 import java.util.List;
 
+import com.rcoem.filmrentalstore.dto.FilmProjection;
 import com.rcoem.filmrentalstore.dto.FilmView;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import com.rcoem.filmrentalstore.entities.Film;
 
 
-@RepositoryRestResource
+@RepositoryRestResource(excerptProjection = FilmProjection.class)
 public interface FilmRepository extends JpaRepository<Film, Short> {
 
     @RestResource(path = "byTitle")
