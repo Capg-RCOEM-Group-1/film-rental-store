@@ -12,12 +12,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional // Added to keep tests isolated and clean
+@Transactional
 public class PaymentApiTest {
 
     @Autowired
@@ -26,12 +31,41 @@ public class PaymentApiTest {
     @Autowired
     private StoreRepository storeRepository;
 
+    @Autowired
+    private StaffRepository staffRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
     private Store store;
+    private Payment testPayment;
 
     @BeforeEach
     public void setup() {
-        // Fetch an existing store from the Sakila DB to use for search queries
+        // 1. Fetch dependencies needed to create a payment
+        // We assume at least one store, staff, and customer exist in the test DB schema.
+        // If your test DB schema is completely empty, you must create these first!
         store = storeRepository.findAll().get(0);
+        Staff staff = staffRepository.findAll().get(0);
+        Customer customer = customerRepository.findAll().get(0);
+
+        // Ensure the staff is actually linked to the store we are searching for!
+        staff.setStore(store);
+        staffRepository.saveAndFlush(staff);
+
+        // 2. Create the dummy Payment
+        Payment payment = new Payment();
+        payment.setAmount(new BigDecimal("9.99"));
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setCustomer(customer);
+        payment.setStaff(staff);
+        // Note: You may need to set a Rental as well if your Entity constraints require it.
+
+        // 3. Save and flush so the API can see it
+        testPayment = paymentRepository.saveAndFlush(payment);
     }
 
     @Test
@@ -41,7 +75,8 @@ public class PaymentApiTest {
                         .param("storeId", store.getStoreId().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.payments").exists())
-                .andExpect(jsonPath("$._embedded.payments").isArray());
+                .andExpect(jsonPath("$._embedded.payments").isArray())
+                .andExpect(jsonPath("$._embedded.payments").isNotEmpty()); // Ensures it's not an empty array
     }
 
     @Test
@@ -50,7 +85,6 @@ public class PaymentApiTest {
         mockMvc.perform(get("/payments/search/findPaymentsByStaff_Store_StoreId")
                         .param("storeId", store.getStoreId().toString()))
                 .andExpect(status().isOk())
-                // Verify the field exists in the first element of the embedded list
                 .andExpect(jsonPath("$._embedded.payments[0].paymentDate").exists());
     }
 
@@ -60,10 +94,7 @@ public class PaymentApiTest {
         mockMvc.perform(get("/payments/search/findPaymentsByStaff_Store_StoreId")
                         .param("storeId", store.getStoreId().toString()))
                 .andExpect(status().isOk())
-                /* Note: In Spring Data REST, nested objects are often represented as 
-                   links unless using a specific projection. 
-                   If PaymentView includes 'staff', check for staff object. 
-                */
+                // Verify the HATEOAS link to the staff exists
                 .andExpect(jsonPath("$._embedded.payments[0]._links.staff").exists());
     }
 
@@ -80,11 +111,10 @@ public class PaymentApiTest {
     @Test
     @DisplayName("Verify invalid store ID returns empty embedded list")
     void testGetPaymentsByStore_InvalidStore() throws Exception {
-        // Using a high ID that shouldn't exist
         mockMvc.perform(get("/payments/search/findPaymentsByStaff_Store_StoreId")
-                        .param("storeId", "127")) 
+                        .param("storeId", "99999")) // Guaranteed not to exist
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.payments").isEmpty());
+                .andExpect(jsonPath("$._embedded.payments").isEmpty()); // Should be empty
     }
 
     @Test
@@ -103,17 +133,6 @@ public class PaymentApiTest {
         mockMvc.perform(get("/payments"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.payments").exists())
-                .andExpect(jsonPath("$.page").exists()); // Check for pagination metadata
+                .andExpect(jsonPath("$.page").exists());
     }
-    @Test
-void debugPaymentResponse() throws Exception {
-    mockMvc.perform(get("/payments/search/findPaymentsByStaff_Store_StoreId")
-                    .param("storeId", store.getStoreId().toString())
-                    .param("page", "0")
-                    .param("size", "1"))
-            .andExpect(status().isOk())
-            .andDo(result -> System.out.println(
-                "RESPONSE: " + result.getResponse().getContentAsString()
-            ));
-}
 }
