@@ -26,15 +26,15 @@ public class Rental {
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private Timestamp lastUpdate;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inventory_id",nullable = false)
     private Inventory inventory;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id",nullable = false)
     private Customer customer;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "staff_id",nullable = false)
     private Staff staff;
 

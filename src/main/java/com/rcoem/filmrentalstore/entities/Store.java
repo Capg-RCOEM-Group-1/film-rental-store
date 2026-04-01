@@ -1,5 +1,6 @@
 package com.rcoem.filmrentalstore.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -28,10 +29,12 @@ public class Store {
         this.storeId = storeId;
     }
 
-    @OneToMany(mappedBy = "store")
+    @OneToMany(mappedBy = "store",fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Staff> staffs;
 
-    @OneToMany(mappedBy = "store")
+    @OneToMany(mappedBy = "store",fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Inventory> inventories;
 
 
