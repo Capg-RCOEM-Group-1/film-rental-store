@@ -136,7 +136,7 @@ void shouldPartiallyUpdateFilm() throws Exception {
     @Transactional
     void shouldSearchFilmByTitle() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byTitle")
-                .param("title", "Inception"))
+                .param("title", "ALABAMA DEVIL"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.films").isArray());
     }

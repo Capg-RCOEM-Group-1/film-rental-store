@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Films in Category</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f7f6; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 25px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        .pagination { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+        .pagination button { padding: 8px 16px; cursor: pointer; border: 1px solid #ddd; background: white; }
+        .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/pratham/categories" style="text-decoration: none; color: #007bff;">&larr; Back to Categories</a>
+    <h2 th:text="'Films in ' + ${categoryName}">Category Films</h2>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Release Year</th>
+            <th>Rating</th>
+            <th>Rental Rate</th>
+        </tr>
+        </thead>
+        <tbody id="film-table-body">
+        <tr><td colspan="4">Loading films...</td></tr>
+        </tbody>
+    </table>
+
+    <div class="pagination" id="pagination"></div>
+</div>
+
+<script th:inline="javascript">
+    const categoryName = /*[[${categoryName}]]*/ "";
+    const categoryId = /*[[${categoryId}]]*/ "";
+
+    let currentPage = 0;
+
+    async function fetchFilms(pageNumber = 0) {
+        try {
+            const PAGE_SIZE = 10;
+            const url = `/api/films/byCategory?categoryId=${categoryId}&page=${pageNumber}&size=${PAGE_SIZE}`;
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            const data = await response.json();
+
+            // Ensure data.content is an array before mapping
+            const films = data.content || [];
+
+            const tbody = document.getElementById('film-table-body');
+            if (films.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">No films found in this category.</td></tr>';
+                updatePaginationUI(null);
+                return;
+            }
+
+            tbody.innerHTML = films.map(film => `
+                <tr>
+                    <td>${film.title || 'N/A'}</td>
+                    <td>${film.releaseYear || 'N/A'}</td>
+                    <td>${film.rating || 'N/A'}</td>
+                    <td>$${film.rentalRate ? film.rentalRate.toFixed(2) : '0.00'}</td>
+                </tr>
+            `).join('');
+
+            currentPage = pageNumber;
+            updatePaginationUI(data);
+        } catch (error) {
+            console.error("Error loading films:", error);
+            document.getElementById('film-table-body').innerHTML =
+                `<tr><td colspan="4" style="color:red; text-align:center;">Failed to load films: ${error.message}</td></tr>`;
+        }
+    }
+
+    function updatePaginationUI(page) {
+        const paginationDiv = document.getElementById('pagination');
+
+        if (!page) {
+            paginationDiv.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+
+        if (page.number > 0) {
+            html += `<button onclick="fetchFilms(${page.number - 1})">← Previous</button>`;
+        }
+
+        html += `<span style="padding: 8px 16px;">Page ${page.number + 1} of ${page.totalPages}</span>`;
+
+        if (page.number < page.totalPages - 1) {
+            html += `<button onclick="fetchFilms(${page.number + 1})">Next →</button>`;
+        }
+
+        paginationDiv.innerHTML = html;
+    }
+
+    // FIX: Wrap the event listener to pass 0 instead of the Event object
+    document.addEventListener('DOMContentLoaded', () => fetchFilms(0));
+</script>
+</body>
+</html>
