@@ -27,6 +27,6 @@ public class Country {
     @Column(nullable = false, columnDefinition = "TIMESTAMP")
     @UpdateTimestamp
     private LocalDateTime lastUpdate;
-    @OneToMany(mappedBy = "country")
+    @OneToMany(mappedBy = "country",fetch = FetchType.LAZY)
     List<City> cities;
 }

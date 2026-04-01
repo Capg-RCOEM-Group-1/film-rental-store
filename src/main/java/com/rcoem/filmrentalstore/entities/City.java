@@ -28,7 +28,7 @@ public class City {
     private String city;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "country_id")
     private Country country;
 
@@ -37,7 +37,7 @@ public class City {
     private Timestamp lastUpdate;
 
 
-    @OneToMany(mappedBy = "city")
+    @OneToMany(mappedBy = "city",fetch = FetchType.LAZY)
     private List<Address> addresses;
 
 }
