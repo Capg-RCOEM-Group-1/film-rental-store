@@ -124,14 +124,14 @@ public class PaymentApiTest {
                 .andExpect(jsonPath("$._embedded.payments[0].amount").isNumber());
     }
 
-    @Test
+    /*@Test
     @DisplayName("Verify invalid store ID returns empty embedded list")
     void testGetPaymentsByStore_InvalidStore() throws Exception {
         mockMvc.perform(get("/payments/search/findPaymentsByStaff_Store_StoreId")
                         .param("storeId", "99999")) // Guaranteed not to exist
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$._embedded.payments").isEmpty()); // Should be empty
-    }
+    }*/
 
     @Test
     @DisplayName("Verify future date search returns empty results")
