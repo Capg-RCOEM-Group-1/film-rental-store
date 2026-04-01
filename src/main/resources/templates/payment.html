@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Store Payments</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .back-link { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #0056b3; font-weight: bold;}
+        .back-link:hover { text-decoration: underline; }
+        .total-row { font-weight: bold; background-color: #f9f9f9; }
+
+        /* Pagination Styles */
+        .pagination-container { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .pagination-controls button { padding: 8px 16px; margin: 0 5px; cursor: pointer; border: 1px solid #ccc; background-color: #f9f9f9; border-radius: 4px; }
+        .pagination-controls button:hover:not(:disabled) { background-color: #e9e9e9; }
+        .pagination-controls button:disabled { color: #aaa; cursor: not-allowed; }
+        .page-info { font-size: 0.9em; color: #555; }
+    </style>
+</head>
+<body>
+
+<a href="/stores" class="back-link">← Back to Store List</a>
+
+<h2 id="page-title">Payment Details</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Sr No</th>
+        <th>Date</th>
+        <th>Staff ID</th>
+        <th>Amount</th>
+        <th>Total Amount</th>
+    </tr>
+    </thead>
+    <tbody id="payments-table-body">
+    <tr><td colspan="5" id="loading-text">Loading payments...</td></tr>
+    </tbody>
+</table>
+
+<div class="pagination-container">
+    <div class="page-info" id="page-info"></div>
+    <div class="pagination-controls" id="pagination-controls"></div>
+</div>
+
+<script>
+    const PAGE_SIZE = 10;
+    let globalStoreId = null;
+    let runningTotal = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        globalStoreId = urlParams.get('storeId');
+        const storeName = urlParams.get('name');
+
+        if (storeName) {
+            document.getElementById('page-title').textContent = `Payment Details for ${storeName}`;
+        }
+
+        if (globalStoreId) {
+            fetchPayments(0);
+        } else {
+            document.getElementById('loading-text').textContent = 'Error: No Store ID provided in URL.';
+        }
+    });
+
+    async function fetchPayments(pageNumber) {
+        try {
+            const apiUrl = `/payments/search/findPaymentsByStaff_Store_StoreId?storeId=${globalStoreId}&page=${pageNumber}&size=${PAGE_SIZE}`;
+
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            const tbody = document.getElementById('payments-table-body');
+            tbody.innerHTML = '';
+
+            const payments = data._embedded ? data._embedded.payments : [];
+            const pageData = data.page;
+
+            if (payments.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No payments found for this store.</td></tr>';
+                updatePaginationUI(null);
+                return;
+            }
+
+            // calculate total for this page
+            runningTotal = 0;
+            payments.forEach(p => {
+                runningTotal += p.amount ? parseFloat(p.amount) : 0;
+            });
+
+            payments.forEach((payment, index) => {
+                const tr = document.createElement('tr');
+
+                const srNo = (pageData.number * pageData.size) + index + 1;
+                const date = payment.paymentDate ? new Date(payment.paymentDate).toLocaleString() : 'N/A';
+                const staffId = payment._links && payment._links.staff
+                    ? payment._links.staff.href.split('/').pop()
+                    : 'N/A';
+                const amount = payment.amount ? `$${parseFloat(payment.amount).toFixed(2)}` : '$0.00';
+
+                tr.innerHTML = `
+                    <td>${srNo}</td>
+                    <td>${date}</td>
+                    <td>${staffId}</td>
+                    <td>${amount}</td>
+                    <td></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // add total row at the bottom
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'total-row';
+            totalRow.innerHTML = `
+                <td colspan="3" style="text-align: right;">Page Total:</td>
+                <td></td>
+                <td>$${runningTotal.toFixed(2)}</td>
+            `;
+            tbody.appendChild(totalRow);
+
+            updatePaginationUI(pageData);
+
+        } catch (error) {
+            console.error("Error fetching payments:", error);
+            document.getElementById('payments-table-body').innerHTML =
+                '<tr><td colspan="5" style="color:red; text-align: center;">Failed to load payment data.</td></tr>';
+        }
+    }
+
+    function updatePaginationUI(pageData) {
+        const controlsDiv = document.getElementById('pagination-controls');
+        const infoDiv = document.getElementById('page-info');
+
+        if (!pageData) {
+            controlsDiv.innerHTML = '';
+            infoDiv.innerHTML = '';
+            return;
+        }
+
+        const currentPage = pageData.number;
+        const totalPages = pageData.totalPages;
+
+        infoDiv.textContent = `Showing page ${currentPage + 1} of ${totalPages} (Total: ${pageData.totalElements} payments)`;
+
+        let buttonsHtml = '';
+
+        if (currentPage > 0) {
+            buttonsHtml += `<button onclick="fetchPayments(${currentPage - 1})">Previous</button>`;
+        } else {
+            buttonsHtml += `<button disabled>Previous</button>`;
+        }
+
+        if (currentPage < totalPages - 1) {
+            buttonsHtml += `<button onclick="fetchPayments(${currentPage + 1})">Next</button>`;
+        } else {
+            buttonsHtml += `<button disabled>Next</button>`;
+        }
+
+        controlsDiv.innerHTML = buttonsHtml;
+    }
+</script>
+</body>
+</html>
