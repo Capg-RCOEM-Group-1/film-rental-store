@@ -45,26 +45,42 @@ public class PaymentApiTest {
 
     @BeforeEach
     public void setup() {
-        // 1. Fetch dependencies needed to create a payment
-        // We assume at least one store, staff, and customer exist in the test DB schema.
-        // If your test DB schema is completely empty, you must create these first!
-        store = storeRepository.findAll().get(0);
-        Staff staff = staffRepository.findAll().get(0);
-        Customer customer = customerRepository.findAll().get(0);
+        // 1. Safely fetch OR create a Store
+        store = storeRepository.findAll().stream().findFirst().orElseGet(() -> {
+            Store newStore = new Store();
+            // Add any @NotNull fields your Store entity requires here
+            return storeRepository.saveAndFlush(newStore);
+        });
 
-        // Ensure the staff is actually linked to the store we are searching for!
+        // 2. Safely fetch OR create a Staff
+        Staff staff = staffRepository.findAll().stream().findFirst().orElseGet(() -> {
+            Staff newStaff = new Staff();
+            newStaff.setFirstName("Test");
+            newStaff.setLastName("Staff");
+            newStaff.setStore(store); // Link to store
+            return staffRepository.saveAndFlush(newStaff);
+        });
+
+        // 3. Safely fetch OR create a Customer
+        Customer customer = customerRepository.findAll().stream().findFirst().orElseGet(() -> {
+            Customer newCustomer = new Customer();
+            newCustomer.setFirstName("Test");
+            newCustomer.setLastName("Customer");
+            return customerRepository.saveAndFlush(newCustomer);
+        });
+
+        // Ensure the staff is actually linked to the store we are searching for
         staff.setStore(store);
         staffRepository.saveAndFlush(staff);
 
-        // 2. Create the dummy Payment
+        // 4. Create the dummy Payment
         Payment payment = new Payment();
         payment.setAmount(new BigDecimal("9.99"));
         payment.setPaymentDate(LocalDateTime.now());
         payment.setCustomer(customer);
         payment.setStaff(staff);
-        // Note: You may need to set a Rental as well if your Entity constraints require it.
 
-        // 3. Save and flush so the API can see it
+        // 5. Save and flush so the API can see it
         testPayment = paymentRepository.saveAndFlush(payment);
     }
 
