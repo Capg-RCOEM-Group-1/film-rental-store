@@ -20,13 +20,6 @@ public class FilmCategoryApiTest {
     MockMvc mockMvc;
 
     @Test
-    void shouldReturnFilmById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byCategory?name=Action&size=5"))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
     void shouldReturnFilmByName() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/films/search/byCategory?name=Action&size=5"))
                 .andDo(print())
