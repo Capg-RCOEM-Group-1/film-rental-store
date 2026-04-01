@@ -25,7 +25,7 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Short paymentId;
 
-    @Column(nullable = false, precision = 4, scale = 2)
+    @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal amount;
 
     @CreationTimestamp
@@ -33,7 +33,7 @@ public class Payment {
 
     @UpdateTimestamp
     @Column(name = "last_update", columnDefinition = "TIMESTAMP")
-    private Timestamp last_update;
+    private Timestamp lastUpdate;
 
     @ManyToOne
     @JoinColumn(name = "staff_id",nullable = false)

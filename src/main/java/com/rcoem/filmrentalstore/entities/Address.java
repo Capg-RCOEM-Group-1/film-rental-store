@@ -1,5 +1,6 @@
 package com.rcoem.filmrentalstore.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -44,6 +45,7 @@ public class Address {
     private String phone;
 
     @NotNull
+    @JsonIgnore
     @Column(name = "location", columnDefinition = "GEOMETRY")
     private Point location;
 
