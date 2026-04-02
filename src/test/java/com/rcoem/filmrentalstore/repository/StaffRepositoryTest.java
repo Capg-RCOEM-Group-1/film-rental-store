@@ -26,7 +26,7 @@ public class StaffRepositoryTest {
     @DisplayName("Should return active staff members with pagination (Sakila Default)")
     public void testFindByActiveTrue() {
         // Sakila usually starts with 2 staff members, both active.
-        Page<Staff> activeStaffPage = staffRepository.findByActiveTrue(firstPage);
+        Page<Staff> activeStaffPage = staffRepository.findByActive(true,firstPage);
 
         // Then
         assertThat(activeStaffPage.getContent()).isNotEmpty();
@@ -37,7 +37,7 @@ public class StaffRepositoryTest {
     @DisplayName("Should return inactive staff members (Handling empty results)")
     public void testFindByActiveFalse() {
         // When
-        Page<Staff> inactiveStaffPage = staffRepository.findByActiveFalse(firstPage);
+        Page<Staff> inactiveStaffPage = staffRepository.findByActive(false,firstPage);
 
         // In a fresh Sakila DB, there are usually 0 inactive staff.
         // If your repo works, it should return an empty content list, not null.
@@ -64,7 +64,7 @@ public class StaffRepositoryTest {
     @DisplayName("Should reflect status change when staff is deactivated")
     public void testStatusChangeReflectedInPagination() {
         // 1. Grab an existing active staff member
-        Staff staff = staffRepository.findByActiveTrue(PageRequest.of(0, 1))
+        Staff staff = staffRepository.findByActive(true,PageRequest.of(0, 1))
                 .getContent().get(0);
 
         // 2. Deactivate them
@@ -72,7 +72,7 @@ public class StaffRepositoryTest {
         staffRepository.saveAndFlush(staff);
 
         // 3. Verify they show up in the inactive query
-        Page<Staff> inactiveStaff = staffRepository.findByActiveFalse(firstPage);
+        Page<Staff> inactiveStaff = staffRepository.findByActive(false,firstPage);
 
         assertThat(inactiveStaff.getContent())
                 .extracting(Staff::getStaffId)
