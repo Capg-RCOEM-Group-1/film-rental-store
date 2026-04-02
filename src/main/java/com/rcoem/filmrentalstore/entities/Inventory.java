@@ -17,17 +17,17 @@ public class Inventory {
     private Integer inventoryId;
 
     @UpdateTimestamp
-    @Column(columnDefinition = "TIMESTAMP", nullable = false, name = "last_update")
-    private Timestamp timestamp;
+    @Column(name = "last_update", columnDefinition = "TIMESTAMP")
+    private Timestamp lastUpdate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "film_id",nullable = false)
     private Film film ;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-    @OneToMany(mappedBy = "inventory")
+    @OneToMany(mappedBy = "inventory",fetch = FetchType.LAZY)
     List<Rental> rentals;
 }

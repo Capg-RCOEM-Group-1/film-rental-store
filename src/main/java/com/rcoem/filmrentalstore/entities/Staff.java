@@ -1,5 +1,6 @@
 package com.rcoem.filmrentalstore.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -40,10 +41,11 @@ public class Staff {
 
     private Blob picture;
 
-    @OneToMany(mappedBy = "staff")
+    @OneToMany(mappedBy = "staff",fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Payment> payments;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id",nullable = false)
     private Store store;
 
@@ -53,7 +55,7 @@ public class Staff {
         this.password = password;
     }
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id",nullable = false)
     private Address address;
 
