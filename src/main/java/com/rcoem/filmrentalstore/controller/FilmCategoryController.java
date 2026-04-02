@@ -28,7 +28,7 @@ public class FilmCategoryController {
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return filmRepository.findFilmsByCategoryId(categoryId, pageable)
+        return filmRepository.findByCategories_CategoryId(categoryId, pageable)
                 .map(film -> new FilmCategoryDTO(
                         film.getTitle(),
                         film.getReleaseYear(),

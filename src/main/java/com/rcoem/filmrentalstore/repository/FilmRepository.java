@@ -25,14 +25,6 @@ public interface FilmRepository extends JpaRepository<Film, Short> {
     Page<Film> findByLanguage_Id(@Param("id") Byte id, Pageable pageable);
     Page<Film> findByLanguage_IdAndTitleContainingIgnoreCase(Byte id, String title, Pageable pageable);
 
-    @Query("SELECT f FROM Film f JOIN f.categories c WHERE c.categoryId = :id")
-    Page<Film> findFilmsByCategoryId(
-            @Param("id") Byte id,
-            Pageable pageable
-    );
-
     @RestResource(path = "byCategoryId")
-    @Query("SELECT f FROM Film f JOIN f.categories c WHERE c.categoryId = :categoryId")
-    Page<Film> findByCategoryId(@Param("categoryId") Byte categoryId, Pageable pageable);
-
+    Page<Film> findByCategories_CategoryId(@Param("categoryId") Byte categoryId, Pageable pageable);
 }
