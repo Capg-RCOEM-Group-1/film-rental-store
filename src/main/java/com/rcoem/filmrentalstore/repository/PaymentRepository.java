@@ -21,9 +21,9 @@ import java.util.List;
 @RepositoryRestResource(excerptProjection = PaymentSummary.class)
 public interface PaymentRepository extends JpaRepository<Payment, Short> {
 
-    List<PaymentView> findByStaff_Store_StoreId(
+   /* List<PaymentView> findByStaff_Store_StoreId(
         @Param("storeId") Byte storeId
-    );
+    );*/
 
     List<PaymentView> findByStaff_Store_StoreIdAndPaymentDate(
         @Param("storeId") Byte storeId,

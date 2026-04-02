@@ -54,13 +54,13 @@ public class Address {
     private Timestamp lastUpdate;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
     private City city;
 
-    @OneToMany(mappedBy = "address")
+    @OneToMany(mappedBy = "address",fetch = FetchType.LAZY)
     private List<Customer> customers;
 
-    @OneToMany(mappedBy = "address")
+    @OneToMany(mappedBy = "address",fetch = FetchType.LAZY)
     private List<Staff> staffs;
 }
