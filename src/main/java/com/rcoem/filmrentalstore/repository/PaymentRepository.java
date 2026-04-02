@@ -41,7 +41,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Short> {
         @Param("paymentDate") LocalDateTime paymentDate
     );
 
-    List<Payment> findByStaff_Username(
-        @Param("username") String username
+    Page<Payment> findByStaff_Username(
+        @Param("username") String username, Pageable pageable
     );
 }
