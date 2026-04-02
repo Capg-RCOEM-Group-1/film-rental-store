@@ -38,7 +38,7 @@ public class LanguageApiTest {
     void testCreateLanguage() throws Exception {
         String json = """
         {
-            "name": "Hindi"
+            "name": "Roman"
         }
     """;
         mockMvc.perform(post("/languages")

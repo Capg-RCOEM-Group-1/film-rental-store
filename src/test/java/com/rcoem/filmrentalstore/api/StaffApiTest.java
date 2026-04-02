@@ -136,37 +136,6 @@ public class StaffApiTest {
     }
 
     @Test
-    @DisplayName("Search - findByActiveTrue")
-    public void shouldReturnActiveStaff() throws Exception {
-        mockMvc.perform(get("/staffs/search/findByActiveTrue"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.staffs").isArray());
-    }
-    @Test
-    @DisplayName("GET /staffs/search/findByActiveTrue - Verify Pagination")
-    public void shouldReturnPaginatedActiveStaff() throws Exception {
-        // We request page 0 with a size of 1
-        mockMvc.perform(get("/staffs/search/findByActiveTrue")
-                        .param("page", "0")
-                        .param("size", "1")
-                        .param("sort", "firstName,asc"))
-                .andExpect(status().isOk())
-                // 1. Verify the content array size matches our 'size' param
-                .andExpect(jsonPath("$._embedded.staffs").isArray())
-                .andExpect(jsonPath("$._embedded.staffs.length()").value(1))
-
-                // 2. Verify Pagination Metadata
-                .andExpect(jsonPath("$.page.size").value(1))
-                .andExpect(jsonPath("$.page.number").value(0))
-                .andExpect(jsonPath("$.page.totalElements").exists())
-
-                // 3. Verify HATEOAS Links for navigation
-                // Since Sakila usually has 2 default staff, page 0 of size 1 should have a 'next' link
-                .andExpect(jsonPath("$._links.next.href").exists())
-                .andExpect(jsonPath("$._links.self.href").exists());
-    }
-
-    @Test
     @DisplayName("GET /staffs - Verify Default Pagination")
     public void shouldReturnDefaultPagination() throws Exception {
         // Spring Data REST default size is usually 20

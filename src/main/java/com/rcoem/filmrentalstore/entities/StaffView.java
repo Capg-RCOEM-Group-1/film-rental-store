@@ -8,4 +8,5 @@ public interface StaffView {
     String getLastName();
     String getUsername();
     String getEmail();
+    Boolean getActive();
 }

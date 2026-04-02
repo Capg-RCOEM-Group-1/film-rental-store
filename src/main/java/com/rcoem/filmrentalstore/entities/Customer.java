@@ -48,13 +48,13 @@ public class Customer {
 //    @ManyToOne(optional = false) // optional=false enforces the NOT NULL at JPA level
 //    @JoinColumn(nullable = false)
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     private Store store;
 
 //    @ManyToOne(optional = false)
 //    @JoinColumn(nullable = false)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     private Address address;
 
